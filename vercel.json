@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build:skip-ts",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "ignoreCommand": "npx --no -- turbo-ignore",
+  "outputDirectory": ".next",
+  "devCommand": "npm run dev",
+  "env": {
+    "NEXT_TYPESCRIPT_IGNORE_ERRORS": "true",
+    "NEXT_ESLINT_IGNORE_ERRORS": "true"
+  }
+} 

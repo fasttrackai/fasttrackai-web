@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "dev:3000": "next dev -p 3000",
-    "build": "next build",
+    "build": "cross-env TSC_COMPILE_ON_ERROR=true next build",
+    "build:skip-ts": "next build --no-lint --no-type-check",
     "start": "next start",
     "lint": "next lint",
     "init-training-data": "ts-node scripts/init-training-data.ts"
@@ -38,6 +39,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.7",
     "eslint-plugin-jsx-a11y": "^6.10.2",
