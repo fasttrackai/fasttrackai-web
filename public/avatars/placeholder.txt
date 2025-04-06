@@ -1,0 +1,7 @@
+Add avatar images here with the following filenames:
+- sarah-chen.jpg
+- michael-rodriguez.jpg
+- lisa-thompson.jpg
+- james-wilson.jpg
+
+These images should be 200x200px square images for optimal display. 

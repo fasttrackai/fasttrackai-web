@@ -1,0 +1,7 @@
+Add blog images here with the following filenames:
+- ai-trends-2024.jpg
+- smb-ai-guide.jpg
+- ai-security.jpg
+- ai-roi.jpg
+
+These images should be 1200x800px for optimal display. 

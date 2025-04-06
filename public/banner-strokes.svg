@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1920" height="64" viewBox="0 0 1920 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="brush" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <g filter="url(#brush)">
+    <!-- Bottom flowing stroke - Purple -->
+    <path d="M0,32 C240,40 480,24 720,32 C960,40 1200,24 1440,32 C1680,40 1920,24 1920,32 L1920,64 L0,64 Z" 
+          fill="#9333EA" />
+    
+    <!-- Middle flowing stroke - Gold -->
+    <path d="M0,24 C240,16 480,32 720,24 C960,16 1200,32 1440,24 C1680,16 1920,32 1920,24" 
+          stroke="#FBBF24" stroke-width="3" fill="none"/>
+    
+    <!-- Top flowing stroke - White -->
+    <path d="M0,8 C240,16 480,0 720,8 C960,16 1200,0 1440,8 C1680,16 1920,0 1920,8" 
+          stroke="#FFFFFF" stroke-width="2" fill="none"/>
+    
+    <!-- Decorative accents - Gold -->
+    <g stroke="#FBBF24" stroke-width="2" fill="none">
+      <path d="M240,12 C244,8 248,16 252,12" />
+      <path d="M720,12 C724,8 728,16 732,12" />
+      <path d="M1200,12 C1204,8 1208,16 1212,12" />
+      <path d="M1680,12 C1684,8 1688,16 1692,12" />
+    </g>
+    
+    <!-- Decorative accents - White -->
+    <g stroke="#FFFFFF" stroke-width="2" fill="none">
+      <path d="M480,8 C484,4 488,12 492,8" />
+      <path d="M960,8 C964,4 968,12 972,8" />
+      <path d="M1440,8 C1444,4 1448,12 1452,8" />
+    </g>
+  </g>
+</svg> 

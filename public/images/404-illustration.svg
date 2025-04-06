@@ -1,0 +1,29 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="white"/>
+  
+  <!-- Background elements -->
+  <circle cx="150" cy="100" r="80" fill="#F3F4F6"/>
+  
+  <!-- 404 Text -->
+  <path d="M90 70V130H110V110H130V130H150V70H130V90H110V70H90Z" fill="#9333EA" opacity="0.8"/>
+  <path d="M170 70V90H190V130H210V90H230V70H170Z" fill="#9333EA" opacity="0.8"/>
+  <path d="M250 70V130H270V70H250Z" fill="#9333EA" opacity="0.8"/>
+  
+  <!-- Rocket -->
+  <g transform="translate(130, 150) rotate(-45)">
+    <rect x="-10" y="-5" width="20" height="30" rx="10" fill="#9333EA"/>
+    <path d="M-10 10L-20 20L-20 30L-10 20L-10 10Z" fill="#9333EA"/>
+    <path d="M10 10L20 20L20 30L10 20L10 10Z" fill="#9333EA"/>
+    <circle cx="0" cy="0" r="8" fill="#F3F4F6"/>
+    <circle cx="0" cy="0" r="4" fill="#9333EA"/>
+    <path d="M-10 25L-5 40L0 25L5 40L10 25Z" fill="#FDE68A"/>
+  </g>
+  
+  <!-- Stars -->
+  <circle cx="50" cy="40" r="3" fill="#9333EA" opacity="0.6"/>
+  <circle cx="80" cy="30" r="2" fill="#9333EA" opacity="0.6"/>
+  <circle cx="220" cy="50" r="3" fill="#9333EA" opacity="0.6"/>
+  <circle cx="250" cy="30" r="2" fill="#9333EA" opacity="0.6"/>
+  <circle cx="40" cy="160" r="2" fill="#9333EA" opacity="0.6"/>
+  <circle cx="260" cy="170" r="3" fill="#9333EA" opacity="0.6"/>
+</svg> 

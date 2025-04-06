@@ -1,0 +1,22 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rocket Icon -->
+  <g transform="translate(10, 10) scale(1.2)">
+    <path d="M20 5C20 5 15 5 10 10C5 15 5 20 5 20L10 25C10 25 15 25 20 20C25 15 25 10 25 10L20 5Z" fill="#9333EA" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="17.5" cy="12.5" r="2.5" fill="#FBBF24"/>
+    <path d="M5 20L10 25L5 30L0 25L5 20Z" fill="#9333EA" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M20 5L25 10L30 5L25 0L20 5Z" fill="#9333EA" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12.5 17.5L5 25" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M17.5 12.5L25 5" stroke="#9333EA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Text: FastTrack -->
+  <text x="50" y="30" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#9333EA">fast</text>
+  <text x="90" y="30" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#9333EA">track</text>
+  
+  <!-- Text: AI -->
+  <text x="150" y="30" font-family="Arial, sans-serif" font-weight="bold" font-size="20" fill="#FBBF24">ai</text>
+  
+  <!-- Accent Line -->
+  <path d="M50 35 L170 35" stroke="#9333EA" stroke-width="2" stroke-linecap="round"/>
+  <path d="M50 38 L170 38" stroke="#FBBF24" stroke-width="1" stroke-linecap="round"/>
+</svg> 

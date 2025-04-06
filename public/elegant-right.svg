@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="64" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="100%" y1="0%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#9333EA;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FBBF24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9333EA;stop-opacity:1" />
+    </linearGradient>
+    <!-- Elegant brush stroke effect -->
+    <filter id="brush" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <g fill="url(#grad2)" filter="url(#brush)">
+    <!-- Elegant flowing curves -->
+    <path d="M128,32 C112,24 104,40 88,32 C72,24 64,40 48,32 C32,24 24,40 0,32 L0,64 L128,64 Z" />
+    <path d="M128,16 C112,8 104,24 88,16 C72,8 64,24 48,16 C32,8 24,24 0,16" 
+          stroke="url(#grad2)" stroke-width="3" fill="none"/>
+    <!-- Decorative flourishes -->
+    <path d="M108,8 C104,4 100,12 96,8 M68,8 C64,4 60,12 56,8 M28,8 C24,4 20,12 16,8"
+          stroke="url(#grad2)" stroke-width="2" fill="none"/>
+  </g>
+</svg> 
