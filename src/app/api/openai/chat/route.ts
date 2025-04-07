@@ -19,20 +19,21 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
     console.log('Received messages:', JSON.stringify(messages)); // Log received messages
 
+    // Create OpenAI client with minimal configuration
     const openai = new OpenAI({
-      apiKey: apiKey,
-      baseURL: 'https://api.openai.com/v1'
+      apiKey,
+      dangerouslyAllowBrowser: true // Allow browser usage
     });
 
     console.log('Making OpenAI API request...'); // Log before API call
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Using a more reliable model for testing
+      model: "gpt-3.5-turbo", // Using a more reliable model
       messages: messages.map((m: ChatMessage) => ({
         role: m.role as 'system' | 'user' | 'assistant',
         content: m.content
       })),
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: 500 // Reduced for faster responses
     });
     console.log('OpenAI API request successful'); // Log after API call
 
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
       {
         headers: { 
           'Content-Type': 'application/json',
-          'Cache-Control': 'no-store' // Prevent caching
+          'Cache-Control': 'no-store'
         },
         status: 200
       }
@@ -75,7 +76,7 @@ export async function POST(req: Request) {
       {
         headers: { 
           'Content-Type': 'application/json',
-          'Cache-Control': 'no-store' // Prevent caching
+          'Cache-Control': 'no-store'
         },
         status: 200 // Keep 200 to prevent client-side issues
       }
