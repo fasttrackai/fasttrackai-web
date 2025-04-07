@@ -1,4 +1,4 @@
-import { openai } from "@ai-sdk/openai";
+import { OpenAI } from "openai";
 import { convertToCoreMessages, streamText } from "ai";
 import { NextResponse } from "next/server";
 import { mockChatMessages } from "@/lib/config/development";
@@ -10,6 +10,11 @@ interface ChatMessage {
   role: string;
   content: string;
 }
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
@@ -35,10 +40,18 @@ export async function POST(req: Request) {
       mockResponse = "I see. Do you currently collect and store digital data about your operations, customers, or processes? This is important for understanding your AI readiness.";
     }
     
-    // Return mocked streamed response
-    return new Response(mockResponse, {
+    // Create a ReadableStream to simulate streaming response
+    const stream = new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+        controller.enqueue(encoder.encode(mockResponse));
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'text/plain; charset=utf-8',
       },
     });
   }
@@ -46,16 +59,33 @@ export async function POST(req: Request) {
   // Use real OpenAI API
   try {
     console.log('Attempting to call OpenAI API...');
-    const result = await streamText({
-      model: openai("gpt-4"),
-      messages: convertToCoreMessages(messages),
-      system: "You are a helpful AI assistant that specializes in AI integration for businesses. You provide concise, practical advice on how AI can improve various business processes.",
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: messages,
       temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: 1000,
+      stream: true
     });
 
-    console.log('OpenAI API call successful');
-    return result.toDataStreamResponse();
+    // Convert the stream to text
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        for await (const chunk of completion) {
+          const content = chunk.choices[0]?.delta?.content;
+          if (content) {
+            controller.enqueue(encoder.encode(content));
+          }
+        }
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+    });
   } catch (error) {
     // Log detailed error information
     console.error('OpenAI API error details:', {
