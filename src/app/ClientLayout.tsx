@@ -251,7 +251,7 @@ export default function ClientLayout({
                 {/* Training Portal temporarily hidden, but available for future integration
                 <li><Link href="/training-portal" className="hover:text-gray-900 transition-colors">Training Portal</Link></li>
                 */}
-                <li><Link href="/strategy-report" className="hover:text-gray-900 transition-colors">AI Strategy Report</Link></li>
+                <li><Link href="/schedule-consultation?source=nav" className="hover:text-gray-900 transition-colors">AI Strategy Consultation</Link></li>
                 <li><Link href="/roi-calculator" className="hover:text-gray-900 transition-colors">ROI Calculator</Link></li>
               </ul>
             </div>
