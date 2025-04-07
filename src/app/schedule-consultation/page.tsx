@@ -77,25 +77,60 @@ export default function ScheduleConsultation() {
     setIsSubmitting(true);
     
     try {
-      // In a real implementation, this would call an API endpoint
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Send the form data to the backend API
+      const response = await fetch('/api/schedule-consultation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          appointmentDate: dateSelection.selectedDate,
+          appointmentTime: dateSelection.selectedTime,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to schedule consultation');
+      }
+      
       setIsSuccess(true);
     } catch (error) {
       console.error('Error scheduling consultation:', error);
+      alert('There was an error scheduling your consultation. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Generate available time slots for the next two weeks
+  const generateAvailableDates = () => {
+    const dates = [];
+    const today = new Date();
+    
+    // Skip weekends and generate dates for next two weeks
+    for (let i = 1; i <= 14; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      
+      // Skip weekends (0 = Sunday, 6 = Saturday)
+      if (date.getDay() !== 0 && date.getDay() !== 6) {
+        const dateString = date.toISOString().split('T')[0];
+        const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+        const displayDate = date.toLocaleDateString('en-US', options);
+        
+        dates.push({
+          date: dateString,
+          display: displayDate
+        });
+      }
+    }
+    
+    return dates.slice(0, 6); // Limit to 6 dates
+  };
+
   // Available time slots for demo
-  const availableDates = [
-    { date: '2023-11-15', display: 'Wed, Nov 15' },
-    { date: '2023-11-16', display: 'Thu, Nov 16' },
-    { date: '2023-11-17', display: 'Fri, Nov 17' },
-    { date: '2023-11-20', display: 'Mon, Nov 20' },
-    { date: '2023-11-21', display: 'Tue, Nov 21' },
-    { date: '2023-11-22', display: 'Wed, Nov 22' }
-  ];
+  const availableDates = generateAvailableDates();
 
   const availableTimes = [
     { time: '09:00', display: '9:00 AM' },
