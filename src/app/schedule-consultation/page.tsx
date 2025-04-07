@@ -22,6 +22,13 @@ const staggerContainer = {
   }
 };
 
+// Add Cal type declaration
+declare global {
+  interface Window {
+    Cal?: any;
+  }
+}
+
 export default function ScheduleConsultation() {
   const [formData, setFormData] = useState({
     name: '',
@@ -49,23 +56,38 @@ export default function ScheduleConsultation() {
   // Initialize Cal widget when it's shown
   useEffect(() => {
     if (showCalWidget && calendarRef.current) {
-      // @ts-ignore - Cal is added by the script
-      if (typeof window !== 'undefined' && window.Cal) {
-        try {
+      // Use the specific Cal.com configuration
+      try {
+        // Clean up any previous instances
+        if (typeof window !== 'undefined' && window.Cal) {
+          // Initialize Cal.com with FastTrack AI's specific configuration
           // @ts-ignore - Cal is added by the script
-          const cal = window.Cal.getOrCreateInstance();
-          cal.inline({
+          window.Cal("init", "consultation-fast-track-ai", {origin:"https://cal.com"});
+          
+          // @ts-ignore - Cal is added by the script
+          window.Cal.ns["consultation-fast-track-ai"]("inline", {
             elementOrSelector: calendarRef.current,
-            calLink: "fasttrack-ai/consultation",
             config: {
+              layout: "month_view",
               name: formData.name,
               email: formData.email,
               notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
-            }
+            },
+            calLink: "fast-track-ai-oge7mz/consultation-fast-track-ai"
           });
-        } catch (error) {
-          console.error("Error initializing Cal widget:", error);
+          
+          // @ts-ignore - Cal is added by the script
+          window.Cal.ns["consultation-fast-track-ai"]("ui", {
+            "cssVarsPerTheme": {
+              "light": {"cal-brand": "#9333EA"},
+              "dark": {"cal-brand": "#FBBF24"}
+            },
+            "hideEventTypeDetails": false,
+            "layout": "week_view"
+          });
         }
+      } catch (error) {
+        console.error("Error initializing Cal widget:", error);
       }
     }
   }, [showCalWidget, formData]);
@@ -572,7 +594,7 @@ export default function ScheduleConsultation() {
 
   return (
     <main className="min-h-screen gradient-primary py-16">
-      <Script src="https://cal.com/embed.js" strategy="afterInteractive" />
+      <Script src="https://app.cal.com/embed/embed.js" strategy="afterInteractive" />
       
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
