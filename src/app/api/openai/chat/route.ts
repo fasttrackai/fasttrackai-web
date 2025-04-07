@@ -43,22 +43,33 @@ export async function POST(req: Request) {
     });
   }
   
-  // Use real OpenAI API if key is available
+  // Use real OpenAI API
   try {
+    console.log('Attempting to call OpenAI API...');
     const result = await streamText({
       model: openai("gpt-4"),
       messages: convertToCoreMessages(messages),
       system: "You are a helpful AI assistant that specializes in AI integration for businesses. You provide concise, practical advice on how AI can improve various business processes.",
+      temperature: 0.7,
+      max_tokens: 1000
     });
 
+    console.log('OpenAI API call successful');
     return result.toDataStreamResponse();
   } catch (error) {
-    console.error('OpenAI API error:', error);
-    // Return a more specific error message
+    // Log detailed error information
+    console.error('OpenAI API error details:', {
+      error: error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
+    });
+
+    // Return a more informative error response
     return NextResponse.json(
       { 
         error: 'There was an error processing your request',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
       },
       { status: 500 }
     );
