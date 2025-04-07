@@ -22,7 +22,7 @@ export default function ProcessAutomation() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-purple-900 to-purple-700 py-20">
+      <section className="bg-gradient-to-r from-cyan-900 to-cyan-700 py-20">
         <div className="container mx-auto px-6">
           <motion.div 
             className="max-w-4xl mx-auto text-center"
@@ -42,15 +42,15 @@ export default function ProcessAutomation() {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link 
                 href="/schedule-consultation" 
-                className="bg-white text-purple-700 px-6 py-3 rounded-lg hover:bg-purple-50 transition-colors font-medium"
+                className="bg-white text-cyan-700 px-6 py-3 rounded-lg hover:bg-cyan-50 transition-colors font-medium"
               >
                 Schedule a Demo
               </Link>
               <Link 
-                href="/schedule-consultation?source=strategy" 
+                href="/strategy-report" 
                 className="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg hover:bg-white/10 transition-colors font-medium"
               >
-                Schedule a Consultation
+                Get Your Strategy Report
               </Link>
             </div>
           </motion.div>
@@ -58,7 +58,7 @@ export default function ProcessAutomation() {
       </section>
 
       {/* Value Proposition */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-900 text-white">
         <div className="container mx-auto px-6">
           <motion.div
             variants={staggerContainer}
@@ -71,8 +71,8 @@ export default function ProcessAutomation() {
               variants={fadeInUp}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Why AI-Powered Process Automation</h2>
-              <p className="text-xl text-gray-700">
+              <h2 className="text-3xl font-bold text-white mb-4">Why AI-Powered Process Automation</h2>
+              <p className="text-xl text-white">
                 Elevate your operations from manual and rule-based to intelligent and adaptive
               </p>
             </motion.div>
@@ -105,15 +105,15 @@ export default function ProcessAutomation() {
                   <motion.div 
                     key={index}
                     variants={fadeInUp}
-                    className="bg-purple-50 p-6 rounded-lg shadow-md border border-purple-100"
+                    className="bg-gray-800 p-6 rounded-lg shadow-md border border-gray-700"
                   >
                     <div className="flex items-start">
-                      <div className="bg-purple-100 p-3 rounded-full mr-4">
-                        <Icon className="h-6 w-6 text-purple-700" />
+                      <div className="bg-cyan-800 p-3 rounded-full mr-4">
+                        <Icon className="h-6 w-6 text-cyan-300" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{benefit.title}</h3>
-                        <p className="text-gray-700">{benefit.description}</p>
+                        <h3 className="text-xl font-bold text-white mb-2">{benefit.title}</h3>
+                        <p className="text-white">{benefit.description}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -125,7 +125,7 @@ export default function ProcessAutomation() {
       </section>
 
       {/* Automation Capabilities */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-900">
         <div className="container mx-auto px-6">
           <motion.div
             variants={staggerContainer}
@@ -138,8 +138,8 @@ export default function ProcessAutomation() {
               variants={fadeInUp}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Comprehensive Automation Solutions</h2>
-              <p className="text-xl text-gray-700">
+              <h2 className="text-3xl font-bold text-white mb-4">Comprehensive Automation Solutions</h2>
+              <p className="text-xl text-white">
                 Our intelligent automation platform addresses your most complex operational challenges
               </p>
             </motion.div>
@@ -167,13 +167,13 @@ export default function ProcessAutomation() {
                   <motion.div 
                     key={index}
                     variants={fadeInUp}
-                    className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 text-center"
+                    className="bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-700 text-center"
                   >
-                    <div className="bg-purple-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                      <Icon className="h-8 w-8 text-purple-700" />
+                    <div className="bg-cyan-100 p-4 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                      <Icon className="h-8 w-8 text-cyan-700" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                    <p className="text-gray-700">{feature.description}</p>
+                    <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                    <p className="text-white">{feature.description}</p>
                   </motion.div>
                 );
               })}
@@ -183,7 +183,7 @@ export default function ProcessAutomation() {
       </section>
 
       {/* Implementation Process */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-6">
           <motion.div
             variants={staggerContainer}
@@ -251,7 +251,7 @@ export default function ProcessAutomation() {
                   className="bg-white p-8 rounded-lg shadow-sm border border-gray-100"
                 >
                   <div className="flex flex-col md:flex-row md:items-start">
-                    <div className="bg-purple-700 text-white px-4 py-2 rounded-lg font-bold mb-4 md:mb-0 md:mr-6 text-center md:text-left">
+                    <div className="bg-cyan-700 text-white px-4 py-2 rounded-lg font-bold mb-4 md:mb-0 md:mr-6 text-center md:text-left">
                       {phase.step}
                     </div>
                     <div className="flex-1">
@@ -276,7 +276,7 @@ export default function ProcessAutomation() {
       </section>
 
       {/* Success Stories */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20">
         <div className="container mx-auto px-6">
           <motion.div
             variants={staggerContainer}
@@ -322,7 +322,7 @@ export default function ProcessAutomation() {
                   <div className="flex flex-col md:flex-row">
                     <div className="md:w-1/3 mb-4 md:mb-0 md:pr-6">
                       <h3 className="text-xl font-bold text-gray-900 mb-1">{story.company}</h3>
-                      <p className="text-purple-700 font-medium mb-4">{story.industry}</p>
+                      <p className="text-cyan-700 font-medium mb-4">{story.industry}</p>
                       <div className="flex items-center text-sm text-gray-700">
                         <Clock className="h-4 w-4 mr-2" />
                         <span>{story.timeline}</span>
@@ -355,7 +355,7 @@ export default function ProcessAutomation() {
             >
               <Link 
                 href="/case-studies" 
-                className="text-purple-700 font-medium inline-flex items-center hover:underline"
+                className="text-cyan-700 font-medium inline-flex items-center hover:underline"
               >
                 View more success stories
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -366,7 +366,7 @@ export default function ProcessAutomation() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-purple-900 to-purple-800">
+      <section className="py-20 bg-cyan-900">
         <div className="container mx-auto px-6">
           <motion.div 
             className="max-w-4xl mx-auto text-center"
@@ -382,7 +382,7 @@ export default function ProcessAutomation() {
             </p>
             <Link 
               href="/schedule-consultation" 
-              className="bg-white text-purple-700 px-8 py-4 rounded-lg hover:bg-purple-50 transition-colors font-medium text-lg inline-block"
+              className="bg-white text-cyan-700 px-8 py-4 rounded-lg hover:bg-cyan-50 transition-colors font-medium text-lg inline-block"
             >
               Schedule Your Automation Consultation
             </Link>
