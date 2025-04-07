@@ -218,7 +218,7 @@ export default function MAReadiness() {
       </section>
 
       {/* Valuation Multipliers */}
-      <section className="py-20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <motion.div
             variants={staggerContainer}
@@ -231,24 +231,24 @@ export default function MAReadiness() {
               variants={fadeInUp}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">AI Valuation Multipliers</h2>
-              <p className="text-xl text-gray-700">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">AI Valuation Multipliers</h2>
+              <p className="text-xl text-gray-600">
                 See how AI implementation can increase your valuation multiples
               </p>
             </motion.div>
 
             <motion.div 
               variants={fadeInUp}
-              className="bg-white p-8 rounded-lg shadow-sm border border-gray-100 overflow-hidden"
+              className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
             >
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-4 px-4 font-semibold text-gray-900">Industry</th>
-                      <th className="text-center py-4 px-4 font-semibold text-gray-900">Standard Multiple</th>
-                      <th className="text-center py-4 px-4 font-semibold text-gray-900">AI-Enhanced Multiple</th>
-                      <th className="text-center py-4 px-4 font-semibold text-gray-900">Potential Increase</th>
+                    <tr className="bg-gradient-to-r from-purple-50 to-purple-100">
+                      <th className="text-left py-4 px-6 font-semibold text-gray-900">Industry</th>
+                      <th className="text-center py-4 px-6 font-semibold text-gray-900">Standard Multiple</th>
+                      <th className="text-center py-4 px-6 font-semibold text-gray-900">AI-Enhanced Multiple</th>
+                      <th className="text-center py-4 px-6 font-semibold text-gray-900">Potential Increase</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -284,19 +284,28 @@ export default function MAReadiness() {
                         increase: "50-75%"
                       }
                     ].map((row, index) => (
-                      <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
-                        <td className="py-4 px-4 text-gray-900 font-medium">{row.industry}</td>
-                        <td className="py-4 px-4 text-center text-gray-700">{row.standard}</td>
-                        <td className="py-4 px-4 text-center text-emerald-700 font-medium">{row.enhanced}</td>
-                        <td className="py-4 px-4 text-center text-emerald-700 font-medium">{row.increase}</td>
+                      <tr 
+                        key={row.industry}
+                        className={`
+                          border-t border-gray-200
+                          hover:bg-purple-50 transition-colors
+                          ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                        `}
+                      >
+                        <td className="py-4 px-6 font-medium text-gray-900">{row.industry}</td>
+                        <td className="py-4 px-6 text-center text-gray-700">{row.standard}</td>
+                        <td className="py-4 px-6 text-center font-medium text-emerald-700">{row.enhanced}</td>
+                        <td className="py-4 px-6 text-center font-medium text-emerald-700">{row.increase}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="text-sm text-gray-600 mt-4">
-                *Based on industry averages and FastTrackAI client outcomes. Actual results may vary.
-              </p>
+              <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                <p className="text-sm text-gray-600 italic">
+                  *Based on industry averages and FastTrackAI client outcomes. Actual results may vary.
+                </p>
+              </div>
             </motion.div>
           </motion.div>
         </div>
