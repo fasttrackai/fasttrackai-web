@@ -24,7 +24,6 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
-  // Remove the rewrites as we're handling API calls directly in our route handlers
   // Add production optimizations
   swcMinify: true,
   compiler: {

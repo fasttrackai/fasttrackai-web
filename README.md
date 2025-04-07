@@ -1,111 +1,95 @@
-# Vibe AI Platform
+# FastTrack AI
 
-A modern, full-featured AI consulting platform built with Next.js, React, TypeScript, and Tailwind CSS.
+FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.
 
-## Overview
+## Features
 
-Vibe AI Platform is a comprehensive solution for businesses looking to implement AI technologies. The platform offers:
+- **AI Consulting**: Expert guidance on AI implementation strategies
+- **Custom Solutions**: Tailored AI solutions for your business needs
+- **Training Programs**: Comprehensive training for your team
+- **ROI Calculator**: Estimate the potential return on your AI investment
+- **Client Dashboard**: Track your AI implementation progress
+- **Case Studies**: Learn from successful AI implementations
 
-- AI Readiness Assessment
-- ROI Calculator for AI implementations
-- AI-powered chatbot for inquiries
-- Instant video consultations
-- Client dashboard with analytics
-- Strategy reports and recommendations
-- Business solutions showcases
-
-## Technologies
+## Tech Stack
 
 - **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **AI Integration**: OpenAI, Anthropic Claude, Replicate
-- **Backend Services**: Firebase (Auth, Firestore, Storage)
-- **Real-time Features**: Daily.co (video), Deepgram (audio transcription)
+- **Backend**: Next.js API Routes, Firebase
+- **AI Integration**: OpenAI, Anthropic, Replicate, Deepgram
+- **Authentication**: Firebase Authentication
+- **Database**: Firebase Firestore
+- **Storage**: Firebase Storage
 - **Deployment**: Vercel
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 16.x or higher
-- npm or yarn
+- Node.js 18.x or later
+- npm 9.x or later
 - Firebase account
-- API keys for integrated services
+- OpenAI API key (optional)
+- Anthropic API key (optional)
+- Replicate API key (optional)
+- Deepgram API key (optional)
 
 ### Installation
 
-1. Clone the repository
-   ```
-   git clone https://your-repository-url.git
-   cd vibe-ai-platform
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/fasttrackai.git
+   cd fasttrackai
    ```
 
-2. Install dependencies
-   ```
+2. Install dependencies:
+   ```bash
    npm install
    ```
 
-3. Set up environment variables
-   ```
+3. Copy the example environment file:
+   ```bash
    cp .env.example .env.local
    ```
-   Then edit `.env.local` with your service credentials.
 
-4. Run the development server
-   ```
+4. Update the environment variables in `.env.local` with your API keys and configuration.
+
+5. Run the development server:
+   ```bash
    npm run dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Development Features
+### Firebase Setup
 
-- **Development Mode**: Mock data support when API keys aren't configured
-- **Component Library**: Comprehensive set of reusable UI components
-- **Type Safety**: Fully typed with TypeScript
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
+1. Create a new Firebase project at [https://console.firebase.google.com/](https://console.firebase.google.com/)
+2. Enable Authentication, Firestore, and Storage
+3. Create a web app in your Firebase project
+4. Copy the Firebase configuration to your `.env.local` file
+5. Generate a new private key for Firebase Admin SDK:
+   - Go to Project Settings > Service Accounts
+   - Click "Generate New Private Key"
+   - Copy the contents to `FIREBASE_ADMIN_PRIVATE_KEY` in your `.env.local` file
 
-## Features
+### Deployment
 
-### AI Readiness Assessment
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Configure the environment variables in Vercel
+4. Deploy!
 
-A questionnaire that evaluates a company's readiness for AI adoption, providing a score and tailored recommendations.
+## Project Structure
 
-### ROI Calculator
-
-Helps businesses estimate the return on investment for different AI implementation packages based on their specific data.
-
-### Instant Consultation
-
-Allows potential clients to connect immediately with an AI consultant through video, chat, or phone.
-
-### Client Dashboard
-
-Provides clients with analytics on their AI implementation progress, maturity scores, and growth metrics.
-
-### Strategy Reports
-
-Generates customized PDF reports with AI implementation strategies and recommendations.
-
-### Solution Showcases
-
-Detailed descriptions of various AI solutions offered, including business analytics, customer service AI, and process automation.
-
-## Documentation
-
-- [Deployment Guide](./DEPLOYMENT.md) - Instructions for deploying to production
-- [Pre-Deployment Checklist](./scripts/pre-deploy-checklist.md) - Items to verify before deployment
-- [API Documentation](./docs/API.md) - API endpoints and usage
-- [Component Documentation](./docs/COMPONENTS.md) - UI component documentation
-
-## Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `scripts/deploy.sh` - Deploy to production (Unix/Mac)
-- `scripts/deploy.ps1` - Deploy to production (Windows)
-- `scripts/update-console-logs.js` - Update console logs to use logger utility
+```
+src/
+├── app/                  # Next.js App Router
+│   ├── api/              # API routes
+│   ├── components/       # React components
+│   ├── lib/              # Utilities, hooks, contexts
+│   └── ...              # Page routes
+├── public/               # Static assets
+└── ...
+```
 
 ## Contributing
 
@@ -117,10 +101,16 @@ Detailed descriptions of various AI solutions offered, including business analyt
 
 ## License
 
-Proprietary. All rights reserved.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contact
+## Acknowledgments
 
-Your Company - [contact@yourcompany.com](mailto:contact@yourcompany.com)
-
-Project Link: [https://github.com/your-organization/vibe-ai-platform](https://github.com/your-organization/vibe-ai-platform)
+- [Next.js](https://nextjs.org/)
+- [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Firebase](https://firebase.google.com/)
+- [OpenAI](https://openai.com/)
+- [Anthropic](https://www.anthropic.com/)
+- [Replicate](https://replicate.com/)
+- [Deepgram](https://deepgram.com/)
+- [Vercel](https://vercel.com/)

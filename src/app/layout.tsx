@@ -12,8 +12,55 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "FastTrack AI",
-  description: "Accelerate your AI journey",
+  title: "FastTrack AI | Accelerate Your AI Journey",
+  description: "FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.",
+  keywords: "AI consulting, artificial intelligence, business automation, AI implementation, machine learning, data analytics, AI training, digital transformation",
+  authors: [{ name: "FastTrack AI Team" }],
+  creator: "FastTrack AI",
+  publisher: "FastTrack AI",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://fasttrackai.io'),
+  alternates: {
+    canonical: '/',
+  },
+  manifest: '/manifest.json',
+  openGraph: {
+    title: "FastTrack AI | Accelerate Your AI Journey",
+    description: "FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.",
+    url: 'https://fasttrackai.io',
+    siteName: 'FastTrack AI',
+    images: [
+      {
+        url: '/og-image.svg',
+        width: 1200,
+        height: 630,
+        alt: 'FastTrack AI',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FastTrack AI | Accelerate Your AI Journey',
+    description: 'FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.',
+    images: ['/twitter-image.svg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({

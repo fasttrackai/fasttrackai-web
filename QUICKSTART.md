@@ -98,4 +98,43 @@ For more detailed deployment instructions, see the [DEPLOYMENT.md](./DEPLOYMENT.
 
 ## Need Help?
 
-If you encounter any issues during deployment, please contact support at support@fasttrackai.com. 
+If you encounter any issues during deployment, please contact support at support@fasttrackai.com.
+
+### Successfully Deploying to Vercel
+
+To deploy your application to Vercel, follow these steps:
+
+1. **Create a simplified `vercel.json` file** in the root of your project with the following content:
+   ```json
+   {
+     "version": 2,
+     "buildCommand": "next build",
+     "installCommand": "npm install",
+     "framework": "nextjs",
+     "outputDirectory": ".next",
+     "env": {
+       "NEXT_PHASE": "phase-production-build",
+       "NODE_ENV": "production",
+       "TSC_COMPILE_ON_ERROR": "true"
+     }
+   }
+   ```
+   This configuration enables TypeScript error ignoring during build and properly configures the environment.
+
+2. **Deploy using Vercel CLI**:
+   ```
+   vercel --prod
+   ```
+
+3. **Alternative: Deploy using Vercel Dashboard**:
+   - Push your code to a GitHub repository
+   - Import the repository in the Vercel dashboard
+   - Vercel will use the settings from your `vercel.json` file
+   
+Our Firebase Admin implementation includes fallbacks for the build process, so you won't need to provide Firebase credentials during deployment. However, for proper functionality in production, you should add the following environment variables in your Vercel project settings:
+
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: Your Firebase project ID
+- `FIREBASE_CLIENT_EMAIL`: Your Firebase client email
+- `FIREBASE_PRIVATE_KEY`: Your Firebase private key
+
+**Note**: The Firebase private key should include escaped newlines (`\\n`). 

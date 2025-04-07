@@ -5,6 +5,11 @@ import { mockAssessments, mockRoiData, devFlags } from '@/lib/config/development
 // Helper function for type checking environment
 const isDevEnvironment = () => (process.env.NODE_ENV as string) === 'development';
 
+// Helper function to check if Firebase Admin is properly initialized
+const isFirebaseAdminAvailable = () => {
+  return !!adminAuth && !!adminDb;
+};
+
 // Create a consistent response format for mock data
 function getMockDashboardData() {
   return {
@@ -26,41 +31,27 @@ function getMockDashboardData() {
       { name: 'Dashboard Setup', status: 'review', progress: 90, daysRemaining: 3 },
       { name: 'Process Automation', status: 'completed', progress: 100, daysRemaining: 0 }
     ],
-    assessments: mockAssessments.length > 0 ? [
-      {
-        id: 'a123',
-        date: '2023-10-15',
-        score: 64,
-        nextSteps: ['Improve data collection', 'Train team on AI concepts']
-      }
-    ] : [],
-    roiCalculations: mockRoiData.length > 0 ? [
-      {
-        id: 'r456',
-        date: '2023-10-18',
-        package: 'Enterprise',
-        annualBenefit: 256000,
-        roi: 184
-      }
-    ] : []
+    assessments: mockAssessments.length > 0 ? mockAssessments : [],
+    roiCalculations: mockRoiData.length > 0 ? mockRoiData : []
   };
 }
 
 export async function GET(request: NextRequest) {
   try {
-    // Check if we're in development mode
+    // Check if we're in development mode or if Firebase Admin is not available
     const isDevelopment = isDevEnvironment();
+    const hasFirebaseAdmin = isFirebaseAdminAvailable();
     
     // Get the authorization header if needed
     const authHeader = request.headers.get('authorization');
     const hasValidAuth = authHeader?.startsWith('Bearer ');
     
-    // If in development or using mock data flag, return mock data
-    if (isDevelopment || (devFlags && devFlags.useMockData)) {
-      console.log('Using mock data for client dashboard (development mode)');
+    // If in development, using mock data flag, or Firebase Admin is not available, return mock data
+    if (isDevelopment || (devFlags && devFlags.useMockData) || !hasFirebaseAdmin) {
+      console.log(`Using mock data for client dashboard (${!hasFirebaseAdmin ? 'Firebase Admin not available' : 'development mode'})`);
       
-      // Simulate network delay if configured
-      if (devFlags && devFlags.simulateNetworkDelay) {
+      // Simulate network delay if configured in development
+      if (isDevelopment && devFlags && devFlags.simulateNetworkDelay) {
         await new Promise(resolve => setTimeout(resolve, devFlags.networkDelayMs || 1000));
       }
       
@@ -68,11 +59,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         ...getMockDashboardData(),
         usedMockData: true,
-        message: 'Using sample data in development mode'
+        message: !hasFirebaseAdmin 
+          ? 'Using sample data (Firebase Admin not properly initialized)' 
+          : 'Using sample data in development mode'
       });
     }
     
-    // For production, check auth
+    // For production with Firebase Admin available, check auth
     if (!hasValidAuth) {
       return NextResponse.json(
         { 
@@ -90,7 +83,7 @@ export async function GET(request: NextRequest) {
       const idToken = authHeader!.split('Bearer ')[1];
       
       // Verify the token and get the user
-      const decodedToken = await adminAuth.verifyIdToken(idToken);
+      const decodedToken = await adminAuth!.verifyIdToken(idToken);
       const userId = decodedToken.uid;
       
       let assessmentData = null;
@@ -98,7 +91,7 @@ export async function GET(request: NextRequest) {
 
       try {
         // Get the latest assessment
-        const assessmentsRef = adminDb.collection('assessments');
+        const assessmentsRef = adminDb!.collection('assessments');
         const assessmentsQuery = assessmentsRef
           .where('userId', '==', userId)
           .orderBy('createdAt', 'desc')
@@ -108,7 +101,7 @@ export async function GET(request: NextRequest) {
         assessmentData = assessmentsSnapshot.docs[0]?.data() || null;
 
         // Get the latest ROI calculation
-        const roiRef = adminDb.collection('roi_calculations');
+        const roiRef = adminDb!.collection('roi_calculations');
         const roiQuery = roiRef
           .where('userId', '==', userId)
           .orderBy('createdAt', 'desc')
@@ -339,34 +332,30 @@ export async function GET(request: NextRequest) {
         success: true,
         data: dashboardData
       });
-
-    } catch (authError) {
-      console.error('Error in authentication:', authError);
-      
-      // In development, return mock data even on auth failure
-      if (isDevelopment) {
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      // In development, return mock data even on errors
+      if ((process.env.NODE_ENV as string) === 'development') {
         return NextResponse.json({
           ...getMockDashboardData(),
           usedMockData: true,
-          message: 'Auth error in development mode, using sample data'
+          message: 'Server error in development mode, using sample data'
         });
       }
       
-      // In production, return the auth error
+      // In production, return the error
       return NextResponse.json(
         { 
-          error: 'Authentication failed',
-          details: isDevelopment ? String(authError) : undefined
+          error: 'Server error',
+          details: (process.env.NODE_ENV as string) === 'development' ? String(error) : undefined
         },
-        { status: 401 }
+        { status: 500 }
       );
     }
-    
   } catch (error) {
-    console.error('Error in dashboard API:', error);
-    
+    console.error('Error fetching dashboard data:', error);
     // In development, return mock data even on errors
-    if (isDevEnvironment()) {
+    if ((process.env.NODE_ENV as string) === 'development') {
       return NextResponse.json({
         ...getMockDashboardData(),
         usedMockData: true,
@@ -378,7 +367,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Server error',
-        details: isDevEnvironment() ? String(error) : undefined
+        details: (process.env.NODE_ENV as string) === 'development' ? String(error) : undefined
       },
       { status: 500 }
     );

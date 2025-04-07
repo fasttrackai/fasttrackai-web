@@ -1041,30 +1041,33 @@ export async function getTrainingModule(moduleId: string): Promise<TrainingModul
     return mockTrainingModules.find(module => module.id === moduleId) || null;
   }
 
-  /*
-  // TEMPORARILY COMMENTED OUT TO FIX BUILD ISSUES
-  // This code will be uncommented when the training portal is implemented
-  const moduleRef = doc(db, 'trainingModules', moduleId);
-  const moduleDoc = await getDoc(moduleRef);
-  
-  if (!moduleDoc.exists()) {
-    throw new Error('Training module not found');
+  // Safety check for Firebase initialization
+  if (!db || !storage) {
+    console.warn('Firebase services not fully initialized, returning null');
+    return null;
   }
 
-  const moduleData = moduleDoc.data() as TrainingModule;
-  
-  // If there's a video URL, get the download URL from Storage
-  if (moduleData.videoUrl && storage) {
-    const videoRef = ref(storage, moduleData.videoUrl);
-    moduleData.videoUrl = await getDownloadURL(videoRef);
-  }
+  try {
+    const moduleRef = doc(db, 'trainingModules', moduleId);
+    const moduleDoc = await getDoc(moduleRef);
+    
+    if (!moduleDoc.exists()) {
+      throw new Error('Training module not found');
+    }
 
-  return { ...moduleData, id: moduleDoc.id };
-  */
-  
-  // Temporary stub until training portal is fully implemented
-  console.warn('Training module fetch bypassed in production - training portal not yet implemented');
-  return null;
+    const moduleData = moduleDoc.data() as TrainingModule;
+    
+    // If there's a video URL and storage is initialized, get the download URL
+    if (moduleData.videoUrl && storage) {
+      const videoRef = ref(storage, moduleData.videoUrl);
+      moduleData.videoUrl = await getDownloadURL(videoRef);
+    }
+
+    return { ...moduleData, id: moduleDoc.id };
+  } catch (error) {
+    console.error('Error getting training module:', error);
+    return null;
+  }
 }
 
 // Function to get user progress
