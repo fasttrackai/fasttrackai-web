@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 export async function POST(request: Request) {
   try {
@@ -8,23 +8,8 @@ export async function POST(request: Request) {
     // Log the received data
     console.log('Received consultation request:', data);
     
-    // In a production environment, you would:
-    // 1. Store the appointment in a database
-    // 2. Connect to a calendar service like Google Calendar or Calendly
-    // 3. Send email confirmation to user
-    // 4. Send notification to admin team
-    
-    // Example of sending email with nodemailer
-    // Create a transporter (in production, use environment variables for credentials)
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER || 'fasttrack.ai.now@gmail.com',
-        pass: process.env.SMTP_PASSWORD || 'your-smtp-password',
-      },
-    });
+    // Initialize SendGrid with API key
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
     
     // Format the date and time for better readability
     const appointmentDate = new Date(data.appointmentDate);
@@ -47,8 +32,8 @@ export async function POST(request: Request) {
       description: `Consultation with ${data.name} from ${data.company} regarding ${data.challengeArea}`,
       location: 'Virtual Meeting (link to be provided)',
       organizer: {
-        name: 'FastTrack AI Team',
-        email: 'fasttrack.ai.now@gmail.com'
+        name: process.env.EMAIL_SENDER_NAME || 'FastTrack AI Team',
+        email: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com'
       },
       attendee: {
         name: data.name,
@@ -57,8 +42,11 @@ export async function POST(request: Request) {
     });
     
     // Send email to user
-    await transporter.sendMail({
-      from: '"FastTrack AI" <fasttrack.ai.now@gmail.com>',
+    await sgMail.send({
+      from: {
+        email: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com',
+        name: process.env.EMAIL_SENDER_NAME || 'FastTrack AI'
+      },
       to: data.email,
       subject: 'Your FastTrack AI Consultation Confirmation',
       text: `
@@ -114,22 +102,26 @@ The FastTrack AI Team
   </div>
   
   <div style="padding: 20px; background-color: #f9fafb; text-align: center; font-size: 12px; color: #6b7280;">
-    <p>© 2023 FastTrack AI. All rights reserved.</p>
+    <p>© ${new Date().getFullYear()} FastTrack AI. All rights reserved.</p>
   </div>
 </div>
       `,
       attachments: [
         {
+          content: Buffer.from(icsEvent).toString('base64'),
           filename: 'consultation.ics',
-          content: icsEvent,
-          contentType: 'text/calendar'
+          type: 'text/calendar',
+          disposition: 'attachment'
         }
       ]
     });
     
     // Send notification to admin
-    await transporter.sendMail({
-      from: '"FastTrack AI System" <fasttrack.ai.now@gmail.com>',
+    await sgMail.send({
+      from: {
+        email: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com',
+        name: 'FastTrack AI System'
+      },
       to: 'team@fasttrackai.io', // Change to your admin email
       subject: 'New Consultation Scheduled',
       text: `

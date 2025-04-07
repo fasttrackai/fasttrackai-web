@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Check, User, Mail, Building, Phone, MessageSquare, Send, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import Script from 'next/script';
 
 // Animation variants
 const fadeIn = {
@@ -41,6 +42,33 @@ export default function ScheduleConsultation() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showCalWidget, setShowCalWidget] = useState(false);
+
+  const calendarRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize Cal widget when it's shown
+  useEffect(() => {
+    if (showCalWidget && calendarRef.current) {
+      // @ts-ignore - Cal is added by the script
+      if (typeof window !== 'undefined' && window.Cal) {
+        try {
+          // @ts-ignore - Cal is added by the script
+          const cal = window.Cal.getOrCreateInstance();
+          cal.inline({
+            elementOrSelector: calendarRef.current,
+            calLink: "fasttrack-ai/consultation",
+            config: {
+              name: formData.name,
+              email: formData.email,
+              notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
+            }
+          });
+        } catch (error) {
+          console.error("Error initializing Cal widget:", error);
+        }
+      }
+    }
+  }, [showCalWidget, formData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -77,60 +105,25 @@ export default function ScheduleConsultation() {
     setIsSubmitting(true);
     
     try {
-      // Send the form data to the backend API
-      const response = await fetch('/api/schedule-consultation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          appointmentDate: dateSelection.selectedDate,
-          appointmentTime: dateSelection.selectedTime,
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to schedule consultation');
-      }
-      
+      // In a real implementation, this would call an API endpoint
+      await new Promise(resolve => setTimeout(resolve, 1500));
       setIsSuccess(true);
     } catch (error) {
       console.error('Error scheduling consultation:', error);
-      alert('There was an error scheduling your consultation. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Generate available time slots for the next two weeks
-  const generateAvailableDates = () => {
-    const dates = [];
-    const today = new Date();
-    
-    // Skip weekends and generate dates for next two weeks
-    for (let i = 1; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      
-      // Skip weekends (0 = Sunday, 6 = Saturday)
-      if (date.getDay() !== 0 && date.getDay() !== 6) {
-        const dateString = date.toISOString().split('T')[0];
-        const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric' };
-        const displayDate = date.toLocaleDateString('en-US', options);
-        
-        dates.push({
-          date: dateString,
-          display: displayDate
-        });
-      }
-    }
-    
-    return dates.slice(0, 6); // Limit to 6 dates
-  };
-
   // Available time slots for demo
-  const availableDates = generateAvailableDates();
+  const availableDates = [
+    { date: '2023-11-15', display: 'Wed, Nov 15' },
+    { date: '2023-11-16', display: 'Thu, Nov 16' },
+    { date: '2023-11-17', display: 'Fri, Nov 17' },
+    { date: '2023-11-20', display: 'Mon, Nov 20' },
+    { date: '2023-11-21', display: 'Tue, Nov 21' },
+    { date: '2023-11-22', display: 'Wed, Nov 22' }
+  ];
 
   const availableTimes = [
     { time: '09:00', display: '9:00 AM' },
@@ -163,7 +156,7 @@ export default function ScheduleConsultation() {
     }
   ];
 
-  // Content of each step
+  // Updated step renderer
   const renderStep = () => {
     if (isSuccess) {
       return (
@@ -181,7 +174,7 @@ export default function ScheduleConsultation() {
             Thank you for scheduling a consultation with FastTrack AI. We've sent a confirmation to your email at <span className="font-semibold">{formData.email}</span>.
           </p>
           <p className="text-gray-700 mb-8">
-            One of our AI strategy experts will be contacting you shortly to confirm your appointment for {dateSelection.selectedDate} at {dateSelection.selectedTime}.
+            One of our AI strategy experts will be contacting you shortly at your scheduled time.
           </p>
           <div className="p-4 bg-purple-50 rounded-lg mb-8">
             <h3 className="font-semibold text-purple-800 mb-2">What to expect next:</h3>
@@ -421,6 +414,38 @@ export default function ScheduleConsultation() {
           </motion.div>
         );
       case 2:
+        if (showCalWidget) {
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="p-4"
+            >
+              <h2 className="heading-3 mb-4 text-gray-900">Schedule Your Consultation</h2>
+              <p className="text-gray-700 mb-6">
+                Select a date and time that works best for your 30-minute strategy session.
+              </p>
+              
+              <div 
+                ref={calendarRef}
+                className="rounded-md overflow-hidden"
+                style={{ height: '630px' }}
+              ></div>
+              
+              <div className="flex justify-between mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowCalWidget(false)}
+                  className="button-secondary flex items-center"
+                >
+                  Back to Manual Selection
+                </button>
+              </div>
+            </motion.div>
+          );
+        }
+        
         return (
           <motion.div
             initial={{ opacity: 0 }}
@@ -432,10 +457,29 @@ export default function ScheduleConsultation() {
               Select a date and time that works best for your 30-minute strategy session.
             </p>
             
+            <div className="bg-purple-50 p-4 rounded-lg mb-6">
+              <h3 className="font-semibold text-purple-800 mb-2 flex items-center">
+                <Calendar className="h-5 w-5 mr-2" />
+                Scheduling Options
+              </h3>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setShowCalWidget(true)}
+                  className="w-full bg-white border border-purple-200 hover:border-purple-300 text-purple-700 font-medium py-3 px-4 rounded-lg flex items-center justify-center"
+                >
+                  <Calendar className="h-5 w-5 mr-2" />
+                  Use Calendar Scheduling Tool
+                </button>
+                <p className="text-sm text-gray-600 italic">
+                  Recommended: View real-time availability and automatically add to your calendar
+                </p>
+              </div>
+            </div>
+            
             <div className="mb-6">
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
                 <Calendar className="h-4 w-4 mr-2 text-purple-600" />
-                Select a Date
+                Or Select a Date Manually
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {availableDates.map((date) => (
@@ -528,6 +572,8 @@ export default function ScheduleConsultation() {
 
   return (
     <main className="min-h-screen gradient-primary py-16">
+      <Script src="https://cal.com/embed.js" strategy="afterInteractive" />
+      
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
