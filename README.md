@@ -1,6 +1,11 @@
-# FastTrack AI
+# FastTrackAI Platform
 
-FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.
+![Vercel](https://vercelbadge.vercel.app/api/fasttrackai/fasttrackai-web)
+
+Modern AI-powered business automation platform.
+
+## Auto-Deployment Test
+Last updated: [Current Timestamp] - Testing Vercel auto-deployment
 
 ## Features
 
