@@ -42,7 +42,7 @@ export async function POST(req: Request) {
   // Use real OpenAI API
   try {
     const result = await streamText({
-      model: openai("gpt-4o"),
+      model: openai("gpt-4"),
       messages: convertToCoreMessages(messages),
       system: "You are a helpful AI assistant that specializes in AI integration for businesses. You provide concise, practical advice on how AI can improve various business processes.",
     });
@@ -50,8 +50,12 @@ export async function POST(req: Request) {
     return result.toDataStreamResponse();
   } catch (error) {
     console.error('OpenAI API error:', error);
+    // Return a more specific error message
     return NextResponse.json(
-      { error: 'There was an error processing your request' },
+      { 
+        error: 'There was an error processing your request',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
