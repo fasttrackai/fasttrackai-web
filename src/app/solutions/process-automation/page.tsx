@@ -276,7 +276,7 @@ export default function ProcessAutomation() {
       </section>
 
       {/* Success Stories */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-black">
         <div className="container mx-auto px-6">
           <motion.div
             variants={staggerContainer}
@@ -289,8 +289,8 @@ export default function ProcessAutomation() {
               variants={fadeInUp}
               className="text-center mb-16"
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Automation Success Stories</h2>
-              <p className="text-xl text-gray-700">
+              <h2 className="text-3xl font-bold text-white mb-4">Automation Success Stories</h2>
+              <p className="text-xl text-white">
                 Real-world operational transformations powered by our intelligent automation solutions
               </p>
             </motion.div>
@@ -355,7 +355,7 @@ export default function ProcessAutomation() {
             >
               <Link 
                 href="/case-studies" 
-                className="text-cyan-700 font-medium inline-flex items-center hover:underline"
+                className="text-cyan-400 font-medium inline-flex items-center hover:underline"
               >
                 View more success stories
                 <ArrowRight className="ml-2 h-4 w-4" />
