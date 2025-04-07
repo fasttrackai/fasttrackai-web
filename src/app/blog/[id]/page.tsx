@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, ArrowLeft, Share2, Bookmark, Tag, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, ArrowLeft, Share2, Bookmark, Tag, ChevronRight, Zap, BarChart, Shield, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
+import Head from 'next/head';
 
 interface BlogPost {
   id: string;
@@ -23,66 +24,77 @@ interface BlogPost {
   category: string;
   image: string;
   tags: string[];
+  featured?: boolean;
+  relatedSolutions?: string[];
+  seoKeywords?: string[];
 }
 
 // Mock blog post data with content
 const blogPosts: BlogPost[] = [
   {
     id: 'post-1',
-    title: 'The Future of AI in Business: 2024 Trends and Predictions',
-    excerpt: 'Explore the emerging AI trends that will shape business operations in 2024 and beyond, from generative AI to autonomous systems.',
+    title: 'AI Implementation Strategies That Drive Business Growth',
+    excerpt: 'Discover how FastTrack AI helps businesses implement cutting-edge AI solutions that deliver measurable ROI and competitive advantages.',
     content: `
-# The Future of AI in Business: 2024 Trends and Predictions
+# AI Implementation Strategies That Drive Business Growth
 
-Artificial Intelligence continues to transform the business landscape at an unprecedented pace. As we move through 2024, several key trends are emerging that will define how organizations leverage AI to gain competitive advantages.
+In today's competitive business landscape, artificial intelligence has moved from a futuristic concept to an essential driver of growth and innovation. Organizations that effectively implement AI are seeing significant advantages in efficiency, customer experiences, and revenue generation.
 
-## Generative AI Goes Mainstream
+## Strategic Approaches to AI Implementation
 
-Generative AI technologies like GPT-4 and its successors have moved beyond novelty to become essential business tools. Companies are now integrating these technologies into their workflows for:
+FastTrack AI has developed a comprehensive framework for implementing AI solutions that consistently deliver measurable business results:
 
-- Content creation and marketing
-- Product design and prototyping
-- Customer service automation
-- Code generation and software development
+### 1. Business-First Approach
 
-The ability to generate human-quality text, images, and code is dramatically reducing the time and resources needed for creative and technical tasks.
+The most successful AI implementations begin with clear business objectives rather than technology:
 
-## AI-Powered Decision Intelligence
+- **Revenue growth opportunities**: Identifying where AI can help increase sales, improve customer retention, or enable new business models
+- **Efficiency optimization**: Targeting processes with high manual effort and potential for automation
+- **Experience enhancement**: Focusing on customer and employee experiences that can be transformed through AI
 
-Decision intelligence platforms that combine AI with data analytics are helping executives make better strategic choices. These systems:
+### 2. Phased Implementation Strategy
 
-1. Analyze vast amounts of structured and unstructured data
-2. Identify patterns and correlations humans might miss
-3. Generate scenario analyses with probability assessments
-4. Provide explainable recommendations
+Rather than attempting organization-wide transformation, our data shows that companies achieve better results with a phased approach:
 
-Organizations implementing these systems report 35% faster decision-making processes and 28% better outcomes on average.
+1. **Discovery and assessment**: Comprehensive evaluation of business processes, data readiness, and opportunity sizing
+2. **Pilot implementation**: Small-scale deployment with strict success metrics
+3. **Operational integration**: Connecting AI systems with existing workflows and training staff
+4. **Scaled deployment**: Expanding successful implementations across the organization
+5. **Continuous optimization**: Ongoing refinement based on performance data
 
-## Autonomous Systems Beyond Vehicles
+### 3. Data Strategy Alignment
 
-While self-driving cars continue to develop, autonomous systems are expanding into many other domains:
+AI solutions are only as good as the data that powers them. FastTrack AI helps organizations:
 
-- Warehouse and logistics robots
-- Autonomous drones for delivery and inspection
-- Self-optimizing manufacturing systems
-- Automated financial trading platforms
+- Develop data governance frameworks that ensure quality and compliance
+- Implement data integration solutions that connect siloed information sources
+- Create data enrichment pipelines that improve AI system performance
 
-These systems are increasingly capable of operating with minimal human supervision, dramatically improving efficiency and reducing costs.
+## Case Study: Retail Chain Transformation
 
-## The Rise of AI Governance
+A mid-sized retail chain with 150+ locations implemented FastTrack AI's customer analytics solution and achieved:
 
-As AI becomes more pervasive, organizations are establishing formal governance structures to ensure responsible use. This includes:
+- 18% increase in average transaction value through personalized recommendations
+- 32% reduction in inventory carrying costs through AI-powered demand forecasting
+- $3.2M annual savings from optimized staffing based on foot traffic predictions
 
-- Ethics committees to review AI applications
-- Bias detection and mitigation protocols
-- Transparency requirements for AI-based decisions
-- Regular audits of AI systems
+Their phased implementation took just 14 weeks from assessment to full deployment, with positive ROI achieved in the first 60 days.
 
-Companies that implement robust AI governance frameworks are better positioned to avoid reputational damage and regulatory penalties.
+## Key Success Factors
+
+Our experience across hundreds of implementations has identified these critical success factors:
+
+1. **Executive sponsorship**: Active support from leadership throughout the implementation
+2. **Cross-functional teams**: Collaboration between business, IT, and data science roles
+3. **Clear success metrics**: Well-defined KPIs established before implementation begins
+4. **Change management focus**: Comprehensive training and communication strategies
+5. **Technical flexibility**: Solutions designed to integrate with existing systems
 
 ## Conclusion
 
-The AI landscape in 2024 offers tremendous opportunities for businesses ready to embrace these technologies. Organizations that strategically implement AI solutions while maintaining appropriate governance will gain significant advantages in efficiency, innovation, and customer experience.
+Implementing AI is no longer optional for organizations seeking competitive advantages. With FastTrack AI's strategic implementation approach, businesses of all sizes can achieve measurable growth, improved efficiency, and enhanced customer experiences through AI—without the extended timelines and high failure rates common in traditional digital transformation initiatives.
+
+[Contact our team](/schedule-consultation) to learn how FastTrack AI can help your organization implement AI solutions that drive measurable business growth.
     `,
     author: {
       name: 'Dr. Sarah Chen',
@@ -91,9 +103,12 @@ The AI landscape in 2024 offers tremendous opportunities for businesses ready to
     },
     date: '2024-04-01',
     readTime: '8 min read',
-    category: 'Trends',
+    category: 'Strategy',
     image: '/blog/ai-trends-2024.jpg',
-    tags: ['AI Trends', 'Future Tech', 'Business Strategy']
+    tags: ['AI Strategy', 'Implementation', 'Business Growth', 'ROI'],
+    featured: true,
+    relatedSolutions: ['AI Integration', 'Process Automation', 'Business Analytics'],
+    seoKeywords: ['AI implementation strategy', 'business growth with AI', 'FastTrack AI solutions', 'AI ROI']
   },
   {
     id: 'post-2',
@@ -316,31 +331,43 @@ Measuring the ROI of AI requires a comprehensive approach that considers both qu
   }
 ];
 
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
 export default function BlogPostPage() {
   const params = useParams();
   const router = useRouter();
-  const postId = params.id as string;
-  
-  const [post, setPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
+  const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
-    // Simulate fetching the blog post
-    setLoading(true);
-    const foundPost = blogPosts.find(p => p.id === postId);
+    const post = blogPosts.find(post => post.id === params.id);
     
-    setTimeout(() => {
-      if (foundPost) {
-        setPost(foundPost);
-        setError(null);
-      } else {
-        setError('Blog post not found');
-      }
-      setLoading(false);
-    }, 500);
-  }, [postId]);
+    if (post) {
+      setCurrentPost(post);
+      
+      // Find related posts based on tags
+      const related = blogPosts
+        .filter(p => p.id !== post.id && p.tags.some(tag => post.tags.includes(tag)))
+        .slice(0, 3);
+      
+      setRelatedPosts(related);
+    } else {
+      router.push('/blog');
+    }
+  }, [params.id, router]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -354,211 +381,334 @@ export default function BlogPostPage() {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: post?.title,
-        text: post?.excerpt,
+        title: currentPost?.title,
+        text: currentPost?.excerpt,
         url: window.location.href,
-      })
-      .catch((error) => console.log('Error sharing', error));
+      });
     } else {
-      // Fallback for browsers that don't support the Web Share API
-      navigator.clipboard.writeText(window.location.href)
-        .then(() => alert('Link copied to clipboard!'))
-        .catch((error) => console.log('Error copying to clipboard', error));
+      // Fallback
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen gradient-secondary py-16">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto flex justify-center items-center min-h-[60vh]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const getSolutionIcon = (solution: string) => {
+    switch (solution) {
+      case 'AI Integration':
+      case 'Rapid Implementation':
+        return <Zap className="h-4 w-4 text-purple-500" />;
+      case 'Business Analytics':
+      case 'ROI Calculator':
+      case 'Performance Metrics':
+        return <BarChart className="h-4 w-4 text-purple-500" />;
+      case 'AI Security Framework':
+      case 'Risk Assessment':
+        return <Shield className="h-4 w-4 text-purple-500" />;
+      case 'Customer Service AI':
+      case 'NLP Solutions':
+        return <Users className="h-4 w-4 text-purple-500" />;
+      default:
+        return <ChevronRight className="h-4 w-4 text-purple-500" />;
+    }
+  };
 
-  if (error || !post) {
+  if (!currentPost) {
     return (
-      <div className="min-h-screen gradient-secondary py-16">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto flex flex-col justify-center items-center min-h-[60vh]">
-            <h1 className="text-3xl font-bold text-red-500 mb-4">Error</h1>
-            <p className="text-xl text-gray-600 mb-6">{error || 'Blog post not found'}</p>
-            <button
-              onClick={() => router.push('/blog')}
-              className="button-primary"
-            >
-              Back to Blog
-            </button>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-700"></div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen gradient-secondary">
-      {/* Hero Section with Image */}
-      <div className="w-full h-[40vh] md:h-[50vh] relative">
-        <Image
-          src={post.image}
-          alt={post.title}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="absolute inset-0 flex items-end">
-          <div className="container mx-auto px-6 pb-12">
-            <div className="max-w-4xl">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <span className="px-3 py-1 bg-purple-700 text-white rounded-full text-sm font-medium mb-4 inline-block">
-                  {post.category}
-                </span>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-                  {post.title}
-                </h1>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <section className="py-12">
-        <div className="container mx-auto px-6">
-          <div className="max-w-4xl mx-auto">
-            <motion.div
+    <>
+      <Head>
+        <title>{currentPost.title} | FastTrack AI Blog</title>
+        <meta name="description" content={currentPost.excerpt} />
+        <meta name="keywords" content={currentPost.seoKeywords?.join(', ') || currentPost.tags.join(', ')} />
+        <meta property="og:title" content={`${currentPost.title} | FastTrack AI Blog`} />
+        <meta property="og:description" content={currentPost.excerpt} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://fasttrackai.io/blog/${currentPost.id}`} />
+        <meta property="og:image" content={`https://fasttrackai.io${currentPost.image}`} />
+        <meta property="article:published_time" content={currentPost.date} />
+        <meta property="article:author" content={currentPost.author.name} />
+        {currentPost.tags.map((tag, i) => (
+          <meta key={i} property="article:tag" content={tag} />
+        ))}
+      </Head>
+      
+      <main className="min-h-screen bg-white">
+        {/* Hero Section */}
+        <div className="bg-gradient-to-b from-purple-900 to-purple-800 relative">
+          <div className="absolute inset-0 opacity-20 bg-pattern"></div>
+          <div className="container mx-auto px-6 py-16 relative z-10">
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ duration: 0.5 }}
+              className="max-w-4xl mx-auto text-center text-white"
             >
-              {/* Navigation and Meta */}
-              <div className="flex justify-between items-center mb-8">
-                <button
-                  onClick={() => router.back()}
-                  className="flex items-center gap-2 text-purple-700 hover:text-purple-800 transition-colors"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </button>
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={handleShare}
-                    className="flex items-center gap-1 text-gray-600 hover:text-purple-700 transition-colors"
-                  >
-                    <Share2 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Share</span>
-                  </button>
-                  <button
-                    onClick={() => setIsBookmarked(!isBookmarked)}
-                    className={`flex items-center gap-1 transition-colors ${
-                      isBookmarked ? 'text-purple-700' : 'text-gray-600 hover:text-purple-700'
-                    }`}
-                  >
-                    <Bookmark className={`h-4 w-4 ${isBookmarked ? 'fill-purple-700' : ''}`} />
-                    <span className="hidden sm:inline">{isBookmarked ? 'Saved' : 'Save'}</span>
-                  </button>
-                </div>
-              </div>
+              <Link 
+                href="/blog"
+                className="inline-flex items-center text-white/80 hover:text-white mb-6 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to all articles
+              </Link>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+                {currentPost.title}
+              </h1>
+              <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
+                {currentPost.excerpt}
+              </p>
 
-              {/* Author and Date */}
-              <div className="flex items-center justify-between mb-8 pb-8 border-b border-gray-200">
-                <div className="flex items-center">
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden mr-4">
+              <div className="flex flex-wrap items-center justify-center gap-6 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30">
                     <Image
-                      src={post.author.avatar}
-                      alt={post.author.name}
+                      src={currentPost.author.avatar}
+                      alt={currentPost.author.name}
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{post.author.name}</p>
-                    <p className="text-sm text-gray-500">{post.author.role}</p>
+                  <div className="text-left">
+                    <p className="font-medium">{currentPost.author.name}</p>
+                    <p className="text-sm text-white/80">{currentPost.author.role}</p>
                   </div>
                 </div>
-                <div className="flex flex-col items-end text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    {formatDate(post.date)}
-                  </div>
-                  <div className="flex items-center mt-1">
-                    <Clock className="h-4 w-4 mr-1" />
-                    {post.readTime}
-                  </div>
+                <div className="w-px h-10 bg-white/20 hidden sm:block"></div>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4 text-white/70" />
+                  <span className="text-sm text-white/80">{formatDate(currentPost.date)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4 text-white/70" />
+                  <span className="text-sm text-white/80">{currentPost.readTime}</span>
                 </div>
               </div>
 
-              {/* Article Content */}
-              <article className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-purple-700 prose-strong:text-gray-900 prose-li:text-gray-700 mb-12">
-                <ReactMarkdown>{post.content}</ReactMarkdown>
-              </article>
-
-              {/* Tags */}
-              <div className="mb-12">
-                <h3 className="text-lg font-semibold mb-3">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {post.tags.map((tag) => (
-                    <Link
-                      key={tag}
-                      href={`/blog?tag=${encodeURIComponent(tag)}`}
-                      className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full text-sm font-medium flex items-center"
-                    >
+              <div className="flex flex-wrap justify-center gap-2">
+                {currentPost.tags.map((tag, index) => (
+                  <Link 
+                    key={index} 
+                    href={`/blog?tag=${tag}`}
+                    className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors"
+                  >
+                    <span className="flex items-center">
                       <Tag className="h-3 w-3 mr-1" />
                       {tag}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Related Posts */}
-              <div className="mb-12">
-                <h3 className="text-2xl font-bold mb-6">Related Articles</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {blogPosts
-                    .filter(p => p.id !== post.id && p.tags.some(tag => post.tags.includes(tag)))
-                    .slice(0, 2)
-                    .map((relatedPost) => (
-                      <motion.div
-                        key={relatedPost.id}
-                        whileHover={{ y: -5 }}
-                        className="card p-0 overflow-hidden"
-                      >
-                        <div className="relative h-40">
-                          <Image
-                            src={relatedPost.image}
-                            alt={relatedPost.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="p-4">
-                          <h4 className="font-bold text-lg mb-2 line-clamp-2">
-                            {relatedPost.title}
-                          </h4>
-                          <button
-                            onClick={() => router.push(`/blog/${relatedPost.id}`)}
-                            className="text-purple-700 font-medium flex items-center hover:text-purple-800"
-                          >
-                            Read More
-                            <ChevronRight className="h-5 w-5 ml-1" />
-                          </button>
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
+                    </span>
+                  </Link>
+                ))}
               </div>
             </motion.div>
           </div>
         </div>
-      </section>
-    </main>
+
+        {/* Featured Image */}
+        <div className="relative h-96 w-full bg-gray-100">
+          <Image
+            src={currentPost.image}
+            alt={currentPost.title}
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
+
+        {/* Content Section */}
+        <div className="container mx-auto px-6 py-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex justify-between mb-8">
+              <div className="flex gap-2">
+                <button 
+                  onClick={handleShare}
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  aria-label="Share article"
+                >
+                  <Share2 className="h-5 w-5 text-gray-600" />
+                </button>
+                <button 
+                  onClick={() => setBookmarked(!bookmarked)}
+                  className={`p-2 rounded-full transition-colors ${
+                    bookmarked ? 'text-purple-700' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                  aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark article'}
+                >
+                  <Bookmark className={`h-5 w-5 ${bookmarked ? 'fill-current' : ''}`} />
+                </button>
+              </div>
+
+              <Link 
+                href="/schedule-consultation"
+                className="bg-purple-700 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Schedule a Consultation
+              </Link>
+            </div>
+
+            {/* Related Solutions */}
+            {currentPost.relatedSolutions && currentPost.relatedSolutions.length > 0 && (
+              <div className="bg-purple-50 p-4 rounded-lg mb-8 border border-purple-100">
+                <h3 className="text-sm font-semibold text-purple-800 mb-2">Related FastTrack AI Solutions:</h3>
+                <div className="flex flex-wrap gap-3">
+                  {currentPost.relatedSolutions.map((solution, index) => (
+                    <Link 
+                      key={index} 
+                      href={`/solutions/${solution.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="inline-flex items-center text-sm font-medium text-purple-700 bg-white px-3 py-1 rounded-full border border-purple-200 hover:bg-purple-100 transition-colors"
+                    >
+                      {getSolutionIcon(solution)}
+                      <span className="ml-1">{solution}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Article Content */}
+            <motion.article 
+              className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-purple-700 prose-a:no-underline hover:prose-a:underline prose-img:rounded-lg prose-hr:border-gray-200"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <ReactMarkdown>{currentPost.content}</ReactMarkdown>
+            </motion.article>
+
+            {/* Author Bio */}
+            <div className="mt-16 p-6 bg-gray-50 rounded-xl border border-gray-100">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                <div className="relative w-20 h-20 rounded-full overflow-hidden shrink-0">
+                  <Image
+                    src={currentPost.author.avatar}
+                    alt={currentPost.author.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-1">{currentPost.author.name}</h3>
+                  <p className="text-gray-500 mb-3">{currentPost.author.role}</p>
+                  <p className="text-gray-700">
+                    FastTrack AI expert specializing in helping businesses implement effective AI solutions that drive measurable results and competitive advantages.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="mt-10 border-t border-b border-gray-200 py-6">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-gray-700 font-medium">Tags:</span>
+                {currentPost.tags.map((tag, index) => (
+                  <Link 
+                    key={index} 
+                    href={`/blog?tag=${tag}`}
+                    className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-sm text-gray-700 transition-colors"
+                  >
+                    {tag}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Section */}
+            <div className="mt-16 bg-purple-900 text-white p-8 rounded-xl">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+                <div className="lg:col-span-3">
+                  <h3 className="text-2xl font-bold mb-2">Ready to Implement AI in Your Business?</h3>
+                  <p className="text-white/80">Our AI implementation specialists can help you develop a tailored strategy for your organization.</p>
+                </div>
+                <div className="lg:col-span-2">
+                  <Link 
+                    href="/schedule-consultation"
+                    className="block w-full bg-white text-purple-900 text-center font-medium px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors"
+                  >
+                    Schedule Your Free Consultation
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Related Articles */}
+            {relatedPosts.length > 0 && (
+              <div className="mt-20">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h2>
+                <motion.div 
+                  className="grid grid-cols-1 md:grid-cols-3 gap-8"
+                  variants={staggerContainer}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                >
+                  {relatedPosts.map((post) => (
+                    <motion.div
+                      key={post.id}
+                      variants={fadeInUp}
+                      className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 transition-transform hover:shadow-md hover:-translate-y-1"
+                    >
+                      <div className="relative h-40 w-full">
+                        <Image
+                          src={post.image || '/blog/placeholder.jpg'}
+                          alt={post.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="p-5">
+                        <span className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full uppercase tracking-wide mb-2">
+                          {post.category}
+                        </span>
+                        <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2">
+                          {post.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          {post.excerpt}
+                        </p>
+                        <Link 
+                          href={`/blog/${post.id}`}
+                          className="inline-flex items-center text-sm font-medium text-purple-700 hover:text-purple-900"
+                        >
+                          Read article
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
+
+            {/* Newsletter */}
+            <div className="mt-16 border-t border-gray-200 pt-16">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Subscribe to Our Newsletter</h3>
+                <p className="text-gray-600 max-w-2xl mx-auto">
+                  Get the latest insights on AI implementation, case studies, and industry best practices delivered to your inbox.
+                </p>
+              </div>
+              <div className="max-w-md mx-auto">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="email"
+                    placeholder="Your email address"
+                    className="px-4 py-3 rounded-lg border border-gray-300 w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                  <button className="bg-purple-700 hover:bg-purple-600 text-white font-medium px-6 py-3 rounded-lg whitespace-nowrap transition-colors">
+                    Subscribe
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-3 text-center">
+                  By subscribing, you agree to our Privacy Policy. You can unsubscribe at any time.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </>
   );
 } 

@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Filter, Tag, ChevronRight, Search } from 'lucide-react';
+import { Calendar, Clock, Filter, Tag, ChevronRight, Search, Zap, BarChart, Shield, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Head from 'next/head';
 
 interface BlogPost {
   id: string;
@@ -21,13 +22,16 @@ interface BlogPost {
   category: string;
   image: string;
   tags: string[];
+  featured?: boolean;
+  relatedSolutions?: string[];
+  seoKeywords?: string[];
 }
 
 const blogPosts: BlogPost[] = [
   {
     id: 'post-1',
-    title: 'The Future of AI in Business: 2024 Trends and Predictions',
-    excerpt: 'Explore the emerging AI trends that will shape business operations in 2024 and beyond, from generative AI to autonomous systems.',
+    title: 'AI Implementation Strategies That Drive Business Growth',
+    excerpt: 'Discover how FastTrack AI helps businesses implement cutting-edge AI solutions that deliver measurable ROI and competitive advantages.',
     author: {
       name: 'Dr. Sarah Chen',
       role: 'AI Research Director',
@@ -35,14 +39,17 @@ const blogPosts: BlogPost[] = [
     },
     date: '2024-04-01',
     readTime: '8 min read',
-    category: 'Trends',
+    category: 'Strategy',
     image: '/blog/ai-trends-2024.jpg',
-    tags: ['AI Trends', 'Future Tech', 'Business Strategy']
+    tags: ['AI Strategy', 'Implementation', 'Business Growth', 'ROI'],
+    featured: true,
+    relatedSolutions: ['AI Integration', 'Process Automation', 'Business Analytics'],
+    seoKeywords: ['AI implementation strategy', 'business growth with AI', 'FastTrack AI solutions', 'AI ROI']
   },
   {
     id: 'post-2',
-    title: 'Implementing AI in SMBs: A Practical Guide',
-    excerpt: 'Learn how small and medium-sized businesses can effectively implement AI solutions without breaking the bank.',
+    title: 'How SMBs Can Leverage AI Without Enterprise Budgets',
+    excerpt: 'Learn how small and medium-sized businesses can implement cost-effective AI solutions with FastTrack AI\'s rapid deployment methodology.',
     author: {
       name: 'Michael Rodriguez',
       role: 'Implementation Specialist',
@@ -52,12 +59,14 @@ const blogPosts: BlogPost[] = [
     readTime: '12 min read',
     category: 'Implementation',
     image: '/blog/smb-ai-guide.jpg',
-    tags: ['SMB', 'Implementation', 'Cost Optimization']
+    tags: ['SMB', 'Cost Optimization', 'Rapid Implementation'],
+    relatedSolutions: ['SMB AI Solutions', 'Rapid Implementation', 'Cost Optimization'],
+    seoKeywords: ['AI for small business', 'affordable AI implementation', 'SMB AI solutions', 'cost-effective AI']
   },
   {
     id: 'post-3',
-    title: 'AI Security Best Practices for Enterprise',
-    excerpt: 'Discover essential security measures and best practices for implementing AI systems in enterprise environments.',
+    title: 'Enterprise AI Security: Protecting Your AI Infrastructure',
+    excerpt: 'Implement robust security measures for your AI systems with FastTrack AI\'s comprehensive security framework and best practices.',
     author: {
       name: 'Lisa Thompson',
       role: 'Security Expert',
@@ -67,12 +76,14 @@ const blogPosts: BlogPost[] = [
     readTime: '10 min read',
     category: 'Security',
     image: '/blog/ai-security.jpg',
-    tags: ['Security', 'Enterprise', 'Best Practices']
+    tags: ['Security', 'Enterprise', 'Risk Management'],
+    relatedSolutions: ['AI Security Framework', 'Enterprise Solutions', 'Risk Assessment'],
+    seoKeywords: ['AI security best practices', 'enterprise AI protection', 'secure AI implementation', 'AI risk management']
   },
   {
     id: 'post-4',
-    title: 'ROI of AI: Measuring Success in Digital Transformation',
-    excerpt: 'Learn how to measure and maximize the return on investment from your AI implementation initiatives.',
+    title: 'Measuring AI ROI: FastTrack\'s Approach to Value Demonstration',
+    excerpt: 'Our proprietary ROI measurement framework helps businesses quantify the impact of AI on operational efficiency, revenue growth, and cost reduction.',
     author: {
       name: 'James Wilson',
       role: 'Business Analyst',
@@ -82,7 +93,44 @@ const blogPosts: BlogPost[] = [
     readTime: '15 min read',
     category: 'ROI',
     image: '/blog/ai-roi.jpg',
-    tags: ['ROI', 'Analytics', 'Digital Transformation']
+    tags: ['ROI', 'Analytics', 'Value Measurement'],
+    featured: true,
+    relatedSolutions: ['ROI Calculator', 'Business Analytics', 'Performance Metrics'],
+    seoKeywords: ['AI ROI measurement', 'quantify AI impact', 'AI value demonstration', 'AI investment return']
+  },
+  {
+    id: 'post-5',
+    title: 'Customer Service AI: Transforming Support Operations',
+    excerpt: 'How FastTrack AI\'s customer service solutions create seamless, personalized support experiences while reducing operational costs.',
+    author: {
+      name: 'Emily Zhang',
+      role: 'Customer Experience Lead',
+      avatar: '/avatars/emily-zhang.jpg'
+    },
+    date: '2024-03-18',
+    readTime: '9 min read',
+    category: 'Solutions',
+    image: '/blog/customer-service-ai.jpg',
+    tags: ['Customer Service', 'Automation', 'Experience'],
+    relatedSolutions: ['Customer Service AI', 'Automation', 'NLP Solutions'],
+    seoKeywords: ['AI customer service', 'support automation', 'AI chatbots', 'customer experience AI']
+  },
+  {
+    id: 'post-6',
+    title: 'Process Automation: From Manual Tasks to AI-Driven Efficiency',
+    excerpt: 'Case studies of organizations that achieved 70%+ efficiency gains through FastTrack AI\'s process automation solutions.',
+    author: {
+      name: 'Robert Johnson',
+      role: 'Automation Specialist',
+      avatar: '/avatars/robert-johnson.jpg'
+    },
+    date: '2024-03-15',
+    readTime: '11 min read',
+    category: 'Solutions',
+    image: '/blog/process-automation.jpg',
+    tags: ['Process Automation', 'Efficiency', 'Case Studies'],
+    relatedSolutions: ['Process Automation', 'Workflow Optimization', 'Intelligent Document Processing'],
+    seoKeywords: ['AI process automation', 'workflow efficiency', 'business process optimization', 'automated workflows']
   }
 ];
 
@@ -109,6 +157,8 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
+  const featuredPosts = blogPosts.filter(post => post.featured);
+  
   const filteredPosts = blogPosts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
     const matchesTags = selectedTags.length === 0 || selectedTags.some(tag => post.tags.includes(tag));
@@ -134,235 +184,329 @@ export default function Blog() {
     });
   };
 
-  return (
-    <main className="min-h-screen gradient-primary">
-      {/* Hero Section */}
-      <motion.section 
-        className="py-24"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="container mx-auto px-6 text-center text-white">
-          <motion.h1 
-            className="heading-1 mb-6"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-          >
-            AI Implementation Insights
-          </motion.h1>
-          <motion.p 
-            className="body-large max-w-2xl mx-auto text-white"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ delay: 0.1 }}
-          >
-            Expert perspectives on AI implementation, trends, and best practices
-          </motion.p>
-        </div>
-      </motion.section>
+  const getSolutionIcon = (solution: string) => {
+    switch (solution) {
+      case 'AI Integration':
+      case 'Rapid Implementation':
+        return <Zap className="h-4 w-4 text-purple-500" />;
+      case 'Business Analytics':
+      case 'ROI Calculator':
+      case 'Performance Metrics':
+        return <BarChart className="h-4 w-4 text-purple-500" />;
+      case 'AI Security Framework':
+      case 'Risk Assessment':
+        return <Shield className="h-4 w-4 text-purple-500" />;
+      case 'Customer Service AI':
+      case 'NLP Solutions':
+        return <Users className="h-4 w-4 text-purple-500" />;
+      default:
+        return <ChevronRight className="h-4 w-4 text-purple-500" />;
+    }
+  };
 
-      {/* Content Section */}
-      <section className="py-16 gradient-secondary">
-        <div className="container mx-auto px-6">
-          <div className="max-w-6xl mx-auto">
-            {/* Filters */}
-            <motion.div 
-              className="mb-12"
+  return (
+    <>
+      <Head>
+        <title>AI Implementation Insights | FastTrack AI Blog</title>
+        <meta name="description" content="Expert perspectives on AI implementation, trends, and best practices from FastTrack AI's implementation specialists." />
+        <meta name="keywords" content="AI implementation, business AI, ROI measurement, AI strategy, process automation, SMB AI solutions" />
+        <meta property="og:title" content="AI Implementation Insights | FastTrack AI Blog" />
+        <meta property="og:description" content="Expert perspectives on AI implementation, trends, and best practices from FastTrack AI's implementation specialists." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://fasttrackai.io/blog" />
+        <meta property="og:image" content="https://fasttrackai.io/og-image.jpg" />
+      </Head>
+      
+      <main className="min-h-screen">
+        {/* Hero Section */}
+        <motion.section 
+          className="py-24 bg-gradient-to-b from-purple-900 to-purple-800"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="container mx-auto px-6 text-center text-white">
+            <motion.h1 
+              className="text-4xl md:text-5xl font-bold mb-6"
               variants={fadeInUp}
               initial="initial"
               animate="animate"
             >
-              <div className="flex flex-col lg:flex-row gap-6">
-                {/* Search */}
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                    <input
-                      type="text"
-                      placeholder="Search articles..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="input-field pl-10"
-                    />
-                  </div>
-                </div>
+              AI Implementation Insights
+            </motion.h1>
+            <motion.p 
+              className="text-xl max-w-2xl mx-auto text-white/90"
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ delay: 0.1 }}
+            >
+              Expert perspectives on AI implementation, trends, and best practices
+            </motion.p>
+          </div>
+        </motion.section>
 
-                {/* Categories */}
-                <div className="flex gap-2 overflow-x-auto pb-2">
-                  <motion.button
-                    onClick={() => setSelectedCategory('all')}
-                    className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${
-                      selectedCategory === 'all'
-                        ? 'bg-purple-700 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    All Categories
-                  </motion.button>
-                  {categories.map((category) => (
+        {/* Featured Posts Section */}
+        {featuredPosts.length > 0 && (
+          <section className="py-12 bg-gray-50">
+            <div className="container mx-auto px-6">
+              <div className="max-w-6xl mx-auto">
+                <h2 className="text-2xl font-bold text-gray-900 mb-8">Featured Insights</h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {featuredPosts.map((post) => (
+                    <motion.div
+                      key={post.id}
+                      variants={fadeInUp}
+                      initial="initial"
+                      whileInView="animate"
+                      viewport={{ once: true }}
+                      className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 transition-transform hover:shadow-lg hover:-translate-y-1"
+                    >
+                      <div className="relative h-52 w-full">
+                        <Image
+                          src={post.image || '/blog/placeholder.jpg'}
+                          alt={post.title}
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <div className="absolute bottom-0 left-0 p-4">
+                          <span className="bg-purple-700 text-white text-xs px-3 py-1 rounded-full uppercase tracking-wide">
+                            Featured
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-6">
+                        <span className="inline-block bg-purple-100 text-purple-800 text-xs px-3 py-1 rounded-full uppercase tracking-wide mb-2">
+                          {post.category}
+                        </span>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                          {post.title}
+                        </h3>
+                        <p className="text-gray-600 mb-4 line-clamp-3">
+                          {post.excerpt}
+                        </p>
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 text-gray-500 mr-1" />
+                            <span className="text-sm text-gray-500">{formatDate(post.date)}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 text-gray-500 mr-1" />
+                            <span className="text-sm text-gray-500">{post.readTime}</span>
+                          </div>
+                        </div>
+                        {post.relatedSolutions && (
+                          <div className="mb-4">
+                            <p className="text-xs text-gray-500 mb-1">Related Solutions:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {post.relatedSolutions.map((solution, index) => (
+                                <span key={index} className="inline-flex items-center text-xs font-medium text-purple-700">
+                                  {getSolutionIcon(solution)}
+                                  <span className="ml-1">{solution}</span>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <Link 
+                          href={`/blog/${post.id}`}
+                          className="inline-flex items-center text-sm font-medium text-purple-700 hover:text-purple-900"
+                        >
+                          Read full article
+                          <ChevronRight className="h-4 w-4 ml-1" />
+                        </Link>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Content Section */}
+        <section className="py-16 bg-white">
+          <div className="container mx-auto px-6">
+            <div className="max-w-6xl mx-auto">
+              {/* Filters */}
+              <motion.div 
+                className="mb-12 bg-gray-50 p-6 rounded-xl shadow-sm"
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+              >
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Filter Articles</h2>
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Search */}
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                      <input
+                        type="text"
+                        placeholder="Search articles..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full px-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Categories */}
+                  <div className="flex gap-2 overflow-x-auto pb-2">
                     <motion.button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
+                      onClick={() => setSelectedCategory('all')}
                       className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${
-                        selectedCategory === category
+                        selectedCategory === 'all'
                           ? 'bg-purple-700 text-white'
-                          : 'bg-white text-gray-700 hover:bg-gray-50'
+                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
                       }`}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      {category}
+                      All Categories
                     </motion.button>
-                  ))}
+                    {categories.map((category) => (
+                      <motion.button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${
+                          selectedCategory === category
+                            ? 'bg-purple-700 text-white'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {category}
+                      </motion.button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Tags */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {allTags.map((tag) => (
-                  <motion.button
-                    key={tag}
-                    onClick={() => toggleTag(tag)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedTags.includes(tag)
-                        ? 'bg-purple-700 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <span className="flex items-center">
-                      <Tag className="h-3 w-3 mr-1" />
-                      {tag}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Blog Posts Grid */}
-            <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 gap-8"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              {filteredPosts.length > 0 ? (
-                filteredPosts.map((post) => (
-                  <motion.article
-                    key={post.id}
-                    variants={fadeInUp}
-                    whileHover={{ y: -5 }}
-                    className="card p-0 overflow-hidden"
-                  >
-                    <div className="relative h-48">
-                      <Image
-                        src={post.image}
-                        alt={post.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-center gap-4 mb-4">
-                        <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
-                          {post.category}
+                {/* Tags */}
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 mb-2">Popular Tags:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {allTags.map((tag) => (
+                      <motion.button
+                        key={tag}
+                        onClick={() => toggleTag(tag)}
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          selectedTags.includes(tag)
+                            ? 'bg-purple-700 text-white'
+                            : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <span className="flex items-center">
+                          <Tag className="h-3 w-3 mr-1" />
+                          {tag}
                         </span>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {post.readTime}
-                        </div>
-                      </div>
-                      <h2 className="heading-3 mb-2 line-clamp-2 text-gray-900">
-                        {post.title}
-                      </h2>
-                      <p className="text-gray-600 mb-4 line-clamp-2">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
-                            <Image
-                              src={post.author.avatar}
-                              alt={post.author.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900">{post.author.name}</p>
-                            <p className="text-sm text-gray-500">{post.author.role}</p>
-                          </div>
-                        </div>
-                        <motion.button
-                          onClick={() => router.push(`/blog/${post.id}`)}
-                          className="text-purple-700 font-medium flex items-center hover:text-purple-800"
-                          whileHover={{ x: 5 }}
-                        >
-                          Read More
-                          <ChevronRight className="h-5 w-5 ml-1" />
-                        </motion.button>
-                      </div>
-                    </div>
-                  </motion.article>
-                ))
-              ) : (
-                <motion.div 
-                  className="col-span-2 text-center py-12"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <p className="text-xl text-gray-200 mb-4">No articles match your search criteria</p>
-                  <button 
-                    onClick={() => {
-                      setSelectedCategory('all');
-                      setSelectedTags([]);
-                      setSearchQuery('');
-                    }}
-                    className="button-secondary"
-                  >
-                    Clear Filters
-                  </button>
-                </motion.div>
-              )}
-            </motion.div>
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
 
-            {/* Newsletter Signup */}
-            <motion.div 
-              className="mt-16 gradient-cta text-white rounded-xl p-8 text-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="heading-2 mb-4">Stay Informed</h2>
-              <p className="body-large mb-6 max-w-2xl mx-auto opacity-90">
-                Subscribe to our newsletter for the latest insights on AI implementation and industry trends.
-              </p>
-              <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-4">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="input-field"
-                />
-                <motion.button
-                  onClick={() => alert('Subscription functionality coming soon!')}
-                  className="button-secondary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Subscribe
-                </motion.button>
+              {/* Blog Posts Grid */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">All Articles ({filteredPosts.length})</h2>
+                {filteredPosts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500">No articles match your search criteria. Try adjusting your filters.</p>
+                  </div>
+                ) : (
+                  <motion.div 
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
+                  >
+                    {filteredPosts.map((post) => (
+                      <motion.div
+                        key={post.id}
+                        variants={fadeInUp}
+                        className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-transform hover:shadow-md hover:-translate-y-1"
+                      >
+                        <div className="relative h-48 w-full">
+                          <Image
+                            src={post.image || '/blog/placeholder.jpg'}
+                            alt={post.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="p-6">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="inline-block bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full uppercase tracking-wide">
+                              {post.category}
+                            </span>
+                            {post.featured && (
+                              <span className="inline-block bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full uppercase tracking-wide">
+                                Featured
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 h-14">
+                            {post.title}
+                          </h3>
+                          <p className="text-gray-600 mb-4 text-sm line-clamp-3 h-16">
+                            {post.excerpt}
+                          </p>
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center">
+                              <Clock className="h-4 w-4 text-gray-500 mr-1" />
+                              <span className="text-xs text-gray-500">{post.readTime}</span>
+                            </div>
+                            <span className="text-xs text-gray-500">{formatDate(post.date)}</span>
+                          </div>
+                          <Link 
+                            href={`/blog/${post.id}`}
+                            className="inline-flex items-center text-sm font-medium text-purple-700 hover:text-purple-900"
+                          >
+                            Read article
+                            <ChevronRight className="h-4 w-4 ml-1" />
+                          </Link>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
               </div>
-            </motion.div>
+              
+              {/* Newsletter Signup */}
+              <motion.div
+                className="bg-purple-900 rounded-xl p-8 text-white"
+                variants={fadeInUp}
+                initial="initial"
+                whileInView="animate"
+                viewport={{ once: true }}
+              >
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
+                  <div className="lg:col-span-3">
+                    <h3 className="text-2xl font-bold mb-2">Stay Updated with AI Implementation Insights</h3>
+                    <p className="text-white/80">Get the latest articles, case studies, and AI implementation strategies delivered to your inbox.</p>
+                  </div>
+                  <div className="lg:col-span-2">
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <input
+                        type="email"
+                        placeholder="Your email address"
+                        className="px-4 py-3 rounded-lg w-full focus:outline-none text-gray-900"
+                      />
+                      <button className="bg-purple-600 hover:bg-purple-500 text-white font-medium px-6 py-3 rounded-lg whitespace-nowrap">
+                        Subscribe
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+      </main>
+    </>
   );
 } 
