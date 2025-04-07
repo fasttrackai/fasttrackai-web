@@ -14,9 +14,9 @@ interface ChatMessage {
 export async function POST(req: Request) {
   const { messages } = await req.json();
   
-  // Use mock data in development if no API key is available
-  if (!process.env.OPENAI_API_KEY && process.env.NODE_ENV === 'development') {
-    console.log('Using mock data for OpenAI chat response');
+  // Use mock data if no API key is available (in any environment)
+  if (!process.env.OPENAI_API_KEY) {
+    console.log('Using mock data for OpenAI chat response - API key not found');
     
     // Simple logic to generate a mock response based on the user's last message
     const lastUserMessage = messages.filter((m: ChatMessage) => m.role === 'user').pop()?.content || '';
@@ -29,6 +29,10 @@ export async function POST(req: Request) {
         m.role === 'assistant' && 
         m.content.toLowerCase().includes('customer service')
       )?.content || mockResponse;
+    } else if (lastUserMessage.toLowerCase().includes('industry')) {
+      mockResponse = "Thank you for sharing that information. Could you tell me more about your annual revenue range? This will help me better assess the potential AI impact for your business.";
+    } else if (lastUserMessage.toLowerCase().includes('revenue')) {
+      mockResponse = "I see. Do you currently collect and store digital data about your operations, customers, or processes? This is important for understanding your AI readiness.";
     }
     
     // Return mocked streamed response
@@ -39,7 +43,7 @@ export async function POST(req: Request) {
     });
   }
   
-  // Use real OpenAI API
+  // Use real OpenAI API if key is available
   try {
     const result = await streamText({
       model: openai("gpt-4"),
