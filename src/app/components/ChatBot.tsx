@@ -61,6 +61,10 @@ export default function ChatBot() {
   const { messages, input, handleInputChange, handleSubmit: aiHandleSubmit } = useChat({
     api: '/api/openai/chat', // Use our custom API endpoint
     initialMessages: [INITIAL_MESSAGE],
+    onResponse: (response) => {
+      // Keep track of the response but don't clear messages
+      setIsLoading(false);
+    },
     onFinish: (message) => {
       // Move to next question or show consultation options
       if (questionIndex < qualificationQuestions.length - 1) {
@@ -79,11 +83,14 @@ export default function ChatBot() {
     onError: (error) => {
       console.error('Error from chat API:', error);
       setIsLoading(false);
-    }
+    },
+    id: 'ai-advisor-chat', // Add a persistent ID for the chat
+    preserve: true, // Preserve messages between rerenders
   });
 
   // Wrap the handleSubmit to add loading state
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent form from refreshing the page
     setIsLoading(true);
     aiHandleSubmit(e);
   };
