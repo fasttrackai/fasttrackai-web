@@ -79,8 +79,8 @@ export default function ScheduleConsultation() {
           // @ts-ignore - Cal is added by the script
           window.Cal.ns["consultation-fast-track-ai"]("ui", {
             "cssVarsPerTheme": {
-              "light": {"cal-brand": "#9333EA"},
-              "dark": {"cal-brand": "#FBBF24"}
+              "light": {"cal-brand": "#FBBF24"},
+              "dark": {"cal-brand": "#9333EA"}
             },
             "hideEventTypeDetails": false,
             "layout": "week_view"
