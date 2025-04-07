@@ -59,21 +59,27 @@ export default function ChatBot() {
 
   // Connect to our API endpoint using the useChat hook from the Vercel AI SDK
   const { messages, input, handleInputChange, handleSubmit: aiHandleSubmit } = useChat({
-    api: '/api/openai/chat', // Use our custom API endpoint
+    api: '/api/openai/chat',
     initialMessages: [INITIAL_MESSAGE],
     onResponse: (response) => {
-      // Keep track of the response but don't clear messages
       setIsLoading(false);
+      // If there's an error in the response, show it as a message
+      if (response.status === 500) {
+        const errorMessage: Message = {
+          id: nanoid(),
+          role: 'assistant',
+          content: "I apologize, but I'm having trouble connecting to my knowledge base. Please try again in a moment."
+        };
+        messages.push(errorMessage);
+      }
     },
     onFinish: (message) => {
-      // Only update the question index and show consultation options after getting a response
       if (message.role === 'assistant') {
         if (questionIndex < qualificationQuestions.length - 1) {
           setQuestionIndex(prev => prev + 1);
         } else {
           setShowConsultOptions(true);
         }
-        // Store the previous user's answer
         if (input.trim()) {
           setAnswers(prev => ({
             ...prev,
@@ -85,18 +91,30 @@ export default function ChatBot() {
     },
     onError: (error) => {
       console.error('Error from chat API:', error);
+      // Add an error message to the chat
+      const errorMessage: Message = {
+        id: nanoid(),
+        role: 'assistant',
+        content: "I apologize, but I encountered an error. Please try again in a moment."
+      };
+      messages.push(errorMessage);
       setIsLoading(false);
     },
-    id: 'ai-advisor-chat', // Add a persistent ID for the chat
-    preserve: true, // Preserve messages between rerenders
+    id: 'ai-advisor-chat'
   });
 
-  // Wrap the handleSubmit to add loading state
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); // Prevent form from refreshing the page
-    if (!input.trim()) return; // Don't submit empty messages
-    setIsLoading(true);
-    aiHandleSubmit(e);
+  // Enhanced submit handler with error handling
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    
+    try {
+      setIsLoading(true);
+      await aiHandleSubmit(e);
+    } catch (error) {
+      console.error('Chat submission error:', error);
+      setIsLoading(false);
+    }
   };
 
   const handleScheduleConsult = () => {

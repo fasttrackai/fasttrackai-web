@@ -226,6 +226,10 @@ export default function Home() {
                       src={testimonial.avatar} 
                       alt={testimonial.name}
                       className="h-full w-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "/avatars/placeholder.jpg";
+                        e.currentTarget.onerror = null; // Prevent infinite loop
+                      }}
                     />
                   </div>
                   <div className="text-left">
