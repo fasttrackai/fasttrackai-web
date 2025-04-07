@@ -1,4 +1,4 @@
-import { db, storage, isFirebaseConfigured } from './firebase';
+import { getFirestoreInstance, getStorageInstance, isFirebaseConfigured } from './firebase';
 import {
   collection,
   doc,
@@ -11,21 +11,45 @@ import {
   arrayUnion,
   Timestamp,
   setDoc,
+  Firestore,
+  DocumentReference,
+  CollectionReference,
 } from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 
 // Check if Firebase is initialized correctly
 const isFirebaseInitialized = () => {
   if (!isFirebaseConfigured()) {
+    console.warn('Firebase is not configured');
     return false;
   }
 
   try {
-    return !!db && !!storage;
+    return getFirestoreInstance() !== null && getStorageInstance() !== null;
   } catch (error) {
     console.error('Firebase initialization error:', error);
     return false;
   }
+};
+
+// Get Firestore instance with type checking
+const getFirestore = (): Firestore => {
+  if (!isFirebaseInitialized()) {
+    throw new Error('Firebase is not initialized');
+  }
+  return getFirestoreInstance() as Firestore;
+};
+
+// Helper function to get document reference with type safety
+const getDocRef = <T>(path: string): DocumentReference<T> => {
+  const firestore = getFirestore();
+  return doc(firestore, path) as DocumentReference<T>;
+};
+
+// Helper function to get collection reference with type safety
+const getCollectionRef = <T>(path: string): CollectionReference<T> => {
+  const firestore = getFirestore();
+  return collection(firestore, path) as CollectionReference<T>;
 };
 
 export interface TrainingModule {
@@ -940,145 +964,93 @@ const mockUserProgress: Record<string, UserProgress> = {
 
 // Function to get all training paths
 export async function getTrainingPaths(): Promise<TrainingPath[]> {
-  if (!isFirebaseInitialized()) {
-    console.warn('Firebase not properly initialized, returning mock data');
+  if (!isFirebaseConfigured()) {
+    console.warn('Firebase not initialized, returning mock data');
     return mockTrainingPaths;
   }
 
-  if (!db) {
-    console.warn('Firebase Firestore not initialized, returning mock data');
+  try {
+    const pathsRef = getCollectionRef<TrainingPath>('training-paths');
+    const pathsSnapshot = await getDocs(pathsRef);
+    return pathsSnapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id,
+    } as TrainingPath));
+  } catch (error) {
+    console.error('Error fetching training paths:', error);
     return mockTrainingPaths;
   }
-
-  const pathsRef = collection(db, 'trainingPaths');
-  const pathsSnapshot = await getDocs(pathsRef);
-  return pathsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as TrainingPath));
 }
 
 // Function to get a specific training path with its modules
 export async function getTrainingPathWithModules(pathId: string): Promise<Omit<TrainingPath, 'modules'> & { modules: TrainingModule[] }> {
-  if (!isFirebaseInitialized()) {
-    console.warn('Firebase not properly initialized, returning mock data');
-    // Find the mock path
-    const mockPath = mockTrainingPaths.find(p => p.id === pathId);
-    if (!mockPath) {
-      throw new Error(`Training path with ID ${pathId} not found`);
-    }
+  if (!isFirebaseConfigured()) {
+    console.warn('Firebase not initialized, returning mock data');
+    const path = mockTrainingPaths.find(p => p.id === pathId);
+    if (!path) throw new Error('Path not found');
     
-    // Map modules from mock data
-    const modules = mockPath.modules.map(moduleId => {
-      return mockTrainingModules[moduleId] || {
-        id: moduleId,
-        pathId,
-        title: 'Mock Module',
-        description: 'Mock module description',
-        thumbnail: 'https://via.placeholder.com/300',
-        duration: '1 hour',
-        videoUrl: '',
-        content: '',
-        order: 0
-      };
-    });
-    
-    const { modules: _, ...pathWithoutModules } = mockPath;
+    const modules = path.modules
+      .map(moduleId => mockTrainingModules[moduleId])
+      .filter((module): module is TrainingModule => module !== null && module !== undefined)
+      .sort((a, b) => a.order - b.order);
+
     return {
-      ...pathWithoutModules,
-      modules
+      ...path,
+      modules,
     };
   }
 
-  if (!db) {
-    console.warn('Firebase Firestore not initialized, returning mock data');
-    // Same mock data logic as above
-    const mockPath = mockTrainingPaths.find(p => p.id === pathId);
-    if (!mockPath) {
-      throw new Error(`Training path with ID ${pathId} not found`);
-    }
-    
-    const modules = mockPath.modules.map(moduleId => {
-      return mockTrainingModules[moduleId] || {
-        id: moduleId,
-        pathId,
-        title: 'Mock Module',
-        description: 'Mock module description',
-        thumbnail: 'https://via.placeholder.com/300',
-        duration: '1 hour',
-        videoUrl: '',
-        content: '',
-        order: 0
-      };
-    });
-    
-    const { modules: _, ...pathWithoutModules } = mockPath;
+  try {
+    const path = await getTrainingPath(pathId);
+    if (!path) throw new Error('Path not found');
+
+    const modulePromises = path.modules.map(moduleId => getTrainingModule(moduleId));
+    const modules = (await Promise.all(modulePromises))
+      .filter((module): module is TrainingModule => module !== null)
+      .sort((a, b) => a.order - b.order);
+
     return {
-      ...pathWithoutModules,
-      modules
+      ...path,
+      modules,
     };
+  } catch (error) {
+    console.error('Error fetching path with modules:', error);
+    throw error;
   }
-
-  const pathRef = doc(db, 'trainingPaths', pathId);
-  const pathDoc = await getDoc(pathRef);
-  
-  if (!pathDoc.exists()) {
-    throw new Error('Training path not found');
-  }
-
-  const pathData = pathDoc.data() as TrainingPath;
-  const modulePromises = pathData.modules.map(moduleId => getTrainingModule(moduleId));
-  const modules = await Promise.all(modulePromises);
-
-  return {
-    ...pathData,
-    id: pathDoc.id,
-    modules: modules.sort((a, b) => a.order - b.order)
-  };
 }
 
 // Function to get a specific training module by ID
 export async function getTrainingModule(moduleId: string): Promise<TrainingModule | null> {
-  if (process.env.NODE_ENV === 'development' || !isFirebaseInitialized()) {
-    // Return mock data for development
-    return mockTrainingModules.find(module => module.id === moduleId) || null;
-  }
-
-  // Safety check for Firebase initialization
-  if (!db || !storage) {
-    console.warn('Firebase services not fully initialized, returning null');
-    return null;
+  if (!isFirebaseConfigured()) {
+    console.warn('Firebase not initialized, returning mock data');
+    return mockTrainingModules[moduleId] || null;
   }
 
   try {
-    const moduleRef = doc(db, 'trainingModules', moduleId);
+    const moduleRef = getDocRef<TrainingModule>(`training-modules/${moduleId}`);
     const moduleDoc = await getDoc(moduleRef);
-    
     if (!moduleDoc.exists()) {
-      throw new Error('Training module not found');
+      return null;
     }
-
-    const moduleData = moduleDoc.data() as TrainingModule;
-    
-    // If there's a video URL and storage is initialized, get the download URL
-    if (moduleData.videoUrl && storage) {
-      const videoRef = ref(storage, moduleData.videoUrl);
-      moduleData.videoUrl = await getDownloadURL(videoRef);
-    }
-
-    return { ...moduleData, id: moduleDoc.id };
+    return {
+      ...moduleDoc.data(),
+      id: moduleDoc.id,
+    } as TrainingModule;
   } catch (error) {
-    console.error('Error getting training module:', error);
-    return null;
+    console.error('Error fetching training module:', error);
+    return mockTrainingModules[moduleId] || null;
   }
 }
 
 // Function to get user progress
 export async function getUserProgress(userId: string): Promise<UserProgress | null> {
-  if (process.env.NODE_ENV === 'development' || !isFirebaseInitialized()) {
+  if (process.env.NODE_ENV === 'development' || !isFirebaseConfigured()) {
     // Return mock data for development
     return mockUserProgress[userId] || null;
   }
 
   try {
-    const userProgressRef = doc(db, 'userProgress', userId);
+    const userProgressRef = doc(getFirestore(), 'userProgress', userId);
     const userProgressDoc = await getDoc(userProgressRef);
 
     if (!userProgressDoc.exists()) {
@@ -1093,68 +1065,29 @@ export async function getUserProgress(userId: string): Promise<UserProgress | nu
 }
 
 // Function to update user progress
-export async function updateUserProgress(userId: string, moduleId: string, pathId: string, quizScore: number): Promise<void> {
-  if (process.env.NODE_ENV === 'development' || !isFirebaseInitialized()) {
-    // Update mock data for development
-    if (!mockUserProgress[userId]) {
-      mockUserProgress[userId] = {
-        completedModules: {},
-        inProgressModules: [],
-        savedModules: []
-      };
-    }
-    
-    // Update the completedModules with the new module
-    if (!mockUserProgress[userId].completedModules) {
-      mockUserProgress[userId].completedModules = {};
-    }
-    
-    mockUserProgress[userId].completedModules[moduleId] = {
-      completed: true,
-      quizScore: quizScore,
-      dateCompleted: new Date().toISOString()
-    };
-    
-    // Remove from inProgressModules if it exists there
-    mockUserProgress[userId].inProgressModules = mockUserProgress[userId].inProgressModules.filter(m => m !== moduleId);
-    
-    console.log('Updated user progress (mock):', mockUserProgress[userId]);
+export async function updateUserProgress(
+  userId: string,
+  moduleId: string,
+  pathId: string,
+  quizScore: number
+): Promise<void> {
+  if (!isFirebaseConfigured()) {
+    console.warn('Firebase not initialized, progress not saved');
     return;
   }
 
   try {
-    const userProgressRef = doc(db, 'userProgress', userId);
-    const userProgressDoc = await getDoc(userProgressRef);
+    const userProgressRef = getDocRef<UserProgress>(`users/${userId}/progress/training`);
+    const now = new Date().toISOString();
     
-    let userProgress: UserProgress;
-    
-    if (!userProgressDoc.exists()) {
-      // Create new progress document if it doesn't exist
-      userProgress = {
-        completedModules: {},
-        inProgressModules: [],
-        savedModules: []
-      };
-    } else {
-      userProgress = userProgressDoc.data() as UserProgress;
-      if (!userProgress.completedModules) {
-        userProgress.completedModules = {};
-      }
-    }
-    
-    // Update the module completion data
-    userProgress.completedModules[moduleId] = {
-      completed: true,
-      quizScore: quizScore,
-      dateCompleted: new Date().toISOString()
-    };
-    
-    // Remove from inProgressModules if it exists there
-    if (userProgress.inProgressModules) {
-      userProgress.inProgressModules = userProgress.inProgressModules.filter(m => m !== moduleId);
-    }
-    
-    await setDoc(userProgressRef, userProgress, { merge: true });
+    await updateDoc(userProgressRef, {
+      [`completedModules.${moduleId}`]: {
+        completed: true,
+        quizScore,
+        dateCompleted: now
+      },
+      inProgressModules: arrayUnion(moduleId)
+    });
   } catch (error) {
     console.error('Error updating user progress:', error);
     throw error;
@@ -1162,13 +1095,19 @@ export async function updateUserProgress(userId: string, moduleId: string, pathI
 }
 
 // Get video URL from Firebase Storage
-export const getVideoUrl = async (videoPath: string) => {
-  const videoRef = ref(storage, videoPath);
+export const getVideoUrl = async (videoPath: string): Promise<string> => {
+  if (!isFirebaseConfigured()) {
+    console.warn('Firebase Storage not initialized');
+    return '';
+  }
+
   try {
+    const storage = getStorageInstance();
+    const videoRef = ref(storage, videoPath);
     return await getDownloadURL(videoRef);
   } catch (error) {
     console.error('Error getting video URL:', error);
-    throw error;
+    return '';
   }
 };
 
@@ -1176,7 +1115,7 @@ export const getVideoUrl = async (videoPath: string) => {
 export const getTrainingPathsByCategory = async (category: string) => {
   const querySnapshot = await getDocs(
     query(
-      collection(db, 'trainingPaths'),
+      collection(getFirestore(), 'trainingPaths'),
       where('category', '==', category),
       orderBy('level')
     )
@@ -1190,7 +1129,7 @@ export const getTrainingPathsByCategory = async (category: string) => {
 
 // Check if user has completed prerequisites for a path
 export const checkPrerequisites = async (userId: string, pathId: string): Promise<boolean> => {
-  if (process.env.NODE_ENV === 'development' || !isFirebaseInitialized()) {
+  if (process.env.NODE_ENV === 'development' || !isFirebaseConfigured()) {
     // For development, always return true for the first path and check prerequisites for others
     if (pathId === 'ai-fundamentals') return true;
     
@@ -1219,7 +1158,7 @@ export const checkPrerequisites = async (userId: string, pathId: string): Promis
     return true;
   }
 
-  const pathRef = doc(db, 'trainingPaths', pathId);
+  const pathRef = doc(getFirestore(), 'trainingPaths', pathId);
   const pathDoc = await getDoc(pathRef);
   
   if (!pathDoc.exists()) {
@@ -1253,11 +1192,11 @@ export const checkPrerequisites = async (userId: string, pathId: string): Promis
 
 // Helper function to get a single training path
 async function getTrainingPath(pathId: string): Promise<TrainingPath | null> {
-  if (process.env.NODE_ENV === 'development' || !isFirebaseInitialized()) {
+  if (process.env.NODE_ENV === 'development' || !isFirebaseConfigured()) {
     return mockTrainingPaths.find(p => p.id === pathId) || null;
   }
   
-  const pathRef = doc(db, 'trainingPaths', pathId);
+  const pathRef = doc(getFirestore(), 'trainingPaths', pathId);
   const pathDoc = await getDoc(pathRef);
   
   if (!pathDoc.exists()) {
@@ -1270,7 +1209,7 @@ async function getTrainingPath(pathId: string): Promise<TrainingPath | null> {
 // Helper function to get a user's progress for a specific path
 export function getPathProgress(userId: string, pathId: string): { completed: number; total: number; percentage: number } {
   // For development
-  if (process.env.NODE_ENV === 'development' || !isFirebaseInitialized()) {
+  if (process.env.NODE_ENV === 'development' || !isFirebaseConfigured()) {
     const user = mockUserProgress[userId];
     const path = mockTrainingPaths.find(p => p.id === pathId);
     

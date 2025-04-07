@@ -38,10 +38,10 @@ export default function AIIntegration() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link 
-                href="/strategy-report" 
+                href="/schedule-consultation?source=ai-integration" 
                 className="bg-white text-purple-700 px-6 py-3 rounded-lg hover:bg-purple-50 transition-colors font-medium"
               >
-                Get Your AI Strategy Report
+                Schedule an AI Strategy Consultation
               </Link>
               <Link 
                 href="/schedule-consultation" 

@@ -54,17 +54,14 @@ export default function StrategyReport() {
     setIsSubmitting(true);
     
     try {
-      // In a real implementation, this would call an API endpoint
-      // that generates the report using AI
-      await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate API call
+      // Store form data in session or localStorage for potential use
+      sessionStorage.setItem('strategyReportFormData', JSON.stringify(formData));
       
-      setIsSuccess(true);
+      // Redirect to consultation scheduling page instead of generating report
+      window.location.href = '/schedule-consultation?source=strategy-report';
       
-      // In a real implementation, this would trigger an email sequence
-      console.log('Sending follow-up email sequence to:', formData.email);
     } catch (error) {
-      console.error('Error generating report:', error);
-    } finally {
+      console.error('Error:', error);
       setIsSubmitting(false);
     }
   };
@@ -1354,7 +1351,7 @@ Generated on: ${new Date().toLocaleDateString()}
                 
                 <div>
                   <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-2">
-                    Monthly Budget for AI Solutions
+                    Budget for AI Solutions
                   </label>
                   <select
                     id="budget"
@@ -1399,11 +1396,11 @@ Generated on: ${new Date().toLocaleDateString()}
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      Generating Your Report...
+                      Processing...
                     </>
                   ) : (
                     <>
-                      Generate My AI Strategy Report
+                      Schedule My AI Strategy Consultation
                       <Send className="ml-2 h-5 w-5" />
                     </>
                   )}
