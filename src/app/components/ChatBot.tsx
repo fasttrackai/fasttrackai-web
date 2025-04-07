@@ -141,7 +141,7 @@ export default function ChatBot() {
                   className={`max-w-[80%] rounded-lg p-3 ${
                     message.role === 'assistant'
                       ? 'bg-gray-100 text-gray-900'
-                      : 'bg-blue-600 text-black'
+                      : 'bg-[#4285f4] text-black'
                   }`}
                 >
                   {message.content}
