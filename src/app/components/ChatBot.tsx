@@ -66,18 +66,21 @@ export default function ChatBot() {
       setIsLoading(false);
     },
     onFinish: (message) => {
-      // Move to next question or show consultation options
-      if (questionIndex < qualificationQuestions.length - 1) {
-        setQuestionIndex(prev => prev + 1);
-      } else {
-        setShowConsultOptions(true);
+      // Only update the question index and show consultation options after getting a response
+      if (message.role === 'assistant') {
+        if (questionIndex < qualificationQuestions.length - 1) {
+          setQuestionIndex(prev => prev + 1);
+        } else {
+          setShowConsultOptions(true);
+        }
+        // Store the previous user's answer
+        if (input.trim()) {
+          setAnswers(prev => ({
+            ...prev,
+            [qualificationQuestions[questionIndex].id]: input
+          }));
+        }
       }
-      // Store the answer
-      setAnswers(prev => ({
-        ...prev,
-        [qualificationQuestions[questionIndex].id]: input
-      }));
-      
       setIsLoading(false);
     },
     onError: (error) => {
@@ -91,6 +94,7 @@ export default function ChatBot() {
   // Wrap the handleSubmit to add loading state
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent form from refreshing the page
+    if (!input.trim()) return; // Don't submit empty messages
     setIsLoading(true);
     aiHandleSubmit(e);
   };
