@@ -140,8 +140,8 @@ export default function ChatBot() {
                 <div
                   className={`max-w-[80%] rounded-lg p-3 ${
                     message.role === 'assistant'
-                      ? 'bg-gray-100'
-                      : 'bg-blue-600 text-white'
+                      ? 'bg-gray-100 text-gray-900'
+                      : 'bg-blue-600 text-black'
                   }`}
                 >
                   {message.content}
