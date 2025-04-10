@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import sgMail from '@sendgrid/mail';
+import { Resend } from 'resend';
 
 export async function POST(request: Request) {
   try {
@@ -8,8 +8,8 @@ export async function POST(request: Request) {
     // Log the received data
     console.log('Received consultation request:', data);
     
-    // Initialize SendGrid with API key
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+    // Initialize Resend with API key
+    const resend = new Resend(process.env.RESEND_API_KEY);
     
     // Format the date and time for better readability
     const appointmentDate = new Date(data.appointmentDate);
@@ -29,11 +29,11 @@ export async function POST(request: Request) {
       startTime: `${data.appointmentDate}T${data.appointmentTime}:00`,
       endTime: `${data.appointmentDate}T${parseInt(data.appointmentTime.split(':')[0]) + 1}:00:00`,
       summary: 'FastTrack AI Consultation',
-      description: `Consultation with ${data.name} from ${data.company} regarding ${data.challengeArea}`,
+      description: `Consultation with ${data.name} from ${data.company} regarding ${data.primaryChallenge}`,
       location: 'Virtual Meeting (link to be provided)',
       organizer: {
         name: process.env.EMAIL_SENDER_NAME || 'FastTrack AI Team',
-        email: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com'
+        email: process.env.EMAIL_FROM || 'team@fasttrackai.io'
       },
       attendee: {
         name: data.name,
@@ -41,12 +41,10 @@ export async function POST(request: Request) {
       }
     });
     
-    // Send email to user
-    await sgMail.send({
-      from: {
-        email: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com',
-        name: process.env.EMAIL_SENDER_NAME || 'FastTrack AI'
-      },
+    // Send email to user using Resend
+    await resend.emails.send({
+      from: `${process.env.EMAIL_SENDER_NAME || 'FastTrack AI'} <noreply@fasttrackai.io>`,
+      replyTo: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com',
       to: data.email,
       subject: 'Your FastTrack AI Consultation Confirmation',
       text: `
@@ -55,7 +53,7 @@ Thank you for scheduling a consultation with FastTrack AI!
 Consultation Details:
 Date: ${formattedDate}
 Time: ${formattedTime}
-Topic: ${data.challengeArea}
+Topic: ${data.primaryChallenge}
 
 One of our AI strategy experts will be contacting you at the scheduled time.
 
@@ -83,7 +81,7 @@ The FastTrack AI Team
       <h2 style="margin-top: 0; color: #6d28d9;">Consultation Details</h2>
       <p><strong>Date:</strong> ${formattedDate}</p>
       <p><strong>Time:</strong> ${formattedTime}</p>
-      <p><strong>Topic:</strong> ${data.challengeArea}</p>
+      <p><strong>Topic:</strong> ${data.primaryChallenge}</p>
     </div>
     
     <p>One of our AI strategy experts will be contacting you at the scheduled time.</p>
@@ -108,42 +106,36 @@ The FastTrack AI Team
       `,
       attachments: [
         {
-          content: Buffer.from(icsEvent).toString('base64'),
           filename: 'consultation.ics',
-          type: 'text/calendar',
-          disposition: 'attachment'
+          content: Buffer.from(icsEvent).toString('base64')
         }
       ]
     });
     
     // Send notification to admin
-    await sgMail.send({
-      from: {
-        email: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com',
-        name: 'FastTrack AI System'
-      },
-      to: 'team@fasttrackai.io', // Change to your admin email
-      subject: 'New Consultation Scheduled',
+    await resend.emails.send({
+      from: `FastTrack AI System <noreply@fasttrackai.io>`,
+      replyTo: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com',
+      to: process.env.EMAIL_FROM || 'fasttrack.ai.now@gmail.com', // Send to admin email
+      subject: 'New Consultation Request',
       text: `
-New consultation has been scheduled:
+New consultation request received:
 
 Customer: ${data.name}
 Company: ${data.company}
 Email: ${data.email}
-Phone: ${data.phone || 'Not provided'}
+Phone: ${data.phone}
 Industry: ${data.industry}
-Challenge Area: ${data.challengeArea}
-Budget Range: ${data.budget || 'Not specified'}
-
-Appointment: ${formattedDate} at ${formattedTime}
+Challenge Area: ${data.primaryChallenge}
+Budget Range: ${data.implementationBudget}
 
 Additional Information:
-${data.message || 'None provided'}
+${data.additionalInfo || 'None provided'}
       `,
       html: `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="background-color: #4f46e5; padding: 20px; text-align: center;">
-    <h1 style="color: white; margin: 0;">New Consultation Scheduled</h1>
+    <h1 style="color: white; margin: 0;">New Consultation Request</h1>
   </div>
   
   <div style="padding: 20px; border: 1px solid #e5e7eb; border-top: none;">
@@ -152,22 +144,16 @@ ${data.message || 'None provided'}
       <p><strong>Name:</strong> ${data.name}</p>
       <p><strong>Company:</strong> ${data.company}</p>
       <p><strong>Email:</strong> ${data.email}</p>
-      <p><strong>Phone:</strong> ${data.phone || 'Not provided'}</p>
+      <p><strong>Phone:</strong> ${data.phone}</p>
       <p><strong>Industry:</strong> ${data.industry}</p>
-      <p><strong>Challenge Area:</strong> ${data.challengeArea}</p>
-      <p><strong>Budget Range:</strong> ${data.budget || 'Not specified'}</p>
+      <p><strong>Challenge Area:</strong> ${data.primaryChallenge}</p>
+      <p><strong>Budget Range:</strong> ${data.implementationBudget}</p>
     </div>
     
-    <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-      <h2 style="margin-top: 0; color: #4f46e5;">Appointment Details</h2>
-      <p><strong>Date:</strong> ${formattedDate}</p>
-      <p><strong>Time:</strong> ${formattedTime}</p>
-    </div>
-    
-    ${data.message ? `
+    ${data.additionalInfo ? `
     <div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px;">
       <h2 style="margin-top: 0; color: #4f46e5;">Additional Information</h2>
-      <p>${data.message}</p>
+      <p>${data.additionalInfo}</p>
     </div>
     ` : ''}
   </div>
@@ -177,14 +163,14 @@ ${data.message || 'None provided'}
     
     return NextResponse.json({ 
       success: true, 
-      message: 'Consultation scheduled successfully'
+      message: 'Form submitted successfully'
     });
   } catch (error) {
-    console.error('Error scheduling consultation:', error);
+    console.error('Error processing consultation request:', error);
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Failed to schedule consultation',
+        message: 'Failed to submit form',
         error: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
