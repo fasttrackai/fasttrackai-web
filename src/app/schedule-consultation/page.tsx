@@ -635,7 +635,7 @@ export default function ScheduleConsultation() {
     <main className="min-h-screen gradient-primary py-16">
       <Script 
         src="https://cal.com/embed.js" 
-        strategy="beforeInteractive"
+        strategy="lazyOnload"
         onLoad={() => console.log("[Cal.com] Script loaded via onLoad event")}
         onError={(e) => console.error("[Cal.com] Script failed to load:", e)}
       />
