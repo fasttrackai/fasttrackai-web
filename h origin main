@@ -1,0 +1,5 @@
+[33mcommit dd112cffe3b9b91556ca1de3db0de6238e9466ad[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: fastrackai <fasttrack.ai.now@gmail.com>
+Date:   Thu Apr 10 14:52:55 2025 -0400
+
+    Fix consultation scheduling: update dates, improve Cal.com integration with retry logic

@@ -5,17 +5,7 @@ import { motion } from 'framer-motion';
 import { Calendar, Clock, Check, User, Mail, Building, Phone, MessageSquare, Send, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Script from 'next/script';
-
-// Add Cal.com type declaration
-declare global {
-  interface Window {
-    Cal?: {
-      init: (options: any) => void;
-      getOrCreateInstance: () => any;
-    }
-  }
-}
+import Cal from "@calcom/embed-react";
 
 // Animation variants
 const fadeIn = {
@@ -54,8 +44,6 @@ export default function ScheduleConsultation() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [showCalWidget, setShowCalWidget] = useState(false);
 
-  const calendarRef = useRef<HTMLDivElement>(null);
-  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -431,16 +419,15 @@ export default function ScheduleConsultation() {
                 Select a date and time that works best for your 30-minute strategy session.
               </p>
               
-              <div 
-                data-cal-link="fast-track-ai-oge7mz/consultation-fast-track-ai"
-                className="rounded-md overflow-hidden cal-embed-container"
-                style={{ height: '630px' }}
-                data-cal-config={JSON.stringify({
+              <Cal 
+                calLink="fast-track-ai-oge7mz/consultation-fast-track-ai" 
+                style={{width:"100%",height:"100%",overflow:"scroll"}}
+                config={{
                   name: formData.name,
                   email: formData.email,
                   notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
-                })}
-              ></div>
+                }}
+              />
               
               <div className="flex justify-between mt-6">
                 <button
@@ -581,13 +568,6 @@ export default function ScheduleConsultation() {
 
   return (
     <main className="min-h-screen gradient-primary py-16">
-      <Script 
-        src="https://cal.com/embed.js" 
-        strategy="lazyOnload"
-        onLoad={() => console.log("[Cal.com] Script loaded via onLoad event")}
-        onError={(e) => console.error("[Cal.com] Script failed to load:", e)}
-      />
-      
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
