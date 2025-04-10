@@ -126,3 +126,12 @@ textarea.input-field-with-icon-large {
   padding-top: 0.75rem !important;
   text-indent: 0;
 }
+
+/* Cal.com Widget Styles */
+.cal-widget-container {
+  width: 100%;
+  min-height: 700px;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: white;
+}
