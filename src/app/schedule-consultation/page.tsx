@@ -122,6 +122,8 @@ export default function ScheduleConsultation() {
     setErrorMessage(null);
 
     try {
+      console.log('Submitting form data:', formData);
+      
       const response = await fetch('/api/schedule-consultation', {
         method: 'POST',
         headers: {
@@ -130,18 +132,31 @@ export default function ScheduleConsultation() {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      console.log('Response status:', response.status);
+      
+      let data;
+      try {
+        data = await response.json();
+        console.log('Response data:', data);
+      } catch (jsonError) {
+        console.error('Error parsing JSON response:', jsonError);
+        setErrorMessage('Server returned an invalid response. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
       
       if (response.ok && data.success) {
+        console.log('Form submitted successfully, moving to step 2');
         setCurrentStep(2);
         setIsSubmitting(false);
       } else {
+        console.error('Form submission failed:', data);
         setErrorMessage(data.message || 'Failed to submit form. Please try again.');
         setIsSubmitting(false);
       }
     } catch (error) {
-      console.error('Error:', error);
-      setErrorMessage('An error occurred. Please try again.');
+      console.error('Network or fetch error:', error);
+      setErrorMessage('A network error occurred. Please check your connection and try again.');
       setIsSubmitting(false);
     }
   };
