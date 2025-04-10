@@ -95,9 +95,9 @@ const testimonials: Testimonial[] = [
 ];
 
 // Cal.com configuration
-const CAL_NAMESPACE = "fasttrack-ai";
-const CAL_EVENT_NAME = "consultation";  // Change this to your actual event name
-const CAL_OWNER_EMAIL = "fasttrack.ai.now@gmail.com"; // Change this to your actual Cal.com email
+const CAL_NAMESPACE = "fast-track-ai-oge7mz";
+const CAL_EVENT_NAME = "consultation";
+const CAL_OWNER_EMAIL = "fasttrack.ai.now@gmail.com";
 
 export default function ScheduleConsultation() {
   const [formData, setFormData] = useState<ConsultationFormData>(initialFormState);
