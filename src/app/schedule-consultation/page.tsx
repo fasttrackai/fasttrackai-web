@@ -1,19 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
+import { Calendar, Clock, Check, User, Mail, Building, Phone, MessageSquare, Send, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
 import Script from 'next/script';
-import Cal, { getCalApi } from "@calcom/embed-react";
 
 // Animation variants
+const fadeIn = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6 }
+};
+
 const staggerContainer = {
-  initial: {},
   animate: {
     transition: {
-      staggerChildren: 0.1,
-    },
-  },
+      staggerChildren: 0.1
+    }
+  }
 };
 
 // Form initial state
@@ -70,17 +76,31 @@ export default function ScheduleConsultation() {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState(initialFormState);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [showCalWidget, setShowCalWidget] = useState(false);
 
+  const calendarRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
+    // Initialize Cal.com
     (async function () {
-      const cal = await getCalApi();
-      cal("ui", {
-        theme: "light",
-        styles: { branding: { brandColor: "#7E22CE" } },
-        hideEventTypeDetails: false,
+      // @ts-ignore
+      const Cal = await (window.Cal as any);
+      Cal?.('init', {
+        origin: 'https://cal.com',
       });
+
+      if (currentStep === 2) {
+        Cal?.('inline', {
+          elementOrSelector: '#cal-booking-place',
+          calLink: 'fast-track-ai-oge7mz/consultation-fast-track-ai',
+          config: {
+            name: formData.industry,
+            notes: `Primary Challenge: ${formData.primaryChallenge}\nBudget Range: ${formData.implementationBudget}\nAdditional Info: ${formData.additionalInfo}`,
+          },
+        });
+      }
     })();
-  }, []);
+  }, [currentStep, formData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -225,17 +245,7 @@ export default function ScheduleConsultation() {
           >
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Schedule Your Consultation</h2>
             <p className="text-gray-600 mb-6">Select a date and time that works best for your 30-minute strategy session.</p>
-            <div className="cal-widget-container" data-cal-namespace="fast-track-ai-oge7mz">
-              <Cal
-                namespace="fast-track-ai-oge7mz"
-                calLink="fast-track-ai-oge7mz/consultation-fast-track-ai"
-                config={{
-                  name: formData.industry,
-                  notes: `Primary Challenge: ${formData.primaryChallenge}\nBudget Range: ${formData.implementationBudget}\nAdditional Info: ${formData.additionalInfo}`,
-                }}
-                style={{ width: '100%', height: '700px', overflow: 'scroll' }}
-              />
-            </div>
+            <div id="cal-booking-place" style={{ minHeight: '700px', width: '100%' }} />
           </motion.div>
         );
       default:
@@ -245,7 +255,16 @@ export default function ScheduleConsultation() {
 
   return (
     <main className="min-h-screen gradient-primary py-16">
-      <Script src="https://cal.com/embed.js" strategy="beforeInteractive" />
+      <Script 
+        src="https://cal.com/embed.js" 
+        strategy="beforeInteractive"
+        onLoad={() => {
+          // @ts-ignore
+          window?.Cal?.('init', {
+            origin: 'https://cal.com',
+          });
+        }}
+      />
       
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
