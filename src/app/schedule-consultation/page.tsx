@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Calendar, Clock, Check, User, Mail, Building, Phone, MessageSquare, Send, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
 import Script from 'next/script';
 
 // Define types for testimonials
@@ -31,14 +29,32 @@ const staggerContainer: Variants = {
 
 // Define custom FormData interface
 interface ConsultationFormData {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
   industry: string;
   primaryChallenge: string;
   implementationBudget: string;
   additionalInfo: string;
 }
 
+// Define Cal.com window type
+declare global {
+  interface Window {
+    Cal?: {
+      (command: 'init'): void;
+      (command: 'ui', args: { theme?: 'light' | 'dark' }): void;
+    };
+  }
+}
+
 // Form initial state
 const initialFormState: ConsultationFormData = {
+  name: '',
+  email: '',
+  phone: '',
+  company: '',
   industry: '',
   primaryChallenge: '',
   implementationBudget: '',
@@ -88,16 +104,6 @@ const testimonials: Testimonial[] = [
   },
 ];
 
-// Define Cal.com window type
-declare global {
-  interface Window {
-    Cal?: {
-      (command: 'init'): void;
-      (command: 'ui', args: { theme?: 'light' | 'dark' }): void;
-    };
-  }
-}
-
 export default function ScheduleConsultation() {
   const [formData, setFormData] = useState<ConsultationFormData>(initialFormState);
   const [currentStep, setCurrentStep] = useState(1);
@@ -105,7 +111,6 @@ export default function ScheduleConsultation() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isCalendarLoading, setIsCalendarLoading] = useState(true);
 
-  // Function to handle calendar ready state
   const handleCalendarReady = () => {
     setIsCalendarLoading(false);
   };
@@ -127,7 +132,8 @@ export default function ScheduleConsultation() {
         setCurrentStep(2);
         setIsSubmitting(false);
       } else {
-        alert('Failed to submit form. Please try again.');
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to submit form. Please try again.');
         setIsSubmitting(false);
       }
     } catch (error) {
@@ -142,12 +148,16 @@ export default function ScheduleConsultation() {
     setFormData((prev: ConsultationFormData) => ({ ...prev, [name]: value }));
   };
 
-  const nextStep = () => {
-    setCurrentStep(2);
-  };
-
   const isStepOneValid = () => {
-    return formData.industry && formData.primaryChallenge && formData.implementationBudget;
+    return (
+      formData.name &&
+      formData.email &&
+      formData.phone &&
+      formData.company &&
+      formData.industry &&
+      formData.primaryChallenge &&
+      formData.implementationBudget
+    );
   };
 
   const renderStep = () => {
@@ -161,9 +171,7 @@ export default function ScheduleConsultation() {
         >
           <div className="mb-6">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
+              <Check className="h-8 w-8 text-green-500" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h3>
             <p className="text-gray-600">
@@ -183,102 +191,207 @@ export default function ScheduleConsultation() {
             animate="visible"
           >
             <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <User className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="john@company.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="+1 (555) 000-0000"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Building className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      value={formData.company}
+                      onChange={handleInputChange}
+                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      placeholder="Company Inc."
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
                   Industry
                 </label>
-                <select
-                  id="industry"
-                  name="industry"
-                  value={formData.industry}
-                  onChange={handleInputChange}
-                  className="form-select w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                  required
-                >
-                  <option value="">Select Industry</option>
-                  {industries.map((industry) => (
-                    <option key={industry} value={industry}>
-                      {industry}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Briefcase className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <select
+                    id="industry"
+                    name="industry"
+                    value={formData.industry}
+                    onChange={handleInputChange}
+                    className="pl-10 form-select block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    required
+                  >
+                    <option value="">Select Industry</option>
+                    {industries.map((industry) => (
+                      <option key={industry} value={industry}>
+                        {industry}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label htmlFor="primaryChallenge" className="block text-sm font-medium text-gray-700 mb-1">
                   Primary Challenge Area
                 </label>
-                <select
-                  id="primaryChallenge"
-                  name="primaryChallenge"
-                  value={formData.primaryChallenge}
-                  onChange={handleInputChange}
-                  className="form-select w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                  required
-                >
-                  <option value="">Select Challenge Area</option>
-                  {challengeAreas.map((area) => (
-                    <option key={area} value={area}>
-                      {area}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Target className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <select
+                    id="primaryChallenge"
+                    name="primaryChallenge"
+                    value={formData.primaryChallenge}
+                    onChange={handleInputChange}
+                    className="pl-10 form-select block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    required
+                  >
+                    <option value="">Select Challenge Area</option>
+                    {challengeAreas.map((area) => (
+                      <option key={area} value={area}>
+                        {area}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label htmlFor="implementationBudget" className="block text-sm font-medium text-gray-700 mb-1">
                   Implementation Budget Range
                 </label>
-                <select
-                  id="implementationBudget"
-                  name="implementationBudget"
-                  value={formData.implementationBudget}
-                  onChange={handleInputChange}
-                  className="form-select w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                  required
-                >
-                  <option value="">Select Budget Range</option>
-                  {budgetRanges.map((range) => (
-                    <option key={range} value={range}>
-                      {range}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <DollarSign className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <select
+                    id="implementationBudget"
+                    name="implementationBudget"
+                    value={formData.implementationBudget}
+                    onChange={handleInputChange}
+                    className="pl-10 form-select block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    required
+                  >
+                    <option value="">Select Budget Range</option>
+                    {budgetRanges.map((range) => (
+                      <option key={range} value={range}>
+                        {range}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div>
                 <label htmlFor="additionalInfo" className="block text-sm font-medium text-gray-700 mb-1">
                   Additional Information (Optional)
                 </label>
-                <textarea
-                  id="additionalInfo"
-                  name="additionalInfo"
-                  value={formData.additionalInfo}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="form-textarea w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                  placeholder="Please share any specific requirements or questions you have..."
-                />
+                <div className="relative">
+                  <div className="absolute top-3 left-3 pointer-events-none">
+                    <MessageSquare className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <textarea
+                    id="additionalInfo"
+                    name="additionalInfo"
+                    value={formData.additionalInfo}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="pl-10 form-textarea block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    placeholder="Please share any specific requirements or questions you have..."
+                  />
+                </div>
               </div>
 
-              <div className="flex justify-end">
+              <div>
                 <button
                   type="submit"
-                  disabled={isSubmitting || !formData.industry || !formData.primaryChallenge || !formData.implementationBudget}
-                  className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
-                    (isSubmitting || !formData.industry || !formData.primaryChallenge || !formData.implementationBudget) &&
-                    'opacity-50 cursor-not-allowed'
+                  disabled={isSubmitting || !isStepOneValid()}
+                  className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
+                    (isSubmitting || !isStepOneValid()) && 'opacity-50 cursor-not-allowed'
                   }`}
                 >
                   {isSubmitting ? (
-                    <div className="flex items-center">
+                    <>
                       <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
                       Submitting...
-                    </div>
+                    </>
                   ) : (
-                    <div className="flex items-center">
+                    <>
                       Continue to Schedule <ArrowRight className="ml-2 h-4 w-4" />
-                    </div>
+                    </>
                   )}
                 </button>
               </div>
@@ -306,7 +419,7 @@ export default function ScheduleConsultation() {
               )}
 
               <iframe
-                src="https://cal.com/fasttrack-ai/consultation?embed=true"
+                src={`https://cal.com/fasttrack-ai/consultation?embed=true&name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}&notes=${encodeURIComponent(`Company: ${formData.company}\nPhone: ${formData.phone}\nIndustry: ${formData.industry}\nPrimary Challenge: ${formData.primaryChallenge}\nBudget Range: ${formData.implementationBudget}\nAdditional Info: ${formData.additionalInfo}`)}`}
                 className="w-full h-[700px] border-0"
                 frameBorder="0"
                 data-cal-link="fasttrack-ai/consultation"
@@ -333,12 +446,12 @@ export default function ScheduleConsultation() {
         src="https://cal.com/embed.js"
         strategy="lazyOnload"
         onLoad={() => {
-          // Initialize Cal when script loads
           if (typeof window !== 'undefined' && window.Cal) {
             window.Cal('init');
           }
         }}
       />
+      
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
@@ -348,20 +461,18 @@ export default function ScheduleConsultation() {
             className="text-center mb-12"
           >
             <motion.h1 
-              className="text-4xl font-bold text-white mb-4"
               variants={fadeIn}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.6 }}
+              className="text-4xl font-bold text-white mb-4"
             >
               Schedule a Consultation
             </motion.h1>
             <motion.p 
-              className="text-xl text-white/90 max-w-3xl mx-auto"
               variants={fadeIn}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-xl text-white/90 max-w-3xl mx-auto"
             >
               Speak with our AI strategy experts and discover how FastTrack AI can transform your business operations with customized AI solutions.
             </motion.p>
@@ -369,11 +480,10 @@ export default function ScheduleConsultation() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <motion.div 
-              className="lg:col-span-7 bg-white rounded-xl shadow-xl overflow-hidden"
               variants={fadeIn}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.6, delay: 0.2 }}
+              className="lg:col-span-7 bg-white rounded-xl shadow-xl overflow-hidden"
             >
               <div className="p-8">
                 {!showSuccess && (
@@ -395,11 +505,10 @@ export default function ScheduleConsultation() {
             </motion.div>
 
             <motion.div 
-              className="lg:col-span-5"
               variants={fadeIn}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.6, delay: 0.3 }}
+              className="lg:col-span-5"
             >
               <div className="bg-white rounded-xl shadow-xl overflow-hidden mb-8">
                 <div className="bg-purple-600 px-6 py-4">
