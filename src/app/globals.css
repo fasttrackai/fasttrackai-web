@@ -31,93 +31,90 @@
   }
 }
 
-@layer base {
-  html,
-  body {
-    @apply text-[color:var(--foreground)] bg-[color:var(--background)] min-h-screen w-full;
-  }
+html,
+body {
+  color: var(--foreground);
+  background: var(--background);
+  min-height: 100vh;
+  width: 100%;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.text-balance {
+  text-wrap: balance;
 }
 
-@layer components {
-  /* Common gradient backgrounds */
-  .gradient-primary {
-    @apply bg-gradient-to-b from-purple-900 via-purple-800 to-black;
-  }
+/* Common gradient backgrounds */
+.gradient-primary {
+  @apply bg-gradient-to-b from-purple-900 via-purple-800 to-black;
+}
 
-  .gradient-secondary {
-    @apply bg-gradient-to-b from-black via-purple-800 to-purple-900;
-  }
+.gradient-secondary {
+  @apply bg-gradient-to-b from-black via-purple-800 to-purple-900;
+}
 
-  .gradient-cta {
-    @apply bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900;
-  }
+.gradient-cta {
+  @apply bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900;
+}
 
-  /* Common text styles */
-  .heading-1 {
-    @apply text-4xl md:text-5xl font-bold tracking-tight;
-  }
+/* Common text styles */
+.heading-1 {
+  @apply text-4xl md:text-5xl font-bold tracking-tight;
+}
 
-  .heading-2 {
-    @apply text-3xl md:text-4xl font-bold tracking-tight;
-  }
+.heading-2 {
+  @apply text-3xl md:text-4xl font-bold tracking-tight;
+}
 
-  .heading-3 {
-    @apply text-2xl font-bold tracking-tight;
-  }
+.heading-3 {
+  @apply text-2xl font-bold tracking-tight;
+}
 
-  .body-large {
-    @apply text-xl leading-relaxed;
-  }
+.body-large {
+  @apply text-xl leading-relaxed;
+}
 
-  .body-regular {
-    @apply text-base leading-relaxed;
-  }
+.body-regular {
+  @apply text-base leading-relaxed;
+}
 
-  /* Common component styles */
-  .card {
-    @apply bg-white rounded-xl shadow-md p-6 sm:p-8 border border-gray-100 hover:shadow-lg transition-all duration-300;
-  }
+/* Common component styles */
+.card {
+  @apply bg-white rounded-xl shadow-md p-6 sm:p-8 border border-gray-100 hover:shadow-lg transition-all duration-300;
+}
 
-  .button-primary {
-    @apply bg-[color:var(--primary)] text-white px-6 py-3 rounded-lg hover:bg-[color:var(--primary-dark)] transition-colors shadow-md text-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed;
-  }
+.button-primary {
+  @apply bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors shadow-md text-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed;
+}
 
-  .button-secondary {
-    @apply bg-white text-[color:var(--primary)] px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors shadow-md text-center w-full sm:w-auto border border-[color:var(--primary-light)] disabled:opacity-50 disabled:cursor-not-allowed;
-  }
+.button-secondary {
+  @apply bg-white text-purple-800 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors shadow-md text-center w-full sm:w-auto border border-purple-100 disabled:opacity-50 disabled:cursor-not-allowed;
+}
 
-  .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)];
-  }
+.input-field {
+  @apply w-full px-4 py-3 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600;
+}
 
-  .input-field-with-icon {
-    @apply pl-10;
-  }
+.input-field-with-icon {
+  @apply pl-10;
+}
 
-  .input-field-with-icon-large {
-    @apply pl-12;
-  }
+.input-field-with-icon-large {
+  @apply pl-12;
+}
 
-  .input-field::placeholder {
-    @apply text-gray-400;
-  }
+.input-field::placeholder {
+  @apply text-gray-400;
+}
 
-  .input-field.pl-16::placeholder {
-    @apply pl-0;
-  }
+.input-field.pl-16::placeholder {
+  @apply pl-0;
+}
 
-  textarea.input-field-with-icon,
-  textarea.input-field-with-icon-large {
-    @apply pt-3;
-  }
+textarea.input-field-with-icon,
+textarea.input-field-with-icon-large {
+  @apply pt-3;
+}
 
-  .cal-widget-container {
-    @apply w-full min-h-[700px] overflow-hidden rounded-lg bg-white;
-  }
+.cal-widget-container {
+  @apply w-full min-h-[700px] overflow-hidden rounded-lg bg-white;
 }
