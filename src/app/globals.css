@@ -39,42 +39,44 @@ body {
   width: 100%;
 }
 
-.text-balance {
-  text-wrap: balance;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 /* Common gradient backgrounds */
 .gradient-primary {
-  @apply bg-gradient-to-b from-purple-900 via-purple-800 to-black;
+  @apply bg-gradient-to-b from-purple-900 to-black;
 }
 
 .gradient-secondary {
-  @apply bg-gradient-to-b from-black via-purple-800 to-purple-900;
+  @apply bg-gradient-to-b from-black to-purple-900;
 }
 
 .gradient-cta {
-  @apply bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900;
+  @apply bg-gradient-to-br from-purple-800 to-indigo-900;
 }
 
 /* Common text styles */
 .heading-1 {
-  @apply text-4xl md:text-5xl font-bold tracking-tight;
+  @apply text-4xl md:text-5xl font-bold;
 }
 
 .heading-2 {
-  @apply text-3xl md:text-4xl font-bold tracking-tight;
+  @apply text-3xl md:text-4xl font-bold;
 }
 
 .heading-3 {
-  @apply text-2xl font-bold tracking-tight;
+  @apply text-2xl font-bold;
 }
 
 .body-large {
-  @apply text-xl leading-relaxed;
+  @apply text-xl;
 }
 
 .body-regular {
-  @apply text-base leading-relaxed;
+  @apply text-base;
 }
 
 /* Common component styles */
@@ -83,38 +85,44 @@ body {
 }
 
 .button-primary {
-  @apply bg-purple-700 text-white px-6 py-3 rounded-lg hover:bg-purple-800 transition-colors shadow-md text-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply bg-purple-700 text-white px-6 py-3 sm:py-3 rounded-lg hover:bg-purple-800 transition-colors shadow-md text-center w-full sm:w-auto;
 }
 
 .button-secondary {
-  @apply bg-white text-purple-800 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors shadow-md text-center w-full sm:w-auto border border-purple-100 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply bg-white text-purple-800 px-6 py-3 sm:py-3 rounded-lg hover:bg-purple-50 transition-colors shadow-md text-center w-full sm:w-auto;
 }
 
 .input-field {
-  @apply w-full px-4 py-3 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600;
+  @apply w-full px-4 py-3 sm:py-3 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600;
 }
 
+/* Fix styles for inputs with icons */
 .input-field-with-icon {
-  @apply pl-10;
+  padding-left: 2.5rem !important;
+  text-indent: 0;
 }
 
 .input-field-with-icon-large {
-  @apply pl-12;
+  padding-left: 3rem !important;
+  text-indent: 0;
 }
 
+/* Fix the placeholder text indent for inputs with icons */
 .input-field::placeholder {
   @apply text-gray-400;
+  padding-left: 0;
+  text-indent: 0;
 }
 
+/* Add specific styling for input fields with icons in consultation form */
 .input-field.pl-16::placeholder {
-  @apply pl-0;
+  text-indent: 0;
+  padding-left: 0;
 }
 
+/* Fix textarea in the form */
 textarea.input-field-with-icon,
 textarea.input-field-with-icon-large {
-  @apply pt-3;
-}
-
-.cal-widget-container {
-  @apply w-full min-h-[700px] overflow-hidden rounded-lg bg-white;
+  padding-top: 0.75rem !important;
+  text-indent: 0;
 }
