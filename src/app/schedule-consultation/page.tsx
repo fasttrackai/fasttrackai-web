@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Calendar, Clock, Check, User, Mail, Building, Phone, MessageSquare, Send, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
-import Script from 'next/script';
 
 // Define types for testimonials
 interface Testimonial {
@@ -37,16 +36,6 @@ interface ConsultationFormData {
   primaryChallenge: string;
   implementationBudget: string;
   additionalInfo: string;
-}
-
-// Define Cal.com window type
-declare global {
-  interface Window {
-    Cal?: {
-      (command: 'init'): void;
-      (command: 'ui', args: { theme?: 'light' | 'dark' }): void;
-    };
-  }
 }
 
 // Form initial state
@@ -109,12 +98,7 @@ export default function ScheduleConsultation() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isCalendarLoading, setIsCalendarLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const handleCalendarReady = () => {
-    setIsCalendarLoading(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -177,14 +161,6 @@ export default function ScheduleConsultation() {
       formData.implementationBudget
     );
   };
-
-  // Initialize Cal.com in useEffect hook
-  useEffect(() => {
-    // Initialize Cal.com when script is loaded
-    if (typeof window !== 'undefined' && window.Cal) {
-      window.Cal('init');
-    }
-  }, []);
 
   const renderStep = () => {
     if (showSuccess) {
@@ -438,23 +414,42 @@ export default function ScheduleConsultation() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Schedule Your Consultation</h2>
             <p className="text-gray-600 mb-6">Select a date and time that works best for your 30-minute strategy session.</p>
             
-            <div className="cal-widget-container">
-              {isCalendarLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
-                    <p className="text-gray-600">Loading calendar...</p>
-                  </div>
-                </div>
-              )}
+            <div className="cal-widget-container bg-white p-6 rounded-lg">
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-semibold text-purple-700 mb-2">Thank You For Your Submission!</h3>
+                <p className="text-gray-600">
+                  Your consultation request has been received. Our team will contact you shortly to confirm your appointment time.
+                </p>
+              </div>
 
-              <iframe
-                src={`https://cal.com/fasttrack-ai/consultation?embed=true&name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}&notes=${encodeURIComponent(`Company: ${formData.company}\nPhone: ${formData.phone}\nIndustry: ${formData.industry}\nPrimary Challenge: ${formData.primaryChallenge}\nBudget Range: ${formData.implementationBudget}\nAdditional Info: ${formData.additionalInfo}`)}`}
-                className="w-full h-[700px] border-0"
-                frameBorder="0"
-                data-cal-link="fasttrack-ai/consultation"
-                onLoad={handleCalendarReady}
-              />
+              <div className="bg-gray-50 p-4 rounded-lg mb-6">
+                <h4 className="font-medium text-gray-800 mb-3">Your Information:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div><span className="font-medium">Name:</span> {formData.name}</div>
+                  <div><span className="font-medium">Email:</span> {formData.email}</div>
+                  <div><span className="font-medium">Phone:</span> {formData.phone}</div>
+                  <div><span className="font-medium">Company:</span> {formData.company}</div>
+                  <div><span className="font-medium">Industry:</span> {formData.industry}</div>
+                  <div><span className="font-medium">Challenge:</span> {formData.primaryChallenge}</div>
+                  <div><span className="font-medium">Budget Range:</span> {formData.implementationBudget}</div>
+                </div>
+                {formData.additionalInfo && (
+                  <div className="mt-3">
+                    <span className="font-medium">Additional Information:</span>
+                    <p className="mt-1 text-sm text-gray-600">{formData.additionalInfo}</p>
+                  </div>
+                )}
+              </div>
+                
+              <div className="bg-purple-50 p-4 rounded-lg border border-purple-100 mb-6">
+                <h4 className="font-medium text-purple-800 mb-2">What happens next?</h4>
+                <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
+                  <li>You'll receive a confirmation email shortly.</li>
+                  <li>Our team will reach out within 1 business day to schedule your session.</li>
+                  <li>We'll send a calendar invite with meeting details once confirmed.</li>
+                  <li>You'll have a 30-minute strategy session with our AI implementation expert.</li>
+                </ol>
+              </div>
 
               <button
                 onClick={() => setCurrentStep(1)}
@@ -472,16 +467,6 @@ export default function ScheduleConsultation() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-900 to-purple-800 py-16">
-      <Script 
-        src="https://cal.com/embed.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          if (typeof window !== 'undefined' && window.Cal) {
-            window.Cal('init');
-          }
-        }}
-      />
-      
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
