@@ -59,24 +59,32 @@ export default function ScheduleConsultation() {
   // Initialize Cal widget when it's shown
   useEffect(() => {
     if (showCalWidget && calendarRef.current) {
-      // @ts-ignore - Cal is added by the script
-      if (typeof window !== 'undefined' && window.Cal) {
-        try {
-          // @ts-ignore - Cal is added by the script
-          const cal = window.Cal.getOrCreateInstance();
-          cal.inline({
-            elementOrSelector: calendarRef.current,
-            calLink: "fast-track-ai-oge7mz/consultation-fast-track-ai",
-            config: {
-              name: formData.name,
-              email: formData.email,
-              notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
-            }
-          });
-        } catch (error) {
-          console.error("Error initializing Cal widget:", error);
+      console.log("Attempting to initialize Cal widget");
+      
+      // Add a delay to ensure the script is loaded
+      setTimeout(() => {
+        // @ts-ignore - Cal is added by the script
+        if (typeof window !== 'undefined' && window.Cal) {
+          try {
+            console.log("Cal object found, initializing widget");
+            // @ts-ignore - Cal is added by the script
+            const cal = window.Cal.getOrCreateInstance();
+            cal.inline({
+              elementOrSelector: calendarRef.current,
+              calLink: "fast-track-ai-oge7mz/consultation-fast-track-ai",
+              config: {
+                name: formData.name,
+                email: formData.email,
+                notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
+              }
+            });
+          } catch (error) {
+            console.error("Error initializing Cal widget:", error);
+          }
+        } else {
+          console.error("Cal object not found on window");
         }
-      }
+      }, 1000);
     }
   }, [showCalWidget, formData]);
 
@@ -142,14 +150,14 @@ export default function ScheduleConsultation() {
     }
   };
 
-  // Available time slots for demo
+  // Available time slots for current dates
   const availableDates = [
-    { date: '2023-11-15', display: 'Wed, Nov 15' },
-    { date: '2023-11-16', display: 'Thu, Nov 16' },
-    { date: '2023-11-17', display: 'Fri, Nov 17' },
-    { date: '2023-11-20', display: 'Mon, Nov 20' },
-    { date: '2023-11-21', display: 'Tue, Nov 21' },
-    { date: '2023-11-22', display: 'Wed, Nov 22' }
+    { date: '2025-04-15', display: 'Mon, Apr 15' },
+    { date: '2025-04-16', display: 'Tue, Apr 16' },
+    { date: '2025-04-17', display: 'Wed, Apr 17' },
+    { date: '2025-04-18', display: 'Thu, Apr 18' },
+    { date: '2025-04-19', display: 'Fri, Apr 19' },
+    { date: '2025-04-22', display: 'Mon, Apr 22' }
   ];
 
   const availableTimes = [
@@ -352,6 +360,7 @@ export default function ScheduleConsultation() {
                     <option value="technology">Technology</option>
                     <option value="education">Education</option>
                     <option value="hospitality">Hospitality</option>
+                    <option value="construction">Construction</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
@@ -599,7 +608,12 @@ export default function ScheduleConsultation() {
 
   return (
     <main className="min-h-screen gradient-primary py-16">
-      <Script src="https://cal.com/embed.js" strategy="afterInteractive" />
+      <Script 
+        src="https://cal.com/embed.js" 
+        strategy="beforeInteractive"
+        onLoad={() => console.log("Cal.com script loaded successfully")}
+        onError={() => console.error("Failed to load Cal.com script")}
+      />
       
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
