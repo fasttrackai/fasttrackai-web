@@ -21,6 +21,7 @@ Last updated: [Current Timestamp] - Testing Vercel auto-deployment
 - **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes, Firebase
 - **AI Integration**: OpenAI, Anthropic, Replicate, Deepgram
+- **Email**: Resend
 - **Authentication**: Firebase Authentication
 - **Database**: Firebase Firestore
 - **Storage**: Firebase Storage
@@ -33,6 +34,7 @@ Last updated: [Current Timestamp] - Testing Vercel auto-deployment
 - Node.js 18.x or later
 - npm 9.x or later
 - Firebase account
+- Resend account for emails
 - OpenAI API key (optional)
 - Anthropic API key (optional)
 - Replicate API key (optional)
@@ -64,6 +66,14 @@ Last updated: [Current Timestamp] - Testing Vercel auto-deployment
    ```
 
 6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Resend Email Setup
+
+1. Create a Resend account at [https://resend.com](https://resend.com)
+2. Verify your domain in the Resend dashboard
+3. Create an API key
+4. Add the API key to your `.env.local` file as `RESEND_API_KEY`
+5. Update the `EMAIL_FROM` variable with your verified domain email
 
 ### Firebase Setup
 

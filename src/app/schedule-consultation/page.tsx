@@ -110,6 +110,7 @@ export default function ScheduleConsultation() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isCalendarLoading, setIsCalendarLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCalendarReady = () => {
     setIsCalendarLoading(false);
@@ -118,6 +119,7 @@ export default function ScheduleConsultation() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage(null);
 
     try {
       const response = await fetch('/api/schedule-consultation', {
@@ -128,17 +130,18 @@ export default function ScheduleConsultation() {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
         setCurrentStep(2);
         setIsSubmitting(false);
       } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Failed to submit form. Please try again.');
+        setErrorMessage(data.message || 'Failed to submit form. Please try again.');
         setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('An error occurred. Please try again.');
+      setErrorMessage('An error occurred. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -159,6 +162,14 @@ export default function ScheduleConsultation() {
       formData.implementationBudget
     );
   };
+
+  // Initialize Cal.com in useEffect hook
+  useEffect(() => {
+    // Initialize Cal.com when script is loaded
+    if (typeof window !== 'undefined' && window.Cal) {
+      window.Cal('init');
+    }
+  }, []);
 
   const renderStep = () => {
     if (showSuccess) {
@@ -206,7 +217,7 @@ export default function ScheduleConsultation() {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      className="input-field input-field-with-icon"
                       placeholder="John Doe"
                       required
                     />
@@ -227,7 +238,7 @@ export default function ScheduleConsultation() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      className="input-field input-field-with-icon"
                       placeholder="john@company.com"
                       required
                     />
@@ -248,7 +259,7 @@ export default function ScheduleConsultation() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      className="input-field input-field-with-icon"
                       placeholder="+1 (555) 000-0000"
                       required
                     />
@@ -269,7 +280,7 @@ export default function ScheduleConsultation() {
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
-                      className="pl-10 form-input block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                      className="input-field input-field-with-icon"
                       placeholder="Company Inc."
                       required
                     />
@@ -290,7 +301,7 @@ export default function ScheduleConsultation() {
                     name="industry"
                     value={formData.industry}
                     onChange={handleInputChange}
-                    className="pl-10 form-select block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    className="input-field input-field-with-icon"
                     required
                   >
                     <option value="">Select Industry</option>
@@ -316,7 +327,7 @@ export default function ScheduleConsultation() {
                     name="primaryChallenge"
                     value={formData.primaryChallenge}
                     onChange={handleInputChange}
-                    className="pl-10 form-select block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    className="input-field input-field-with-icon"
                     required
                   >
                     <option value="">Select Challenge Area</option>
@@ -342,7 +353,7 @@ export default function ScheduleConsultation() {
                     name="implementationBudget"
                     value={formData.implementationBudget}
                     onChange={handleInputChange}
-                    className="pl-10 form-select block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    className="input-field input-field-with-icon"
                     required
                   >
                     <option value="">Select Budget Range</option>
@@ -369,19 +380,23 @@ export default function ScheduleConsultation() {
                     value={formData.additionalInfo}
                     onChange={handleInputChange}
                     rows={4}
-                    className="pl-10 form-textarea block w-full rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    className="input-field input-field-with-icon"
                     placeholder="Please share any specific requirements or questions you have..."
                   />
                 </div>
               </div>
 
+              {errorMessage && (
+                <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                  {errorMessage}
+                </div>
+              )}
+
               <div>
                 <button
                   type="submit"
                   disabled={isSubmitting || !isStepOneValid()}
-                  className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${
-                    (isSubmitting || !isStepOneValid()) && 'opacity-50 cursor-not-allowed'
-                  }`}
+                  className="button-primary"
                 >
                   {isSubmitting ? (
                     <>
@@ -408,7 +423,7 @@ export default function ScheduleConsultation() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Schedule Your Consultation</h2>
             <p className="text-gray-600 mb-6">Select a date and time that works best for your 30-minute strategy session.</p>
             
-            <div className="relative w-full min-h-[700px] rounded-lg overflow-hidden bg-white">
+            <div className="cal-widget-container">
               {isCalendarLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
                   <div className="flex flex-col items-center space-y-4">
@@ -444,7 +459,7 @@ export default function ScheduleConsultation() {
     <main className="min-h-screen bg-gradient-to-br from-purple-900 to-purple-800 py-16">
       <Script 
         src="https://cal.com/embed.js"
-        strategy="lazyOnload"
+        strategy="afterInteractive"
         onLoad={() => {
           if (typeof window !== 'undefined' && window.Cal) {
             window.Cal('init');

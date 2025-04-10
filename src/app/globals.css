@@ -31,12 +31,11 @@
   }
 }
 
-html,
-body {
-  color: var(--foreground);
-  background: var(--background);
-  min-height: 100vh;
-  width: 100%;
+@layer base {
+  html,
+  body {
+    @apply text-[color:var(--foreground)] bg-[color:var(--background)] min-h-screen w-full;
+  }
 }
 
 @layer utilities {
@@ -48,15 +47,15 @@ body {
 @layer components {
   /* Common gradient backgrounds */
   .gradient-primary {
-    @apply bg-gradient-to-b from-purple-900 to-black;
+    @apply bg-gradient-to-b from-purple-900 via-purple-800 to-black;
   }
 
   .gradient-secondary {
-    @apply bg-gradient-to-b from-black to-purple-900;
+    @apply bg-gradient-to-b from-black via-purple-800 to-purple-900;
   }
 
   .gradient-cta {
-    @apply bg-gradient-to-br from-purple-800 to-indigo-900;
+    @apply bg-gradient-to-br from-purple-800 via-purple-700 to-indigo-900;
   }
 
   /* Common text styles */
@@ -86,18 +85,17 @@ body {
   }
 
   .button-primary {
-    @apply bg-purple-700 text-white px-6 py-3 sm:py-3 rounded-lg hover:bg-purple-800 transition-colors shadow-md text-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-[color:var(--primary)] text-white px-6 py-3 rounded-lg hover:bg-[color:var(--primary-dark)] transition-colors shadow-md text-center w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .button-secondary {
-    @apply bg-white text-purple-800 px-6 py-3 sm:py-3 rounded-lg hover:bg-purple-50 transition-colors shadow-md text-center w-full sm:w-auto border border-purple-100 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-white text-[color:var(--primary)] px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors shadow-md text-center w-full sm:w-auto border border-[color:var(--primary-light)] disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 sm:py-3 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600;
+    @apply w-full px-4 py-3 border border-gray-300 text-gray-900 rounded-lg focus:ring-2 focus:ring-[color:var(--primary)] focus:border-[color:var(--primary)];
   }
 
-  /* Fix styles for inputs with icons */
   .input-field-with-icon {
     @apply pl-10;
   }
@@ -106,23 +104,19 @@ body {
     @apply pl-12;
   }
 
-  /* Fix the placeholder text indent for inputs with icons */
   .input-field::placeholder {
     @apply text-gray-400;
   }
 
-  /* Add specific styling for input fields with icons in consultation form */
   .input-field.pl-16::placeholder {
     @apply pl-0;
   }
 
-  /* Fix textarea in the form */
   textarea.input-field-with-icon,
   textarea.input-field-with-icon-large {
     @apply pt-3;
   }
 
-  /* Cal.com Widget Styles */
   .cal-widget-container {
     @apply w-full min-h-[700px] overflow-hidden rounded-lg bg-white;
   }
