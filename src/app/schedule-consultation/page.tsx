@@ -59,26 +59,18 @@ export default function ScheduleConsultation() {
   // Initialize Cal widget when it's shown
   useEffect(() => {
     if (showCalWidget && calendarRef.current) {
-      console.log("Attempting to initialize Cal widget");
-      
-      const loadCalWidget = () => {
-        console.log("Cal.com script status:", document.querySelector('script[src="https://cal.com/embed.js"]') ? "Loaded" : "Not found");
-        
-        // @ts-ignore - Cal is added by the script
+      console.log("[Cal.com] Attempting to initialize widget...");
+      const element = calendarRef.current;
+
+      const initializeCal = () => {
+        // @ts-ignore
         if (typeof window !== 'undefined' && window.Cal) {
           try {
-            console.log("Cal object found, initializing widget");
-            // @ts-ignore - Cal is added by the script
+            console.log("[Cal.com] window.Cal object FOUND. Initializing...");
+            // @ts-ignore
             const cal = window.Cal.getOrCreateInstance();
-            
-            // Check if the element exists
-            if (!calendarRef.current) {
-              console.error("Calendar reference element not found");
-              return;
-            }
-            
             cal.inline({
-              elementOrSelector: calendarRef.current,
+              elementOrSelector: element,
               calLink: "fast-track-ai-oge7mz/consultation-fast-track-ai",
               config: {
                 name: formData.name,
@@ -86,22 +78,40 @@ export default function ScheduleConsultation() {
                 notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
               }
             });
-            
-            console.log("Cal inline initialization completed");
+            console.log("[Cal.com] Initialization call completed.");
           } catch (error) {
-            console.error("Error initializing Cal widget:", error);
+            console.error("[Cal.com] Error during initialization:", error);
           }
         } else {
-          console.error("Cal object not found on window, trying again in 2 seconds");
-          // Try again after a delay
-          setTimeout(loadCalWidget, 2000);
+          console.warn("[Cal.com] window.Cal object NOT found.");
         }
       };
-      
-      // Initial load attempt after a delay
-      setTimeout(loadCalWidget, 1000);
+
+      // Polling mechanism to wait for window.Cal
+      let attempts = 0;
+      const maxAttempts = 10; // Try for 10 seconds (10 * 1000ms)
+      const interval = 1000; // Check every second
+
+      const pollForCal = setInterval(() => {
+        attempts++;
+        console.log(`[Cal.com] Polling attempt ${attempts}...`);
+        // @ts-ignore
+        if (typeof window !== 'undefined' && window.Cal) {
+          clearInterval(pollForCal);
+          initializeCal();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(pollForCal);
+          console.error(`[Cal.com] FAILED to find window.Cal after ${maxAttempts} attempts.`);
+        }
+      }, interval);
+
+      // Cleanup interval on component unmount or if widget is hidden
+      return () => {
+        clearInterval(pollForCal);
+        console.log("[Cal.com] Cleanup polling.");
+      };
     }
-  }, [showCalWidget, formData]);
+  }, [showCalWidget, formData]); // Keep formData dependency if needed for config
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -167,12 +177,12 @@ export default function ScheduleConsultation() {
 
   // Available time slots for current dates
   const availableDates = [
-    { date: '2024-04-15', display: 'Mon, Apr 15' },
-    { date: '2024-04-16', display: 'Tue, Apr 16' },
-    { date: '2024-04-17', display: 'Wed, Apr 17' },
-    { date: '2024-04-18', display: 'Thu, Apr 18' },
-    { date: '2024-04-19', display: 'Fri, Apr 19' },
-    { date: '2024-04-22', display: 'Mon, Apr 22' }
+    { date: '2025-04-15', display: 'Mon, Apr 15' },
+    { date: '2025-04-16', display: 'Tue, Apr 16' },
+    { date: '2025-04-17', display: 'Wed, Apr 17' },
+    { date: '2025-04-18', display: 'Thu, Apr 18' },
+    { date: '2025-04-19', display: 'Fri, Apr 19' },
+    { date: '2025-04-22', display: 'Mon, Apr 22' }
   ];
 
   const availableTimes = [
@@ -625,9 +635,9 @@ export default function ScheduleConsultation() {
     <main className="min-h-screen gradient-primary py-16">
       <Script 
         src="https://cal.com/embed.js" 
-        strategy="lazyOnload"
-        onLoad={() => console.log("Cal.com script loaded successfully")}
-        onError={(e) => console.error("Failed to load Cal.com script:", e)}
+        strategy="beforeInteractive"
+        onLoad={() => console.log("[Cal.com] Script loaded via onLoad event")}
+        onError={(e) => console.error("[Cal.com] Script failed to load:", e)}
       />
       
       <div className="container mx-auto px-4 sm:px-6">
