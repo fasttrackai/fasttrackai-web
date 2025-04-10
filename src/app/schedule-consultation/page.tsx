@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, Variants } from 'framer-motion';
-import { Calendar, Clock, Check, User, Mail, Building, Phone, MessageSquare, Send, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
-import Cal, { getCalApi } from "@calcom/embed-react";
+import { Calendar, Check, User, Mail, Building, Phone, MessageSquare, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
+import Script from 'next/script';
 
 // Define types for testimonials
 interface Testimonial {
@@ -105,39 +105,11 @@ export default function ScheduleConsultation() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [calLoaded, setCalLoaded] = useState(false);
-  const calRef = useRef<HTMLDivElement>(null);
+  const [isCalendarLoading, setIsCalendarLoading] = useState(true);
 
-  // Initialize Cal.com
-  useEffect(() => {
-    if (currentStep === 2) {
-      (async function () {
-        const cal = await getCalApi();
-        if (cal) {
-          cal("ui", {
-            styles: { branding: { brandColor: "#7E22CE" } },
-            hideEventTypeDetails: false,
-            layout: 'month_view',
-          });
-          
-          // Set up event listeners for Cal.com
-          cal("on", {
-            action: "bookingSuccessful",
-            callback: () => {
-              console.log("Booking successful!");
-              setShowSuccess(true);
-              setCurrentStep(1);
-            },
-          });
-          
-          // Mark as loaded
-          setTimeout(() => {
-            setCalLoaded(true);
-          }, 1000);
-        }
-      })();
-    }
-  }, [currentStep]);
+  const handleCalendarReady = () => {
+    setIsCalendarLoading(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -200,6 +172,18 @@ export default function ScheduleConsultation() {
       formData.implementationBudget
     );
   };
+
+  // Check if iframe is loaded
+  useEffect(() => {
+    if (currentStep === 2) {
+      // Set a timeout to simulate loading
+      const timer = setTimeout(() => {
+        setIsCalendarLoading(false);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
 
   const renderStep = () => {
     if (showSuccess) {
@@ -463,33 +447,23 @@ export default function ScheduleConsultation() {
                 </div>
               </div>
               
-              <div className="min-h-[600px] w-full" ref={calRef}>
-                <Cal
-                  calLink={`${CAL_NAMESPACE}/${CAL_EVENT_NAME}`}
-                  config={{
-                    name: formData.name,
-                    email: formData.email,
-                    notes: `Company: ${formData.company}
-Phone: ${formData.phone}
-Industry: ${formData.industry}
-Primary Challenge: ${formData.primaryChallenge}
-Budget Range: ${formData.implementationBudget}
-Additional Info: ${formData.additionalInfo || 'None provided'}`,
-                    theme: "light",
-                    hideEventTypeDetails: "false",
-                  }}
-                  style={{ width: '100%', height: '100%', overflow: 'scroll' }}
-                />
-              </div>
-
-              {!calLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-70">
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
-                    <p className="text-gray-600">Loading calendar...</p>
+              <div className="min-h-[600px] w-full relative">
+                {isCalendarLoading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-70 z-10">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+                      <p className="text-gray-600">Loading calendar...</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+                
+                <iframe 
+                  src={`https://cal.com/${CAL_NAMESPACE}/${CAL_EVENT_NAME}?embed=true&name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}&notes=${encodeURIComponent(`Company: ${formData.company}\nPhone: ${formData.phone}\nIndustry: ${formData.industry}\nPrimary Challenge: ${formData.primaryChallenge}\nBudget Range: ${formData.implementationBudget}\nAdditional Info: ${formData.additionalInfo || 'None provided'}`)}`}
+                  style={{ width: '100%', height: '600px', border: 'none' }}
+                  onLoad={handleCalendarReady}
+                  allow="camera; microphone; autoplay; clipboard-write; encrypted-media"
+                ></iframe>
+              </div>
 
               <button
                 onClick={() => setCurrentStep(1)}
@@ -507,6 +481,11 @@ Additional Info: ${formData.additionalInfo || 'None provided'}`,
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-900 to-purple-800 py-16">
+      <Script 
+        src="https://cal.com/embed.js"
+        strategy="lazyOnload"
+      />
+      
       <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
