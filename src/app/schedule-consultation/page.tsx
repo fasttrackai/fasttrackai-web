@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { Calendar, Clock, Check, User, Mail, Building, Phone, MessageSquare, Send, ArrowRight, Star, Briefcase, Target, DollarSign } from 'lucide-react';
+import Cal, { getCalApi } from "@calcom/embed-react";
 
 // Define types for testimonials
 interface Testimonial {
@@ -93,12 +94,50 @@ const testimonials: Testimonial[] = [
   },
 ];
 
+// Cal.com configuration
+const CAL_NAMESPACE = "fasttrack-ai";
+const CAL_EVENT_NAME = "consultation";  // Change this to your actual event name
+const CAL_OWNER_EMAIL = "fasttrack.ai.now@gmail.com"; // Change this to your actual Cal.com email
+
 export default function ScheduleConsultation() {
   const [formData, setFormData] = useState<ConsultationFormData>(initialFormState);
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [calLoaded, setCalLoaded] = useState(false);
+  const calRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Cal.com
+  useEffect(() => {
+    if (currentStep === 2) {
+      (async function () {
+        const cal = await getCalApi();
+        if (cal) {
+          cal("ui", {
+            styles: { branding: { brandColor: "#7E22CE" } },
+            hideEventTypeDetails: false,
+            layout: 'month_view',
+          });
+          
+          // Set up event listeners for Cal.com
+          cal("on", {
+            action: "bookingSuccessful",
+            callback: () => {
+              console.log("Booking successful!");
+              setShowSuccess(true);
+              setCurrentStep(1);
+            },
+          });
+          
+          // Mark as loaded
+          setTimeout(() => {
+            setCalLoaded(true);
+          }, 1000);
+        }
+      })();
+    }
+  }, [currentStep]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -177,7 +216,7 @@ export default function ScheduleConsultation() {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank You!</h3>
             <p className="text-gray-600">
-              Your consultation has been scheduled. We'll send you a confirmation email shortly.
+              Your consultation has been scheduled. You'll receive a confirmation email shortly.
             </p>
           </div>
         </motion.div>
@@ -415,41 +454,42 @@ export default function ScheduleConsultation() {
             <p className="text-gray-600 mb-6">Select a date and time that works best for your 30-minute strategy session.</p>
             
             <div className="cal-widget-container bg-white p-6 rounded-lg">
-              <div className="text-center mb-8">
-                <h3 className="text-xl font-semibold text-purple-700 mb-2">Thank You For Your Submission!</h3>
-                <p className="text-gray-600">
-                  Your consultation request has been received. Our team will contact you shortly to confirm your appointment time.
-                </p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg mb-6">
-                <h4 className="font-medium text-gray-800 mb-3">Your Information:</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div className="mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-lg mb-4">
                   <div><span className="font-medium">Name:</span> {formData.name}</div>
                   <div><span className="font-medium">Email:</span> {formData.email}</div>
                   <div><span className="font-medium">Phone:</span> {formData.phone}</div>
                   <div><span className="font-medium">Company:</span> {formData.company}</div>
-                  <div><span className="font-medium">Industry:</span> {formData.industry}</div>
-                  <div><span className="font-medium">Challenge:</span> {formData.primaryChallenge}</div>
-                  <div><span className="font-medium">Budget Range:</span> {formData.implementationBudget}</div>
                 </div>
-                {formData.additionalInfo && (
-                  <div className="mt-3">
-                    <span className="font-medium">Additional Information:</span>
-                    <p className="mt-1 text-sm text-gray-600">{formData.additionalInfo}</p>
+              </div>
+              
+              <div className="min-h-[600px] w-full" ref={calRef}>
+                <Cal
+                  calLink={`${CAL_NAMESPACE}/${CAL_EVENT_NAME}`}
+                  config={{
+                    name: formData.name,
+                    email: formData.email,
+                    notes: `Company: ${formData.company}
+Phone: ${formData.phone}
+Industry: ${formData.industry}
+Primary Challenge: ${formData.primaryChallenge}
+Budget Range: ${formData.implementationBudget}
+Additional Info: ${formData.additionalInfo || 'None provided'}`,
+                    theme: "light",
+                    hideEventTypeDetails: "false",
+                  }}
+                  style={{ width: '100%', height: '100%', overflow: 'scroll' }}
+                />
+              </div>
+
+              {!calLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50 bg-opacity-70">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+                    <p className="text-gray-600">Loading calendar...</p>
                   </div>
-                )}
-              </div>
-                
-              <div className="bg-purple-50 p-4 rounded-lg border border-purple-100 mb-6">
-                <h4 className="font-medium text-purple-800 mb-2">What happens next?</h4>
-                <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
-                  <li>You'll receive a confirmation email shortly.</li>
-                  <li>Our team will reach out within 1 business day to schedule your session.</li>
-                  <li>We'll send a calendar invite with meeting details once confirmed.</li>
-                  <li>You'll have a 30-minute strategy session with our AI implementation expert.</li>
-                </ol>
-              </div>
+                </div>
+              )}
 
               <button
                 onClick={() => setCurrentStep(1)}
