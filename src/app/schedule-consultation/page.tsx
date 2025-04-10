@@ -56,63 +56,6 @@ export default function ScheduleConsultation() {
 
   const calendarRef = useRef<HTMLDivElement>(null);
   
-  // Initialize Cal widget when it's shown
-  useEffect(() => {
-    if (showCalWidget && calendarRef.current) {
-      console.log("[Cal.com] Attempting to initialize widget...");
-      const element = calendarRef.current;
-
-      const initializeCal = () => {
-        // @ts-ignore
-        if (typeof window !== 'undefined' && window.Cal) {
-          try {
-            console.log("[Cal.com] window.Cal object FOUND. Initializing...");
-            // @ts-ignore
-            const cal = window.Cal.getOrCreateInstance();
-            cal.inline({
-              elementOrSelector: element,
-              calLink: "fast-track-ai-oge7mz/consultation-fast-track-ai",
-              config: {
-                name: formData.name,
-                email: formData.email,
-                notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
-              }
-            });
-            console.log("[Cal.com] Initialization call completed.");
-          } catch (error) {
-            console.error("[Cal.com] Error during initialization:", error);
-          }
-        } else {
-          console.warn("[Cal.com] window.Cal object NOT found.");
-        }
-      };
-
-      // Polling mechanism to wait for window.Cal
-      let attempts = 0;
-      const maxAttempts = 10; // Try for 10 seconds (10 * 1000ms)
-      const interval = 1000; // Check every second
-
-      const pollForCal = setInterval(() => {
-        attempts++;
-        console.log(`[Cal.com] Polling attempt ${attempts}...`);
-        // @ts-ignore
-        if (typeof window !== 'undefined' && window.Cal) {
-          clearInterval(pollForCal);
-          initializeCal();
-        } else if (attempts >= maxAttempts) {
-          clearInterval(pollForCal);
-          console.error(`[Cal.com] FAILED to find window.Cal after ${maxAttempts} attempts.`);
-        }
-      }, interval);
-
-      // Cleanup interval on component unmount or if widget is hidden
-      return () => {
-        clearInterval(pollForCal);
-        console.log("[Cal.com] Cleanup polling.");
-      };
-    }
-  }, [showCalWidget, formData]); // Keep formData dependency if needed for config
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -489,9 +432,14 @@ export default function ScheduleConsultation() {
               </p>
               
               <div 
-                ref={calendarRef}
-                className="rounded-md overflow-hidden"
+                data-cal-link="fast-track-ai-oge7mz/consultation-fast-track-ai"
+                className="rounded-md overflow-hidden cal-embed-container"
                 style={{ height: '630px' }}
+                data-cal-config={JSON.stringify({
+                  name: formData.name,
+                  email: formData.email,
+                  notes: `Company: ${formData.company}\nIndustry: ${formData.industry}\nChallenge: ${formData.challengeArea}\nBudget: ${formData.budget || 'Not specified'}\nAdditional Info: ${formData.message || 'None'}`
+                })}
               ></div>
               
               <div className="flex justify-between mt-6">
