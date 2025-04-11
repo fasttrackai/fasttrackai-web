@@ -68,6 +68,12 @@ function extractAnalysisFromText(text: string): Partial<AnalysisResult> {
 // --- End Helper Function ---
 
 export async function POST(request: NextRequest) {
+  // 1. Verify Initialization
+  if (!adminDb) {
+    console.error('[API/analyze] Firebase Admin DB not initialized. Check server logs and environment variables.');
+    return NextResponse.json({ error: 'Server configuration error - DB Failed' }, { status: 500 });
+  }
+
   try {
     const payload = (await request.json()) as ApiPayload;
 
@@ -147,8 +153,7 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Save to Firestore ---
-    if (!adminDb) throw new Error("Firestore Admin DB is not initialized.");
-    
+    const db = adminDb; // Use adminDb directly
     const reportData = {
       userInput: payload, // Save the original user input
       analysis: analysis, // Save the AI analysis part
@@ -157,7 +162,7 @@ export async function POST(request: NextRequest) {
       // userId: uid // Get this if you add auth check here later
     };
 
-    const reportRef = await adminDb.collection('strategyReports').add(reportData);
+    const reportRef = await db.collection('strategyReports').add(reportData);
     console.log(`[API/analyze] Saved report with ID: ${reportRef.id}`);
 
     // --- Return Result to Frontend ---
