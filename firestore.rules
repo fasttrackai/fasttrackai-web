@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users Collection:
+    // Allow logged-in users to read their OWN user document (to get clientId)
+    // Allow admins (you) to write/create user documents initially
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // Add write rule for admin later if needed for user provisioning
+      // allow write: if isAdmin(); // Example for admin write access
+    }
+
+    // Clients Collection:
+    // Allow logged-in users to read ONLY the client document associated with their userId
+    // Allow admins to write client data
+    match /clients/{clientId} {
+      allow read: if request.auth != null && 
+                     exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.clientId == clientId;
+      // Add write rule for admin later if needed for updating dashboard data
+      // allow write: if isAdmin(); // Example for admin write access
+    }
+
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Example function to check for admin role (requires custom claims setup in Firebase Auth)
+    // function isAdmin() {
+    //   return request.auth != null && request.auth.token.admin == true;
+    // }
+  }
+} 
