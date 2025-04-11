@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { motion } from 'framer-motion';
-import { Menu, X, ChevronDown, LogOut, User } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react';
 import ResponsiveContainer from './ResponsiveContainer';
 
 export default function Header() {
@@ -53,7 +53,17 @@ export default function Header() {
           <div className="flex items-center">
             {user ? (
               <div className="hidden md:ml-4 md:flex md:items-center">
-                <div className="relative">
+                <Link
+                  href="/client-dashboard"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/client-dashboard')
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  }`}
+                >
+                   Dashboard
+                </Link>
+                <div className="relative ml-3">
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-primary"
@@ -73,8 +83,16 @@ export default function Header() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-48 bg-background rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1"
+                      className="absolute right-0 mt-2 w-56 origin-top-right bg-background rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1 focus:outline-none"
                     >
+                      <Link
+                        href="/client-dashboard"
+                        className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted flex items-center"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Client Dashboard
+                      </Link>
                       <Link
                         href="/profile"
                         className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted flex items-center"
@@ -83,12 +101,13 @@ export default function Header() {
                         <User className="mr-2 h-4 w-4" />
                         Your Profile
                       </Link>
+                      <div className="border-t border-gray-200 my-1"></div>
                       <button
                         onClick={() => {
                           signOut();
                           setProfileMenuOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm text-muted-foreground hover:bg-muted flex items-center"
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         Sign out
@@ -174,19 +193,26 @@ export default function Header() {
               </div>
               <div className="mt-3 space-y-1 px-6">
                 <Link
-                  href="/profile"
-                  className="block px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md"
+                  href="/client-dashboard"
+                  className="block px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md flex items-center"
                   onClick={() => setMobileMenuOpen(false)}
                 >
+                   <LayoutDashboard className="mr-3 h-5 w-5" />
+                   Client Dashboard
+                </Link>
+                <Link
+                  href="/profile"
+                  className="block px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md flex items-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User className="mr-3 h-5 w-5" />
                   Your Profile
                 </Link>
                 <button
-                  onClick={() => {
-                    signOut();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left px-4 py-3 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-md"
+                  onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                  className="block w-full text-left px-4 py-3 text-base font-medium text-red-600 hover:text-foreground hover:bg-red-50 rounded-md flex items-center"
                 >
+                   <LogOut className="mr-3 h-5 w-5" />
                   Sign out
                 </button>
               </div>
