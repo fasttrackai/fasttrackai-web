@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/hooks/useAuth';
 import { motion } from 'framer-motion';
-import { Mail, Lock, LogIn, Loader, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 const fadeInUp = {
@@ -15,131 +15,121 @@ const fadeInUp = {
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth(); // Assuming useAuth provides a signIn function
+  const { signIn } = useAuth();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
 
     try {
-      if (!signIn) {
-         throw new Error('Sign in function not available from useAuth.');
-      }
       await signIn(email, password);
-      // Sign-in successful, redirect to client dashboard
-      router.push('/client-dashboard'); 
+      router.push('/');
     } catch (err: any) {
-      console.error("Login Error:", err);
-      // Provide more user-friendly error messages
-      let errorMessage = 'Login failed. Please check your credentials.';
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-        errorMessage = 'Invalid email or password.';
-      } else if (err.code === 'auth/invalid-email'){
-        errorMessage = 'Please enter a valid email address.';
-      }
-      setError(errorMessage);
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to sign in. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  const handleDemoLogin = async () => {
+    setEmail('demo@example.com');
+    setPassword('password123');
+    setLoading(true);
+    
+    // Simulate login for demo purposes
+    setTimeout(() => {
+      router.push('/');
+    }, 1500);
+  };
+
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-4">
-      <motion.div 
-        className="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden"
-        initial="initial" 
-        animate="animate" 
-        variants={fadeInUp}
-      >
-        <div className="p-8 md:p-10">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-6">
+      <div className="container mx-auto max-w-md">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-card rounded-lg shadow-lg p-8"
+        >
           <div className="text-center mb-8">
-             <Link href="/" className="inline-block mb-4">
-                <span className="text-2xl font-bold text-primary">FastTrack AI</span>
-             </Link>
-             <h1 className="text-2xl font-bold text-gray-900">Client Login</h1>
-             <p className="mt-2 text-gray-600">Access your AI Performance Dashboard.</p>
+            <h1 className="text-3xl font-bold mb-2">Sign In</h1>
+            <p className="text-muted-foreground">
+              Access your training portal and track your progress
+            </p>
           </div>
-          
+
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-              <div className="relative">
-                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                 </div>
-                <input 
-                  type="email" 
-                  name="email" 
-                  id="email" 
-                  required 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="form-input pl-10"
-                  placeholder="you@example.com"
-                />
-              </div>
+              <label htmlFor="email" className="block text-sm font-medium mb-2">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                placeholder="your@email.com"
+                required
+              />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <div className="relative">
-                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" />
-                 </div>
-                <input 
-                  type="password" 
-                  name="password" 
-                  id="password" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="form-input pl-10"
-                  placeholder="••••••••"
-                />
-              </div>
+              <label htmlFor="password" className="block text-sm font-medium mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                placeholder="••••••••"
+                required
+              />
             </div>
-            
+
             {error && (
-              <div className="flex items-center p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
-                 <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
-                 <span>{error}</span>
+              <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                {error}
               </div>
             )}
 
-            <div>
-              <button 
-                type="submit" 
-                disabled={isLoading}
-                className="button-primary w-full flex items-center justify-center"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader className="animate-spin h-5 w-5 mr-3" />
-                    Signing In...
-                  </>
-                ) : (
-                  <>
-                    Sign In
-                    <LogIn className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium disabled:opacity-50 flex items-center justify-center"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  Signing in...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </button>
           </form>
 
-           {/* Optional: Add link to sign up or forgot password */}
-           <div className="mt-6 text-center text-sm">
-             <p className="text-gray-600">
-                Need access? Contact support. 
-                {/* Or add a sign-up link: <Link href="/signup" className="font-medium text-purple-600 hover:text-purple-500">Sign up</Link> */}
-             </p>
-           </div>
-        </div>
-      </motion.div>
-    </main>
+          <div className="mt-6 pt-6 border-t text-center">
+            <p className="text-muted-foreground mb-4">
+              For demonstration purposes
+            </p>
+            <button
+              onClick={handleDemoLogin}
+              className="w-full bg-primary/10 text-primary px-6 py-3 rounded-lg font-medium"
+            >
+              Use Demo Account
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    </div>
   );
 } 

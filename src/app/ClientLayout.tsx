@@ -128,53 +128,51 @@ export default function ClientLayout({
               <Link href="/contact" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
                 Contact
               </Link>
+              <Link 
+                href={user ? "/client-dashboard" : "/dashboard"} 
+                className={`text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm ${
+                  isActive(user ? '/client-dashboard' : '/dashboard') ? 'text-purple-700 font-semibold' : ''
+                }`}
+              >
+                Dashboard
+              </Link>
               {user ? (
-                <>
-                  <Link 
-                    href="/client-dashboard" 
-                    className={`text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm ${
-                      isActive('/client-dashboard') ? 'text-purple-700 font-semibold' : ''
-                    }`}
-                  >
-                    Dashboard
-                  </Link>
-                  <div className="relative ml-3" onMouseEnter={handleProfileEnter} onMouseLeave={handleProfileLeave}>
-                    <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-                      <span className="sr-only">Open user menu</span>
-                       <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">
-                          {user.displayName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                <div className="relative ml-3" onMouseEnter={handleProfileEnter} onMouseLeave={handleProfileLeave}>
+                  <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    <span className="sr-only">Open user menu</span>
+                     <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">
+                        {user.displayName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                     </div>
+                     <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
+                  </button>
+                  {isProfileDropdownOpen && (
+                     <motion.div
+                       initial={{ opacity: 0, y: 10 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       transition={{ duration: 0.2 }}
+                       className="absolute right-0 mt-1 w-56 origin-top-right bg-white rounded-md shadow-lg z-10 py-1 border focus:outline-none"
+                     >
+                       <div className="px-4 py-3">
+                         <p className="text-sm font-medium text-gray-900 truncate">{user.displayName || 'User'}</p>
+                         <p className="text-xs text-gray-500 truncate">{user.email}</p>
                        </div>
-                       <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
-                    </button>
-                    {isProfileDropdownOpen && (
-                       <motion.div
-                         initial={{ opacity: 0, y: 10 }}
-                         animate={{ opacity: 1, y: 0 }}
-                         transition={{ duration: 0.2 }}
-                         className="absolute right-0 mt-1 w-56 origin-top-right bg-white rounded-md shadow-lg z-10 py-1 border focus:outline-none"
+                       <div className="border-t border-gray-100"></div>
+                       <Link href="/client-dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" onClick={() => setIsProfileDropdownOpen(false)}>
+                         <LayoutDashboard className="mr-2 h-4 w-4 text-gray-500" /> Client Dashboard
+                       </Link>
+                       <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" onClick={() => setIsProfileDropdownOpen(false)}>
+                         <User className="mr-2 h-4 w-4 text-gray-500" /> Your Profile
+                       </Link>
+                       <div className="border-t border-gray-100"></div>
+                       <button 
+                         onClick={() => { signOut(); setIsProfileDropdownOpen(false); }}
+                         className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                        >
-                         <div className="px-4 py-3">
-                           <p className="text-sm font-medium text-gray-900 truncate">{user.displayName || 'User'}</p>
-                           <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                         </div>
-                         <div className="border-t border-gray-100"></div>
-                         <Link href="/client-dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" onClick={() => setIsProfileDropdownOpen(false)}>
-                           <LayoutDashboard className="mr-2 h-4 w-4 text-gray-500" /> Client Dashboard
-                         </Link>
-                         <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" onClick={() => setIsProfileDropdownOpen(false)}>
-                           <User className="mr-2 h-4 w-4 text-gray-500" /> Your Profile
-                         </Link>
-                         <div className="border-t border-gray-100"></div>
-                         <button 
-                           onClick={() => { signOut(); setIsProfileDropdownOpen(false); }}
-                           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-                         >
-                           <LogOut className="mr-2 h-4 w-4" /> Sign out
-                         </button>
-                       </motion.div>
-                    )}
-                  </div>
-                </>
+                         <LogOut className="mr-2 h-4 w-4" /> Sign out
+                       </button>
+                     </motion.div>
+                  )}
+                </div>
               ) : (
                 <>
                   <Link href="/login" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">Sign In</Link>
@@ -246,15 +244,13 @@ export default function ClientLayout({
                 >
                   Contact
                 </Link>
-                {user && (
-                    <Link 
-                        href="/client-dashboard" 
-                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                        <LayoutDashboard className="mr-3 h-5 w-5 text-gray-500"/> Dashboard
-                    </Link>
-                )}
+                <Link 
+                  href={user ? "/client-dashboard" : "/dashboard"} 
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <LayoutDashboard className="mr-3 h-5 w-5 text-gray-500"/> Dashboard
+                </Link>
                 <Link 
                   href="/schedule-consultation"
                   className="block px-3 py-2 rounded-md text-base font-medium bg-purple-700 text-white hover:bg-purple-800"
