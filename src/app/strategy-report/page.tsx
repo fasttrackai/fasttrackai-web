@@ -41,6 +41,8 @@ export default function StrategyReport() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -1240,36 +1242,21 @@ Generated on: ${new Date().toLocaleDateString()}
   };
 
   return (
-    <main className="min-h-screen py-20 gradient-primary">
-      <div className="container mx-auto px-6">
-        <motion.div
+    <main className="min-h-screen gradient-primary py-16">
+      <div className="container mx-auto px-4">
+        <motion.div 
+          className="max-w-3xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden"
+          initial="initial" 
+          animate="animate" 
           variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-          className="max-w-4xl mx-auto"
         >
-          <motion.h1 
-            className="heading-1 text-center mb-4 text-white"
-            variants={fadeInUp}
-          >
-            FastTrack AI Strategy Report Generator
-          </motion.h1>
-          <motion.p 
-            className="body-large text-white text-center mb-12"
-            variants={fadeInUp}
-          >
-            Get a personalized AI strategy report for your business in minutes.
-          </motion.p>
-
           {!isSuccess ? (
-            <motion.div 
-              className="card"
-              variants={fadeInUp}
-            >
-              <div className="flex items-center mb-6">
-                <FileText className="h-6 w-6 text-purple-700 mr-3" />
-                <h2 className="heading-3 text-gray-900">Tell Us About Your Business</h2>
-              </div>
+            <div className="p-8 md:p-12">
+              <motion.div variants={fadeInUp} className="text-center mb-8">
+                 <FileText className="h-12 w-12 mx-auto text-purple-600 mb-4" />
+                 <h1 className="text-3xl font-bold text-gray-900">AI Strategy Report Generator</h1>
+                 <p className="mt-2 text-gray-600">Answer a few questions to get a preliminary AI analysis.</p>
+              </motion.div>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1385,34 +1372,37 @@ Generated on: ${new Date().toLocaleDateString()}
                   />
                 </div>
                 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="button-primary w-full flex items-center justify-center disabled:bg-purple-400"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      Schedule My AI Strategy Consultation
-                      <Send className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </button>
+                <motion.div variants={fadeInUp}>
+                  <button 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    className="button-primary w-full flex items-center justify-center"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        Schedule My AI Strategy Consultation
+                        <Send className="ml-2 h-5 w-5" />
+                      </>
+                    )}
+                  </button>
+                </motion.div>
+                {error && (
+                  <p className="mt-4 text-center text-red-600 text-sm">Error: {error}</p>
+                )}
               </form>
-            </motion.div>
+            </div>
           ) : (
             <motion.div 
-              className="card text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              className="p-8 md:p-12 text-center"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             >
               <div className="mb-6">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -1423,6 +1413,32 @@ Generated on: ${new Date().toLocaleDateString()}
                   We've analyzed your business information and created a personalized FastTrack AI strategy report.
                 </p>
               </div>
+              
+              {analysisResult && (
+                <div className="text-left bg-gray-50 p-6 rounded-lg border border-gray-200 space-y-4 mb-8">
+                  <h3 className="text-lg font-semibold text-purple-700 border-b pb-2 mb-3">AI-Generated Insights:</h3>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">Potential Opportunity Areas:</h4>
+                    {analysisResult.aiOpportunities?.length > 0 ? (
+                      <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mt-1">
+                        {analysisResult.aiOpportunities.map((opp, i) => <li key={i}>{opp}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">No specific areas identified from input.</p>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">Suggested General First Steps:</h4>
+                    {analysisResult.suggestedSteps?.length > 0 ? (
+                      <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mt-1">
+                        {analysisResult.suggestedSteps.map((step, i) => <li key={i}>{step}</li>)}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-500 text-sm italic">No specific steps identified from input.</p>
+                    )}
+                  </div>
+                </div>
+              )}
               
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
                 <button 
@@ -1470,43 +1486,6 @@ Generated on: ${new Date().toLocaleDateString()}
               </div>
             </motion.div>
           )}
-          
-          <motion.div 
-            className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8"
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-          >
-            <motion.div 
-              className="bg-white p-6 rounded-lg shadow-lg"
-              variants={fadeInUp}
-            >
-              <h3 className="font-bold text-lg mb-2 text-gray-900">Personalized Insights</h3>
-              <p className="text-gray-700">
-                Get AI recommendations specific to your industry, company size, and business challenges.
-              </p>
-            </motion.div>
-            
-            <motion.div 
-              className="bg-white p-6 rounded-lg shadow-lg"
-              variants={fadeInUp}
-            >
-              <h3 className="font-bold text-lg mb-2 text-gray-900">ROI Projections</h3>
-              <p className="text-gray-700">
-                See potential cost savings and revenue gains from implementing AI solutions.
-              </p>
-            </motion.div>
-            
-            <motion.div 
-              className="bg-white p-6 rounded-lg shadow-lg"
-              variants={fadeInUp}
-            >
-              <h3 className="font-bold text-lg mb-2 text-gray-900">Implementation Roadmap</h3>
-              <p className="text-gray-700">
-                Get a step-by-step plan for integrating AI into your business operations.
-              </p>
-            </motion.div>
-          </motion.div>
         </motion.div>
       </div>
     </main>
