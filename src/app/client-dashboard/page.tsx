@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle } from 'lucide-react';
+import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle, RefreshCw, Info, LayoutDashboard } from 'lucide-react';
 
 // Define types for the dashboard data
 interface MaturityScore {
@@ -205,37 +205,42 @@ export default function ClientDashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
+    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
       <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">AI Performance Dashboard</h1>
-            <p className="text-gray-600 mt-1">
-              {usedMockData ? 'Viewing sample data' : 'Real-time insights on your AI implementation'}
-            </p>
+        {/* Header - Enhanced Title & Layout */}
+        <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-6">
+          {/* Title with Icon */}
+          <div className="flex items-center mb-4 sm:mb-0">
+             <LayoutDashboard className="h-8 w-8 mr-3 text-purple-600 flex-shrink-0" /> 
+             <h1 className="text-3xl font-bold text-gray-800 tracking-tight">AI Performance Dashboard</h1>
           </div>
-          <div className="mt-4 md:mt-0">
+          {/* Buttons and Banner Area */}
+          <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+             {/* Sample Data Banner - Amber Color */}
+             {usedMockData && (
+               <span className={`text-sm inline-flex items-center bg-amber-100 text-amber-800 font-medium px-3 py-1 rounded-full shadow-sm order-2 sm:order-1'`}>
+                  <Info className="h-4 w-4 mr-1.5" /> Viewing sample data
+               </span>
+             )}
             <button 
-              className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors"
+              className="button-primary inline-flex items-center order-1 sm:order-2" // Themed button
               onClick={() => window.location.reload()}
             >
+              <RefreshCw className="h-4 w-4 mr-2" />
               Refresh Data
             </button>
           </div>
         </div>
 
-        {/* Only show error message if it exists and we're not in development mode */}
+        {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex items-center text-amber-700">
-              <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
-              <p>{error}</p>
-            </div>
-          </div>
+           <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg flex items-center">
+             <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+             <p>{error}</p>
+           </div>
         )}
-
-        {/* Dashboard Content */}
+        
+        {/* Growth Metrics Cards - Enhanced Styling */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {growthMetrics.map((metric, index) => (
             <motion.div
@@ -243,36 +248,33 @@ export default function ClientDashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-lg shadow-sm p-6"
+              className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
             >
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-gray-500 font-medium">{metric.label}</h3>
+                <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
                 {metric.trend === 'up' ? (
-                  <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full flex items-center">
+                  <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
                     <span className="mr-1">+{metric.percentChange}%</span>
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                     </svg>
                   </div>
                 ) : metric.trend === 'down' ? (
-                  <div className={`text-xs px-2 py-1 rounded-full flex items-center ${
+                  <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
                     metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
-                      ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      ? 'bg-green-100 text-green-700' // Green for positive reduction
+                      : 'bg-red-100 text-red-700' // Red for negative change
                   }`}>
                     <span className="mr-1">{metric.percentChange}%</span>
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                   </div>
-                ) : (
-                  <div className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
-                    No change
-                  </div>
-                )}
+                ) : null }
               </div>
               <div className="flex items-end">
-                <span className="text-3xl font-bold text-gray-900">{metric.current}</span>
-                <span className="ml-1 text-gray-600">{metric.unit}</span>
+                <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
+                <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
               </div>
               <div className="mt-1 text-sm text-gray-500">
                 Previous: {metric.previous}{metric.unit}
@@ -282,128 +284,123 @@ export default function ClientDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* AI Maturity Scores */}
+          {/* AI Maturity Scores - Enhanced Styling */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-lg shadow-sm p-6 lg:col-span-2"
+            className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 lg:col-span-2 transition-shadow hover:shadow-xl"
           >
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Activity className="h-5 w-5 mr-2 text-purple-600" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+              <Activity className="h-6 w-6 mr-3 text-purple-600" />
               AI Maturity Scores
             </h2>
-            <div className="space-y-4">
+            <div className="space-y-5">
               {maturityScores.map((item) => (
                 <div key={item.category}>
                   <div className="flex justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">{item.category}</span>
-                    <span className="text-sm text-gray-600 flex items-center">
+                    <span className="text-md font-medium text-gray-800">{item.category}</span>
+                    <span className="text-sm font-semibold text-gray-700 flex items-center">
                       <span>{item.score}%</span>
                       {item.improvement > 0 && (
-                        <span className="text-green-600 ml-2 flex items-center text-xs">
-                          <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                        <span className="text-green-600 ml-2 flex items-center text-xs font-bold">
+                          <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                           </svg>
                           {item.improvement}%
                         </span>
                       )}
                     </span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="w-full bg-gray-200 rounded-full h-3">
                     <div 
-                      className="bg-purple-600 h-2.5 rounded-full" 
+                      className="bg-gradient-to-r from-purple-500 to-purple-700 h-3 rounded-full transition-all duration-500 ease-out" 
                       style={{ width: `${item.score}%` }}
                     ></div>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Last updated: {new Date(item.lastUpdated).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500 mt-1.5">Last updated: {new Date(item.lastUpdated).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>
           </motion.div>
 
-          {/* Recent Activities */}
+          {/* Recent Activities - Enhanced Styling & Fixed Link */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-lg shadow-sm p-6"
+            className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
           >
-            <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <Clock className="h-5 w-5 mr-2 text-purple-600" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+              <Clock className="h-6 w-6 mr-3 text-purple-600" />
               Recent Activities
             </h2>
-            
             <div className="space-y-4">
-              {assessments.length > 0 && (
-                <div className="border-l-2 border-purple-200 pl-4 py-1">
-                  <p className="text-sm font-medium text-gray-900">AI Readiness Assessment</p>
-                  <p className="text-xs text-gray-600">Score: {assessments[0].score}%</p>
-                  <p className="text-xs text-gray-500">{new Date(assessments[0].date).toLocaleDateString()}</p>
-                </div>
-              )}
-              
-              {roiCalculations.length > 0 && (
-                <div className="border-l-2 border-green-200 pl-4 py-1">
-                  <p className="text-sm font-medium text-gray-900">ROI Calculation</p>
-                  <p className="text-xs text-gray-600">{roiCalculations[0].package} Plan • {roiCalculations[0].roi}% ROI</p>
-                  <p className="text-xs text-gray-500">{new Date(roiCalculations[0].date).toLocaleDateString()}</p>
-                </div>
-              )}
-              
-              {projects.filter(p => p.status === 'completed').map((project, index) => (
-                <div key={index} className="border-l-2 border-blue-200 pl-4 py-1">
-                  <p className="text-sm font-medium text-gray-900">{project.name} Completed</p>
-                  <p className="text-xs text-gray-500">Recently Completed</p>
-                </div>
-              ))}
+               <div className="border-l-4 border-purple-400 pl-4 py-2 bg-purple-50/50 rounded-r-md">
+                 <p className="text-sm font-semibold text-purple-800">AI Readiness Assessment</p>
+                 <p className="text-xs text-gray-700">Score: {assessments.length > 0 ? `${assessments[0].score}%` : 'N/A'}</p>
+                 <p className="text-xs text-gray-500">{assessments.length > 0 ? new Date(assessments[0].date).toLocaleDateString() : 'Invalid Date'}</p>
+               </div>
+               <div className="border-l-4 border-green-400 pl-4 py-2 bg-green-50/50 rounded-r-md">
+                 <p className="text-sm font-semibold text-green-800">ROI Calculation</p>
+                 <p className="text-xs text-gray-700">{roiCalculations.length > 0 ? `${roiCalculations[0].package} Plan • ${roiCalculations[0].roi}% ROI` : 'N/A'}</p>
+                 <p className="text-xs text-gray-500">{roiCalculations.length > 0 ? new Date(roiCalculations[0].date).toLocaleDateString() : 'Invalid Date'}</p>
+               </div>
+               {projects.filter(p => p.status === 'completed').slice(0, 1).map((project) => (
+                 <div key={project.name} className="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-md">
+                   <p className="text-sm font-semibold text-blue-800">{project.name} Completed</p>
+                   <p className="text-xs text-gray-500">Recently Completed</p>
+                 </div>
+               ))}
             </div>
-            
             <div className="mt-6">
-              <a href="/activity-log" className="text-sm text-purple-600 hover:text-purple-800 font-medium">
+              <a href="#" // Keep href to #
+                 onClick={(e) => e.preventDefault()} // Prevent default anchor behavior
+                 className="text-sm text-purple-600 hover:text-purple-800 font-semibold cursor-not-allowed opacity-50" // Style as disabled
+                 title="Activity Log page not yet implemented"
+               >
                 View All Activity →
               </a>
             </div>
           </motion.div>
         </div>
 
-        {/* Implementation Projects */}
+        {/* Implementation Projects Table - Enhanced Styling */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-lg shadow-sm p-6 mb-8"
+          className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8 transition-shadow hover:shadow-xl"
         >
-          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <Users className="h-5 w-5 mr-2 text-purple-600" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <Users className="h-6 w-6 mr-3 text-purple-600" />
             Implementation Projects
           </h2>
-          
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead>
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Project Name
                   </th>
-                  <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Progress
                   </th>
-                  <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Timeline
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {projects.map((project, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                  <tr key={index} className="hover:bg-gray-50/50">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{project.name}</div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
                         project.status === 'completed' ? 'bg-green-100 text-green-800' :
                         project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
                         project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
@@ -412,23 +409,23 @@ export default function ClientDashboard() {
                         {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                       </span>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
                           <div 
                             className={`h-2.5 rounded-full ${
-                              project.status === 'completed' ? 'bg-green-600' : 'bg-blue-600'
+                              project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
                             }`}
                             style={{ width: `${project.progress}%` }}
                           ></div>
                         </div>
-                        <span className="ml-2 text-sm text-gray-500">{project.progress}%</span>
+                        <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {project.status === 'completed' ? (
-                        <span className="flex items-center text-green-600">
-                          <CheckCircle className="h-4 w-4 mr-1" />
+                        <span className="flex items-center text-green-600 font-medium">
+                          <CheckCircle className="h-4 w-4 mr-1.5" />
                           Completed
                         </span>
                       ) : (
@@ -442,32 +439,27 @@ export default function ClientDashboard() {
           </div>
         </motion.div>
 
-        {/* Call to action */}
+        {/* Call to action - Enhanced Styling */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-purple-700 text-white rounded-lg shadow-lg p-6 flex flex-col md:flex-row items-center justify-between"
+          className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-xl shadow-xl p-8 flex flex-col md:flex-row items-center justify-between"
         >
-          <div className="mb-4 md:mb-0">
-            <h2 className="text-lg font-bold mb-2">Ready to take your AI implementation to the next level?</h2>
-            <p className="text-purple-200">Schedule a consultation with our experts to discuss optimizing your AI strategy.</p>
+          <div className="mb-4 md:mb-0 md:mr-6 text-center md:text-left">
+            <h2 className="text-xl font-bold mb-2">Ready to take your AI implementation to the next level?</h2>
+            <p className="text-purple-100/90">Schedule a consultation with our experts to discuss optimizing your AI strategy.</p>
           </div>
-          <div className="flex space-x-4">
+          <div className="flex-shrink-0 flex space-x-4">
             <a 
               href="/schedule-consultation" 
-              className="px-4 py-2 bg-white text-purple-700 rounded-lg font-medium hover:bg-purple-50 transition-colors"
+              className="button-secondary-light"
             >
               Schedule Consultation
             </a>
-            <a 
-              href="/instant-consultation" 
-              className="px-4 py-2 border border-white text-white rounded-lg font-medium hover:bg-purple-600 transition-colors"
-            >
-              Instant Consultation
-            </a>
           </div>
         </motion.div>
+
       </div>
     </main>
   );
