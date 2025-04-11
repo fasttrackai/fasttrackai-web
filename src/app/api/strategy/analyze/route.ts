@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { adminDb } from '@/lib/firebase/firebase-admin'; // Assuming adminDb is initialized and exported
+// import { adminDb } from '@/lib/firebase/firebase-admin'; // Comment out for debugging
 // Assuming OpenAI or Anthropic client is setup elsewhere and accessible
 // e.g., import { openai } from '@/lib/openaiClient'; 
 
@@ -68,11 +68,14 @@ function extractAnalysisFromText(text: string): Partial<AnalysisResult> {
 // --- End Helper Function ---
 
 export async function POST(request: NextRequest) {
-  // 1. Verify Initialization
+  // 1. Verify Initialization - TEMPORARILY BYPASSED
+  /* 
   if (!adminDb) {
-    console.error('[API/analyze] Firebase Admin DB not initialized. Check server logs and environment variables.');
+    console.error('[API/analyze] Firebase Admin DB not initialized.');
     return NextResponse.json({ error: 'Server configuration error - DB Failed' }, { status: 500 });
   }
+  */
+  console.log("[API/analyze] Skipping Admin DB check for debugging.");
 
   try {
     const payload = (await request.json()) as ApiPayload;
@@ -105,9 +108,9 @@ export async function POST(request: NextRequest) {
       Keep descriptions concise (max 10 words per item). Provide 2 opportunities and 2 steps. Generate a score.
     `;
 
-    // --- Call AI Service (Using OpenAI API Route) ---
-    console.log("[API/analyze] Sending request to OpenAI API route...");
-    let analysis: Partial<AnalysisResult> = {}; // Initialize empty analysis
+    // --- Call AI Service --- 
+    console.log("[API/analyze] Sending request to OpenAI API route (DEBUG - DB Disabled)...");
+    let analysis: Partial<AnalysisResult> = {};
     try {
       // Construct the absolute URL for the API route
       const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'; 
@@ -152,31 +155,28 @@ export async function POST(request: NextRequest) {
         };
     }
 
-    // --- Save to Firestore ---
-    const db = adminDb; // Use adminDb directly
-    const reportData = {
-      userInput: payload, // Save the original user input
-      analysis: analysis, // Save the AI analysis part
-      createdAt: new Date().toISOString(),
-      // Optionally link to userId if user is authenticated during submission
-      // userId: uid // Get this if you add auth check here later
-    };
-
+    // --- Save to Firestore - TEMPORARILY BYPASSED ---
+    console.log("[API/analyze] Skipping Firestore save for debugging.");
+    const fakeReportId = `debug_${Date.now()}`;
+    /*
+    if (!adminDb) throw new Error("Firestore Admin DB is not initialized.");
+    const db = adminDb; 
+    const reportData = { ... };
     const reportRef = await db.collection('strategyReports').add(reportData);
-    console.log(`[API/analyze] Saved report with ID: ${reportRef.id}`);
+    const reportId = reportRef.id;
+    */
 
-    // --- Return Result to Frontend ---
+    // --- Return Result --- 
     const resultWithId: AnalysisResult = {
-        reportId: reportRef.id,
+        reportId: fakeReportId, // Return a fake ID
         aiOpportunities: analysis.aiOpportunities || [],
         suggestedSteps: analysis.suggestedSteps || [],
         opportunityScore: analysis.opportunityScore
     };
-
     return NextResponse.json(resultWithId, { status: 200 });
 
   } catch (error: any) {
-    console.error('[API/analyze] Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+     console.error('[API/analyze] Error:', error);
+     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
   }
 } 
