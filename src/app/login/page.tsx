@@ -1,135 +1,175 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useAuth } from '@/lib/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/lib/hooks/useAuth';
+import { motion } from 'framer-motion';
+import { Mail, Lock, LogIn, Loader, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+import AnimatedRocket from '@/app/components/AnimatedRocket';
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 }
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2 
+    }
+  }
 };
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  
   const [error, setError] = useState<string | null>(null);
-  const { signIn } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth(); 
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
-
     try {
+      if (!signIn) throw new Error('Sign in function not available from useAuth.');
       await signIn(email, password);
-      router.push('/');
+      router.push('/client-dashboard'); 
     } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.message || 'Failed to sign in. Please try again.');
+      console.error("Login Error:", err);
+      let errorMessage = 'Login failed. Please check your credentials.';
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        errorMessage = 'Invalid email or password.';
+      } else if (err.code === 'auth/invalid-email'){
+        errorMessage = 'Please enter a valid email address.';
+      }
+      setError(errorMessage);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const handleDemoLogin = async () => {
-    setEmail('demo@example.com');
-    setPassword('password123');
-    setLoading(true);
-    
-    // Simulate login for demo purposes
-    setTimeout(() => {
-      router.push('/');
-    }, 1500);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-6">
-      <div className="container mx-auto max-w-md">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-card rounded-lg shadow-lg p-8"
-        >
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Sign In</h1>
-            <p className="text-muted-foreground">
-              Access your training portal and track your progress
-            </p>
-          </div>
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-purple-100 to-violet-200 p-4">
+      <motion.div 
+        className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50"
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+      >
+        {/* Header Section with Rocket */}
+        <div className="p-6 bg-gradient-to-r from-purple-700 to-purple-900 text-center relative overflow-hidden">
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 100 }}
+            className="absolute -top-4 -left-4 w-24 h-24 opacity-10"
+           >
+             <AnimatedRocket />
+          </motion.div>
+           <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5, type: 'spring', stiffness: 100 }}
+            className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 transform rotate-12"
+           >
+             <AnimatedRocket />
+          </motion.div>
+           <Link href="/" className="inline-block mb-2 relative z-10">
+              <span className="text-3xl font-bold text-white tracking-tight">FastTrack AI</span>
+           </Link>
+           <p className="text-purple-200/90 text-sm relative z-10">Client Portal Login</p>
+        </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">
-                {error}
+        {/* Form Section */}
+        <div className="p-8 md:p-10">
+          <motion.form 
+            onSubmit={handleLogin} 
+            className="space-y-6"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            <motion.div variants={fadeInUp}>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
+              <div className="relative">
+                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400" />
+                 </div>
+                <input 
+                  type="email" name="email" id="email" required 
+                  value={email} onChange={(e) => setEmail(e.target.value)}
+                  className="form-input-themed" // Using class from globals.css or component styling
+                  placeholder="you@example.com"
+                />
               </div>
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+              <div className="relative">
+                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                 </div>
+                <input 
+                  type="password" name="password" id="password" required 
+                  value={password} onChange={(e) => setPassword(e.target.value)}
+                  className="form-input-themed" // Using class from globals.css or component styling
+                  placeholder="••••••••"
+                />
+              </div>
+            </motion.div>
+            
+            {error && (
+              <motion.div 
+                className="flex items-center p-3 bg-red-100 border border-red-300 rounded-lg text-sm text-red-800 shadow-sm"
+                variants={fadeInUp}
+              >
+                 <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+                 <span>{error}</span>
+              </motion.div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium disabled:opacity-50 flex items-center justify-center"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  Signing in...
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-          </form>
+            <motion.div variants={fadeInUp}>
+              <button 
+                type="submit" 
+                disabled={isLoading}
+                className="button-primary w-full flex items-center justify-center text-base py-2.5" 
+              >
+                {isLoading ? (
+                  <>
+                    <Loader className="animate-spin h-5 w-5 mr-3" /> Signing In...
+                  </>
+                ) : (
+                  <>
+                    Sign In <LogIn className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </motion.div>
+          </motion.form>
 
-          <div className="mt-6 pt-6 border-t text-center">
-            <p className="text-muted-foreground mb-4">
-              For demonstration purposes
-            </p>
-            <button
-              onClick={handleDemoLogin}
-              className="w-full bg-primary/10 text-primary px-6 py-3 rounded-lg font-medium"
-            >
-              Use Demo Account
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    </div>
+           <motion.div className="mt-8 text-center text-sm" variants={fadeInUp}>
+             <p className="text-gray-500">
+                Trouble logging in? Contact support.
+             </p>
+           </motion.div>
+        </div>
+      </motion.div>
+    </main>
   );
-} 
+}
+
+/* Add these to globals.css if not already defined:
+@layer components {
+  .form-input-themed {
+    @apply block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm text-gray-900;
+  }
+  .button-primary {
+     @apply bg-purple-700 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-800 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+}
+*/ 
