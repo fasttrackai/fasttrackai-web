@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useState, useRef, useEffect } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import AnimatedRocket from './components/AnimatedRocket';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const fadeInUp = {
   initial: { opacity: 0, y: -20 },
@@ -19,11 +21,16 @@ export default function ClientLayout({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSolutionsDropdownOpen, setSolutionsDropdownOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   
-  // Use useRef for timeout reference to fix the const reassignment issue
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { user, signOut } = useAuth();
+  const pathname = usePathname();
+
+  const isActive = (path: string) => pathname === path;
   
-  // Solutions for dropdown menu
   const solutionsItems = [
     { name: 'Customer Service AI', href: '/solutions/customer-service-ai' },
     { name: 'Business Analytics', href: '/solutions/business-analytics' },
@@ -33,16 +40,13 @@ export default function ClientLayout({
     { name: 'AI Integration Services', href: '/solutions/ai-integration' }
   ];
   
-  // Clear timeout on unmount
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
     };
   }, []);
   
-  // Improved dropdown handlers with delay for better UX
   const handleDropdownEnter = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -52,10 +56,19 @@ export default function ClientLayout({
   };
 
   const handleDropdownLeave = () => {
-    // Set a longer delay before closing to give users more time to move to the dropdown
     timeoutRef.current = setTimeout(() => {
       setSolutionsDropdownOpen(false);
-    }, 300); // 300ms delay
+    }, 300);
+  };
+
+  const handleProfileEnter = () => {
+    if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+    setIsProfileDropdownOpen(true);
+  };
+  const handleProfileLeave = () => {
+    profileTimeoutRef.current = setTimeout(() => {
+      setIsProfileDropdownOpen(false);
+    }, 300);
   };
 
   return (
@@ -89,7 +102,6 @@ export default function ClientLayout({
                     onMouseEnter={handleDropdownEnter}
                     onMouseLeave={handleDropdownLeave}
                   >
-                    {/* Add padding-top to create a seamless hover area */}
                     <div className="absolute h-4 w-full -top-4"></div>
                     <Link href="/solutions" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 font-medium">
                       All Solutions
@@ -113,23 +125,67 @@ export default function ClientLayout({
               <Link href="/strategy-report" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
                 Strategy Report
               </Link>
-              {/* Training Portal temporarily hidden, but available for future integration
-              <Link href="/training-portal" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
-                Training Portal
-              </Link>
-              */}
               <Link href="/contact" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
                 Contact
               </Link>
-              <Link href="/client-dashboard" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
-                Dashboard
-              </Link>
-              <Link 
-                href="/schedule-consultation" 
-                className="bg-purple-700 text-white px-3 py-1.5 rounded-lg hover:bg-purple-800 transition-colors font-medium ml-1 shadow-sm hover:shadow whitespace-nowrap text-sm"
-              >
-                Schedule Consultation
-              </Link>
+              {user ? (
+                <>
+                  <Link 
+                    href="/client-dashboard" 
+                    className={`text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm ${
+                      isActive('/client-dashboard') ? 'text-purple-700 font-semibold' : ''
+                    }`}
+                  >
+                    Dashboard
+                  </Link>
+                  <div className="relative ml-3" onMouseEnter={handleProfileEnter} onMouseLeave={handleProfileLeave}>
+                    <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                      <span className="sr-only">Open user menu</span>
+                       <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">
+                          {user.displayName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                       </div>
+                       <ChevronDown className="ml-1 h-4 w-4 text-gray-500" />
+                    </button>
+                    {isProfileDropdownOpen && (
+                       <motion.div
+                         initial={{ opacity: 0, y: 10 }}
+                         animate={{ opacity: 1, y: 0 }}
+                         transition={{ duration: 0.2 }}
+                         className="absolute right-0 mt-1 w-56 origin-top-right bg-white rounded-md shadow-lg z-10 py-1 border focus:outline-none"
+                       >
+                         <div className="px-4 py-3">
+                           <p className="text-sm font-medium text-gray-900 truncate">{user.displayName || 'User'}</p>
+                           <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                         </div>
+                         <div className="border-t border-gray-100"></div>
+                         <Link href="/client-dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" onClick={() => setIsProfileDropdownOpen(false)}>
+                           <LayoutDashboard className="mr-2 h-4 w-4 text-gray-500" /> Client Dashboard
+                         </Link>
+                         <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center" onClick={() => setIsProfileDropdownOpen(false)}>
+                           <User className="mr-2 h-4 w-4 text-gray-500" /> Your Profile
+                         </Link>
+                         <div className="border-t border-gray-100"></div>
+                         <button 
+                           onClick={() => { signOut(); setIsProfileDropdownOpen(false); }}
+                           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
+                         >
+                           <LogOut className="mr-2 h-4 w-4" /> Sign out
+                         </button>
+                       </motion.div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">Sign In</Link>
+                  <Link 
+                    href="/schedule-consultation" 
+                    className="bg-purple-700 text-white px-3 py-1.5 rounded-lg hover:bg-purple-800 transition-colors font-medium ml-1 shadow-sm hover:shadow whitespace-nowrap text-sm"
+                  >
+                    Schedule Consultation
+                  </Link>
+                </>
+              )}
             </div>
 
             <div className="lg:hidden">
@@ -158,7 +214,6 @@ export default function ClientLayout({
                   Solutions
                 </Link>
                 
-                {/* Indented solution items for mobile */}
                 {solutionsItems.map((item) => (
                   <Link 
                     key={item.name}
@@ -184,15 +239,6 @@ export default function ClientLayout({
                 >
                   Strategy Report
                 </Link>
-                {/* Training Portal temporarily hidden, but available for future integration
-                <Link 
-                  href="/training-portal"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Training Portal
-                </Link>
-                */}
                 <Link 
                   href="/contact"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
@@ -200,13 +246,15 @@ export default function ClientLayout({
                 >
                   Contact
                 </Link>
-                <Link 
-                  href="/client-dashboard"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
+                {user && (
+                    <Link 
+                        href="/client-dashboard" 
+                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                        <LayoutDashboard className="mr-3 h-5 w-5 text-gray-500"/> Dashboard
+                    </Link>
+                )}
                 <Link 
                   href="/schedule-consultation"
                   className="block px-3 py-2 rounded-md text-base font-medium bg-purple-700 text-white hover:bg-purple-800"
@@ -215,6 +263,44 @@ export default function ClientLayout({
                   Schedule Consultation
                 </Link>
               </div>
+              {user ? (
+                 <div className="pt-4 pb-3 border-t border-gray-200">
+                   <div className="flex items-center px-5">
+                     <div className="flex-shrink-0">
+                       <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm">
+                         {user.displayName?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                       </div>
+                     </div>
+                     <div className="ml-3">
+                       <div className="text-base font-medium text-gray-800">{user.displayName || 'User'}</div>
+                       <div className="text-sm font-medium text-gray-500">{user.email}</div>
+                     </div>
+                   </div>
+                   <div className="mt-3 px-2 space-y-1">
+                     <Link href="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center" onClick={() => setIsMobileMenuOpen(false)}>
+                       <User className="mr-3 h-5 w-5 text-gray-500"/> Your Profile
+                     </Link>
+                     <button 
+                       onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
+                       className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 flex items-center"
+                     >
+                       <LogOut className="mr-3 h-5 w-5"/> Sign out
+                     </button>
+                   </div>
+                 </div>
+               ) : (
+                 <div className="pt-4 pb-3 border-t border-gray-200">
+                   <div className="px-5">
+                     <Link 
+                       href="/login"
+                       className="block w-full text-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-purple-700 hover:bg-purple-800"
+                       onClick={() => setIsMobileMenuOpen(false)}
+                     >
+                       Sign In
+                     </Link>
+                   </div>
+                 </div>
+               )}
             </div>
           )}
         </div>
@@ -248,9 +334,6 @@ export default function ClientLayout({
                 <li><Link href="/case-studies" className="hover:text-gray-900 transition-colors">Case Studies</Link></li>
                 <li><Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link></li>
                 <li><Link href="/docs" className="hover:text-gray-900 transition-colors">Documentation</Link></li>
-                {/* Training Portal temporarily hidden, but available for future integration
-                <li><Link href="/training-portal" className="hover:text-gray-900 transition-colors">Training Portal</Link></li>
-                */}
                 <li><Link href="/schedule-consultation?source=nav" className="hover:text-gray-900 transition-colors">AI Strategy Consultation</Link></li>
                 <li><Link href="/roi-calculator" className="hover:text-gray-900 transition-colors">ROI Calculator</Link></li>
               </ul>
