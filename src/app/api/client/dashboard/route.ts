@@ -65,6 +65,17 @@ export async function GET(request: NextRequest) {
       });
     }
     
+    // Explicit check before using admin modules
+    if (!isFirebaseAdminAvailable()) {
+        console.error("[API/dashboard] Firebase Admin SDK check failed within GET handler.");
+        // Return mock data but indicate server config issue
+        return NextResponse.json({
+            ...getMockDashboardData(),
+            usedMockData: true,
+            message: 'Server configuration error preventing data fetch. Using sample data.'
+        }, { status: 503 }); // 503 Service Unavailable might be appropriate
+    }
+    
     // For production with Firebase Admin available, check auth
     if (!hasValidAuth) {
       return NextResponse.json(
@@ -79,19 +90,24 @@ export async function GET(request: NextRequest) {
 
     // Try to verify the token and get real data
     try {
-      // Get the ID token
       const idToken = authHeader!.split('Bearer ')[1];
       
-      // Verify the token and get the user
-      const decodedToken = await adminAuth!.verifyIdToken(idToken);
+      // Double-check adminAuth specifically before verifying
+      if (!adminAuth) {
+        throw new Error("Firebase Admin Auth module is not available.");
+      }
+      const decodedToken = await adminAuth.verifyIdToken(idToken);
       const userId = decodedToken.uid;
       
+      // Double-check adminDb specifically before querying
+      if (!adminDb) {
+        throw new Error("Firebase Admin DB module is not available.");
+      }
       let assessmentData = null;
       let roiData = null;
-
       try {
         // Get the latest assessment
-        const assessmentsRef = adminDb!.collection('assessments');
+        const assessmentsRef = adminDb.collection('assessments');
         const assessmentsQuery = assessmentsRef
           .where('userId', '==', userId)
           .orderBy('createdAt', 'desc')
@@ -101,7 +117,7 @@ export async function GET(request: NextRequest) {
         assessmentData = assessmentsSnapshot.docs[0]?.data() || null;
 
         // Get the latest ROI calculation
-        const roiRef = adminDb!.collection('roi_calculations');
+        const roiRef = adminDb.collection('roi_calculations');
         const roiQuery = roiRef
           .where('userId', '==', userId)
           .orderBy('createdAt', 'desc')
@@ -109,9 +125,10 @@ export async function GET(request: NextRequest) {
         
         const roiSnapshot = await roiQuery.get();
         roiData = roiSnapshot.docs[0]?.data() || null;
-      } catch (error) {
-        console.warn('Error fetching Firestore data:', error);
-        // Continue with mock data
+      } catch (dbError) {
+        console.warn('Error fetching Firestore data within authenticated request:', dbError);
+        // Decide if error fetching sub-data should prevent returning other data
+        // For now, we continue and return mocks for these sections
       }
 
       // Mock data for maturity scores and growth metrics
@@ -330,46 +347,22 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({ 
         success: true,
-        data: dashboardData
+        data: dashboardData,
+        usedMockData: false // Indicate real data was attempted/partially fetched
       });
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      // In development, return mock data even on errors
-      if ((process.env.NODE_ENV as string) === 'development') {
-        return NextResponse.json({
-          ...getMockDashboardData(),
-          usedMockData: true,
-          message: 'Server error in development mode, using sample data'
-        });
-      }
-      
-      // In production, return the error
-      return NextResponse.json(
-        { 
-          error: 'Server error',
-          details: (process.env.NODE_ENV as string) === 'development' ? String(error) : undefined
-        },
-        { status: 500 }
-      );
+    } catch (authError) { // Catch errors from verifyIdToken or DB checks
+      console.error('Error during authenticated data fetch:', authError);
+      // Return specific auth error if token validation failed
+      if ((authError as Error).message.includes("Firebase Admin Auth module is not available") || 
+          (authError as Error).message.includes("Firebase Admin DB module is not available")) {
+            return NextResponse.json({ error: 'Server configuration error.' }, { status: 503 });
+      } 
+      // Assume invalid token for other errors in this block
+      return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });
     }
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    // In development, return mock data even on errors
-    if ((process.env.NODE_ENV as string) === 'development') {
-      return NextResponse.json({
-        ...getMockDashboardData(),
-        usedMockData: true,
-        message: 'Server error in development mode, using sample data'
-      });
-    }
-    
-    // In production, return the error
-    return NextResponse.json(
-      { 
-        error: 'Server error',
-        details: (process.env.NODE_ENV as string) === 'development' ? String(error) : undefined
-      },
-      { status: 500 }
-    );
+    // Catch unexpected errors in the main handler logic
+    console.error('Outer error fetching dashboard data:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 } 

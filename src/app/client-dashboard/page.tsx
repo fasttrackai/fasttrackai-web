@@ -134,9 +134,9 @@ export default function ClientDashboard() {
         const data = await response.json();
 
         if (isMounted) {
-          if (!response.ok) {
+          if (!response.ok || data.usedMockData) {
             // Use mock data as fallback if API returns an error (e.g., 401, 404, 500)
-            console.warn(`API fetch failed (${response.status}), using mock data. Error: ${data.error || data.message}`);
+            console.warn(`API fetch ${!response.ok ? `failed (${response.status})` : 'indicated mock data'}, using mock data. Error: ${data.error || data.message}`);
             setMaturityScores(mockMaturityScores);
             setGrowthMetrics(mockGrowthMetrics);
             setProjects(mockProjects);
@@ -153,7 +153,7 @@ export default function ClientDashboard() {
             setProjects(data.projects || []);
             setAssessments(data.assessments || []);
             setRoiCalculations(data.roiCalculations || []);
-            setUsedMockData(data.usedMockData || false); // Trust API's flag if present
+            setUsedMockData(false); // Trust API's flag if present
             setError(null); // Clear any previous errors
           }
           setLoading(false);
@@ -234,9 +234,9 @@ export default function ClientDashboard() {
 
         {/* Error Message */}
         {error && (
-           <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg flex items-center">
-             <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
-             <p>{error}</p>
+           <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg flex items-center shadow-sm">
+             <AlertCircle className="h-5 w-5 mr-3 flex-shrink-0" />
+             <p className="font-medium">{error}</p>
            </div>
         )}
         
