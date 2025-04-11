@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle, RefreshCw } from 'lucide-react';
+import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle, RefreshCw, Info } from 'lucide-react';
 
 // Define types for the dashboard data
 interface MaturityScore {
@@ -213,8 +213,10 @@ export default function ClientDashboard() {
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">AI Performance Dashboard</h1>
-            <p className="text-gray-600 mt-1">
-              {usedMockData ? 'Viewing sample data' : 'Real-time insights on your AI implementation'}
+            <p className={`text-sm mt-1 ${usedMockData ? 'inline-flex items-center bg-amber-100 text-amber-800 font-medium px-3 py-1 rounded-full shadow-sm' : 'text-gray-600'}`}>
+              {usedMockData ? 
+                <><Info className="h-4 w-4 mr-1.5" /> Viewing sample data</> 
+                : 'Real-time insights on your AI implementation'}
             </p>
           </div>
           <div className="mt-4 md:mt-0">
@@ -334,28 +336,32 @@ export default function ClientDashboard() {
             </h2>
             
             <div className="space-y-4">
-              <div className="border-l-4 border-purple-400 pl-4 py-2 bg-purple-50/50 rounded-r-md">
-                <p className="text-sm font-semibold text-purple-800">AI Readiness Assessment</p>
-                <p className="text-xs text-gray-700">Score: {assessments.length > 0 ? `${assessments[0].score}%` : 'N/A'}</p>
-                <p className="text-xs text-gray-500">{assessments.length > 0 ? new Date(assessments[0].date).toLocaleDateString() : 'Invalid Date'}</p>
-              </div>
+               <div className="border-l-4 border-purple-400 pl-4 py-2 bg-purple-50/50 rounded-r-md">
+                 <p className="text-sm font-semibold text-purple-800">AI Readiness Assessment</p>
+                 <p className="text-xs text-gray-700">Score: {assessments.length > 0 ? `${assessments[0].score}%` : 'N/A'}</p>
+                 <p className="text-xs text-gray-500">{assessments.length > 0 ? new Date(assessments[0].date).toLocaleDateString() : 'Invalid Date'}</p>
+               </div>
               
-              <div className="border-l-4 border-green-400 pl-4 py-2 bg-green-50/50 rounded-r-md">
-                <p className="text-sm font-semibold text-green-800">ROI Calculation</p>
-                <p className="text-xs text-gray-700">{roiCalculations.length > 0 ? `${roiCalculations[0].package} Plan • ${roiCalculations[0].roi}% ROI` : 'N/A'}</p>
-                <p className="text-xs text-gray-500">{roiCalculations.length > 0 ? new Date(roiCalculations[0].date).toLocaleDateString() : 'Invalid Date'}</p>
-              </div>
+               <div className="border-l-4 border-green-400 pl-4 py-2 bg-green-50/50 rounded-r-md">
+                 <p className="text-sm font-semibold text-green-800">ROI Calculation</p>
+                 <p className="text-xs text-gray-700">{roiCalculations.length > 0 ? `${roiCalculations[0].package} Plan • ${roiCalculations[0].roi}% ROI` : 'N/A'}</p>
+                 <p className="text-xs text-gray-500">{roiCalculations.length > 0 ? new Date(roiCalculations[0].date).toLocaleDateString() : 'Invalid Date'}</p>
+               </div>
               
-              {projects.filter(p => p.status === 'completed').slice(0, 1).map((project) => (
-                <div key={project.name} className="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-md">
-                  <p className="text-sm font-semibold text-blue-800">{project.name} Completed</p>
-                  <p className="text-xs text-gray-500">Recently Completed</p>
-                </div>
-              ))}
+               {projects.filter(p => p.status === 'completed').slice(0, 1).map((project) => (
+                 <div key={project.name} className="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-md">
+                   <p className="text-sm font-semibold text-blue-800">{project.name} Completed</p>
+                   <p className="text-xs text-gray-500">Recently Completed</p>
+                 </div>
+               ))}
             </div>
             
             <div className="mt-6">
-              <a href="/activity-log" className="text-sm text-purple-600 hover:text-purple-800 font-semibold">
+              <a href="#"
+                 onClick={(e) => e.preventDefault()}
+                 className="text-sm text-purple-600 hover:text-purple-800 font-semibold cursor-not-allowed opacity-50"
+                 title="Activity Log page not yet implemented"
+               >
                 View All Activity →
               </a>
             </div>
@@ -378,7 +384,7 @@ export default function ClientDashboard() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Project Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
