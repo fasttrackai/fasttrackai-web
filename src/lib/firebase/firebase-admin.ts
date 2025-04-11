@@ -1,12 +1,13 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import { ServiceAccount } from 'firebase-admin/app';
 
 // Helper to check if we're in a server context
 const isServer = typeof window === 'undefined';
 
-// Get Firebase credentials
-function getCredentials() {
+// Get Firebase credentials in the format expected by cert()
+function getServiceAccount(): ServiceAccount | null {
   if (!isServer) {
     console.warn('Attempted to initialize Firebase Admin on client side');
     return null;
@@ -15,39 +16,33 @@ function getCredentials() {
   try {
     const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+    // Decode the private key correctly
     const privateKey = (process.env.FIREBASE_ADMIN_PRIVATE_KEY || '').replace(/\\n/g, '\n');
 
     if (!projectId || !clientEmail || !privateKey) {
-      console.warn('Missing Firebase Admin credentials (ID, Email, or Key)');
-      console.log('Project ID found:', !!projectId);
-      console.log('Client Email found:', !!clientEmail);
-      console.log('Private Key found:', !!privateKey);
+      console.warn('Missing Firebase Admin credentials (PROJECT_ID, CLIENT_EMAIL, or PRIVATE_KEY)');
+      // Log which specific variables are missing
+      !projectId && console.warn('- FIREBASE_ADMIN_PROJECT_ID is missing');
+      !clientEmail && console.warn('- FIREBASE_ADMIN_CLIENT_EMAIL is missing');
+      !privateKey && console.warn('- FIREBASE_ADMIN_PRIVATE_KEY is missing');
       return null;
     }
 
+    // Return the essential ServiceAccount object
     return { 
-        type: "service_account",
-        project_id: projectId, 
-        private_key_id: process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID,
-        private_key: privateKey, 
-        client_email: clientEmail,
-        client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
-        auth_uri: "https://accounts.google.com/o/oauth2/auth",
-        token_uri: "https://oauth2.googleapis.com/token",
-        auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-        client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${clientEmail.replace('@', '%40')}`
-    };
+        projectId: projectId, 
+        clientEmail: clientEmail,
+        privateKey: privateKey, 
+    }; 
   } catch (error) {
-    console.error('Error getting Firebase Admin credentials:', error);
+    console.error('Error processing Firebase Admin credentials:', error);
     return null;
   }
 }
 
 // Initialize Firebase Admin
 function initAdmin() {
-  if (!isServer) {
-    return null;
-  }
+  if (!isServer) return null;
 
   try {
     const apps = getApps();
@@ -56,24 +51,27 @@ function initAdmin() {
       return apps[0];
     }
 
-    const serviceAccount = getCredentials();
+    const serviceAccount = getServiceAccount();
     if (!serviceAccount) {
        console.error("Could not retrieve valid service account credentials for Firebase Admin.");
-      return null;
+       return null;
     }
     
-    console.log("Initializing Firebase Admin with retrieved credentials...");
+    console.log("Initializing Firebase Admin with processed service account...");
     return initializeApp({
-      credential: cert(serviceAccount),
+      credential: cert(serviceAccount), // Pass the simplified object
     });
   } catch (error) {
-    console.error('Error initializing Firebase Admin:', error);
-    const creds = getCredentials();
-    console.error('Credentials used (check environment variables):', { 
-        projectId: creds?.project_id,
-        clientEmail: creds?.client_email,
-        privateKeyExists: !!creds?.private_key 
-    });
+    console.error('Fatal Error initializing Firebase Admin:', error);
+    // Log details ONLY if in development for security
+    if (process.env.NODE_ENV === 'development') {
+        const creds = getServiceAccount();
+        console.error('Credentials used (check environment variables):', { 
+            projectId: creds?.projectId,
+            clientEmail: creds?.clientEmail,
+            privateKeyExists: !!creds?.privateKey 
+        });
+    }
     return null;
   }
 }
