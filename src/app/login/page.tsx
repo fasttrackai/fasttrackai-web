@@ -14,12 +14,7 @@ const fadeInUp = {
 };
 
 const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2 
-    }
-  }
+  animate: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
 };
 
 export default function LoginPage() {
@@ -55,46 +50,39 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-purple-100 to-violet-200 p-4">
       <motion.div 
-        className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200/50"
+        className="w-full max-w-sm bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200/50"
         variants={fadeInUp}
         initial="initial"
         animate="animate"
       >
-        {/* Header Section with Rocket */}
-        <div className="p-6 bg-gradient-to-r from-purple-700 to-purple-900 text-center relative overflow-hidden">
+        {/* Header Section with AnimatedRocket Only */}
+        <div className="p-6 pt-8 bg-gradient-to-r from-purple-700 to-purple-900 text-center relative flex justify-center items-center min-h-[100px]">
           <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 100 }}
-            className="absolute -top-4 -left-4 w-24 h-24 opacity-10"
-           >
-             <AnimatedRocket />
-          </motion.div>
-           <motion.div 
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5, type: 'spring', stiffness: 100 }}
-            className="absolute -bottom-6 -right-6 w-32 h-32 opacity-10 transform rotate-12"
-           >
-             <AnimatedRocket />
-          </motion.div>
-           <Link href="/" className="inline-block mb-2 relative z-10">
-              <span className="text-3xl font-bold text-white tracking-tight">FastTrack AI</span>
-           </Link>
-           <p className="text-purple-200/90 text-sm relative z-10">Client Portal Login</p>
+             initial={{ scale: 0.8, opacity: 0 }}
+             animate={{ scale: 1, opacity: 1 }}
+             transition={{ delay: 0.2, duration: 0.5, type: 'spring', stiffness: 100 }}
+             className="w-16 h-16"
+            >
+              <AnimatedRocket />
+           </motion.div>
         </div>
 
         {/* Form Section */}
-        <div className="p-8 md:p-10">
+        <div className="p-8">
+          <motion.div variants={fadeInUp} initial="initial" animate="animate" className="text-center mb-6">
+            <h1 className="text-xl font-bold text-gray-800">Client Portal Login</h1>
+            <p className="mt-1 text-sm text-gray-500">Access your dashboard.</p>
+          </motion.div>
+          
           <motion.form 
             onSubmit={handleLogin} 
-            className="space-y-6"
-            variants={staggerContainer}
+            className="space-y-5"
+            variants={staggerContainer} 
             initial="initial"
             animate="animate"
           >
             <motion.div variants={fadeInUp}>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
+              <label htmlFor="email" className="sr-only">Email Address</label>
               <div className="relative">
                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Mail className="h-5 w-5 text-gray-400" />
@@ -102,14 +90,14 @@ export default function LoginPage() {
                 <input 
                   type="email" name="email" id="email" required 
                   value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="form-input-themed" // Using class from globals.css or component styling
-                  placeholder="you@example.com"
+                  className="form-input-themed" // Use class from globals.css
+                  placeholder="Email Address"
                 />
               </div>
             </motion.div>
 
             <motion.div variants={fadeInUp}>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+              <label htmlFor="password" className="sr-only">Password</label>
               <div className="relative">
                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-gray-400" />
@@ -117,8 +105,8 @@ export default function LoginPage() {
                 <input 
                   type="password" name="password" id="password" required 
                   value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="form-input-themed" // Using class from globals.css or component styling
-                  placeholder="••••••••"
+                  className="form-input-themed" // Use class from globals.css
+                  placeholder="Password"
                 />
               </div>
             </motion.div>
@@ -133,7 +121,7 @@ export default function LoginPage() {
               </motion.div>
             )}
 
-            <motion.div variants={fadeInUp}>
+            <motion.div variants={fadeInUp} className="pt-2">
               <button 
                 type="submit" 
                 disabled={isLoading}
@@ -152,8 +140,8 @@ export default function LoginPage() {
             </motion.div>
           </motion.form>
 
-           <motion.div className="mt-8 text-center text-sm" variants={fadeInUp}>
-             <p className="text-gray-500">
+           <motion.div className="mt-6 text-center text-xs" variants={fadeInUp}>
+             <p className="text-gray-400">
                 Trouble logging in? Contact support.
              </p>
            </motion.div>
