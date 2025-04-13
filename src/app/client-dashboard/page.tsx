@@ -3,7 +3,15 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle, RefreshCw, Info, LayoutDashboard } from 'lucide-react';
+import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle, RefreshCw, Info, LayoutDashboard, LayoutList, TrendingUp, Target as TargetIcon } from 'lucide-react';
+import { 
+  DataSourceHealthCheck, 
+  OpportunityTeaser, 
+  SavingsEstimator, 
+  AutomationPotential, 
+  MAReadinessScorecard, 
+  AIDocumentationChecklist 
+} from './ValueAddComponents';
 
 // Define types for the dashboard data
 interface MaturityScore {
@@ -85,6 +93,9 @@ const mockROICalculations: ROICalculation[] = [
   }
 ];
 
+// Define type for active view
+type DashboardView = 'grow' | 'optimize' | 'sell';
+
 export default function ClientDashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -95,6 +106,7 @@ export default function ClientDashboard() {
   const [assessments, setAssessments] = useState<AssessmentSummary[]>([]);
   const [roiCalculations, setRoiCalculations] = useState<ROICalculation[]>([]);
   const [usedMockData, setUsedMockData] = useState(false);
+  const [activeView, setActiveView] = useState<DashboardView>('grow'); // Default to 'grow'
 
   useEffect(() => {
     let isMounted = true;
@@ -204,6 +216,492 @@ export default function ClientDashboard() {
     );
   }
 
+  // --- Tab Data ---
+  const tabItems: { id: DashboardView; label: string; icon: React.ElementType }[] = [
+    { id: 'grow', label: 'Grow', icon: LayoutList },
+    { id: 'optimize', label: 'Optimize', icon: TrendingUp },
+    { id: 'sell', label: 'Sell', icon: TargetIcon },
+  ];
+
+  // --- RENDER VIEW Function ---
+  const renderDashboardView = () => {
+    switch (activeView) {
+      case 'grow':
+        return (
+          <div className="space-y-8">
+            {/* Grow View Layout - Emphasize Maturity & Opportunities */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+               {/* Maturity takes more space */}
+              <motion.div className="lg:col-span-2"> 
+                 {/* AI Maturity Scores Component (Existing) */}
+                 <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl h-full">
+                     <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center"><Activity className="h-6 w-6 mr-3 text-purple-600" /> AI Maturity Scores</h2>
+                     <div className="space-y-5">
+                       {maturityScores.map((item) => (
+                         <div key={item.category}>
+                           <div className="flex justify-between mb-1">
+                             <span className="text-md font-medium text-gray-800">{item.category}</span>
+                             <span className="text-sm font-semibold text-gray-700 flex items-center">
+                               <span>{item.score}%</span>
+                               {item.improvement > 0 && (
+                                 <span className="text-green-600 ml-2 flex items-center text-xs font-bold">
+                                   <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                   </svg>
+                                   {item.improvement}%
+                                 </span>
+                               )}
+                             </span>
+                           </div>
+                           <div className="w-full bg-gray-200 rounded-full h-3">
+                             <div 
+                               className="bg-gradient-to-r from-purple-500 to-purple-700 h-3 rounded-full transition-all duration-500 ease-out" 
+                               style={{ width: `${item.score}%` }}
+                             ></div>
+                           </div>
+                           <p className="text-xs text-gray-500 mt-1.5">Last updated: {new Date(item.lastUpdated).toLocaleDateString()}</p>
+                         </div>
+                       ))}
+                     </div>
+                 </motion.div>
+              </motion.div>
+              <div className="space-y-6">
+                 {/* Data Source Health (New) */}
+                <DataSourceHealthCheck />
+                 {/* Opportunity Teaser (New) */}
+                <OpportunityTeaser />
+              </div>
+            </div>
+            {/* Projects Table (Existing) */}
+             <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
+                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                  <Users className="h-6 w-6 mr-3 text-purple-600" />
+                  Implementation Projects
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Project Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Progress
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Timeline
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {projects.map((project, index) => (
+                        <tr key={index} className="hover:bg-gray-50/50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{project.name}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
+                              project.status === 'completed' ? 'bg-green-100 text-green-800' :
+                              project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                              project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
+                                <div 
+                                  className={`h-2.5 rounded-full ${
+                                    project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
+                                  }`}
+                                  style={{ width: `${project.progress}%` }}
+                                ></div>
+                              </div>
+                              <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {project.status === 'completed' ? (
+                              <span className="flex items-center text-green-600 font-medium">
+                                <CheckCircle className="h-4 w-4 mr-1.5" />
+                                Completed
+                              </span>
+                            ) : (
+                              <span>{project.daysRemaining} days remaining</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+             </motion.div>
+             {/* Growth Metrics (Existing - lower priority for Grow) */}
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {growthMetrics.map((metric, index) => (
+                   <motion.div
+                     key={metric.label}
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ delay: index * 0.1 }}
+                     className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
+                   >
+                     <div className="flex justify-between items-start mb-4">
+                       <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
+                       {metric.trend === 'up' ? (
+                         <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                           <span className="mr-1">+{metric.percentChange}%</span>
+                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                           </svg>
+                         </div>
+                       ) : metric.trend === 'down' ? (
+                         <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
+                           metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
+                             ? 'bg-green-100 text-green-700' // Green for positive reduction
+                             : 'bg-red-100 text-red-700' // Red for negative change
+                         }`}>
+                           <span className="mr-1">{metric.percentChange}%</span>
+                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                           </svg>
+                         </div>
+                       ) : null }
+                     </div>
+                     <div className="flex items-end">
+                       <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
+                       <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
+                     </div>
+                     <div className="mt-1 text-sm text-gray-500">
+                       Previous: {metric.previous}{metric.unit}
+                     </div>
+                   </motion.div>
+                 ))}
+             </div>
+          </div>
+        );
+      case 'optimize':
+        return (
+          <div className="space-y-8">
+             {/* Optimize View Layout - Emphasize Metrics & Automation */}
+             {/* Growth Metrics (Existing - High priority) */}
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {growthMetrics.map((metric, index) => (
+                   <motion.div
+                     key={metric.label}
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ delay: index * 0.1 }}
+                     className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
+                   >
+                     <div className="flex justify-between items-start mb-4">
+                       <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
+                       {metric.trend === 'up' ? (
+                         <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                           <span className="mr-1">+{metric.percentChange}%</span>
+                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                           </svg>
+                         </div>
+                       ) : metric.trend === 'down' ? (
+                         <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
+                           metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
+                             ? 'bg-green-100 text-green-700' // Green for positive reduction
+                             : 'bg-red-100 text-red-700' // Red for negative change
+                         }`}>
+                           <span className="mr-1">{metric.percentChange}%</span>
+                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                           </svg>
+                         </div>
+                       ) : null }
+                     </div>
+                     <div className="flex items-end">
+                       <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
+                       <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
+                     </div>
+                     <div className="mt-1 text-sm text-gray-500">
+                       Previous: {metric.previous}{metric.unit}
+                     </div>
+                   </motion.div>
+                 ))}
+             </div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 {/* Savings Estimator (New) */}
+                 <SavingsEstimator />
+                 {/* Automation Potential (New) */}
+                 <AutomationPotential />
+                  {/* Recent Activities (Existing) */}
+                 <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
+                      <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                        <Clock className="h-6 w-6 mr-3 text-purple-600" />
+                        Recent Activities
+                      </h2>
+                      <div className="space-y-4">
+                         <div className="border-l-4 border-purple-400 pl-4 py-2 bg-purple-50/50 rounded-r-md">
+                           <p className="text-sm font-semibold text-purple-800">AI Readiness Assessment</p>
+                           <p className="text-xs text-gray-700">Score: {assessments.length > 0 ? `${assessments[0].score}%` : 'N/A'}</p>
+                           <p className="text-xs text-gray-500">{assessments.length > 0 ? new Date(assessments[0].date).toLocaleDateString() : 'Invalid Date'}</p>
+                         </div>
+                         <div className="border-l-4 border-green-400 pl-4 py-2 bg-green-50/50 rounded-r-md">
+                           <p className="text-sm font-semibold text-green-800">ROI Calculation</p>
+                           <p className="text-xs text-gray-700">{roiCalculations.length > 0 ? `${roiCalculations[0].package} Plan • ${roiCalculations[0].roi}% ROI` : 'N/A'}</p>
+                           <p className="text-xs text-gray-500">{roiCalculations.length > 0 ? new Date(roiCalculations[0].date).toLocaleDateString() : 'Invalid Date'}</p>
+                         </div>
+                         {projects.filter(p => p.status === 'completed').slice(0, 1).map((project) => (
+                           <div key={project.name} className="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-md">
+                             <p className="text-sm font-semibold text-blue-800">{project.name} Completed</p>
+                             <p className="text-xs text-gray-500">Recently Completed</p>
+                           </div>
+                         ))}
+                      </div>
+                      <div className="mt-6">
+                        <a href="#" // Keep href to #
+                           onClick={(e) => e.preventDefault()} // Prevent default anchor behavior
+                           className="text-sm text-purple-600 hover:text-purple-800 font-semibold cursor-not-allowed opacity-50" // Style as disabled
+                           title="Activity Log page not yet implemented"
+                         >
+                          View All Activity →
+                        </a>
+                      </div>
+                  </motion.div>
+              </div>
+             {/* Projects Table (Existing) */}
+             <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
+                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                   <Users className="h-6 w-6 mr-3 text-purple-600" />
+                   Implementation Projects
+                 </h2>
+                 <div className="overflow-x-auto">
+                   <table className="min-w-full divide-y divide-gray-200">
+                     <thead className="bg-gray-50">
+                       <tr>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Project Name
+                         </th>
+                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Status
+                         </th>
+                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Progress
+                         </th>
+                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Timeline
+                         </th>
+                       </tr>
+                     </thead>
+                     <tbody className="bg-white divide-y divide-gray-200">
+                       {projects.map((project, index) => (
+                         <tr key={index} className="hover:bg-gray-50/50">
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="text-sm font-medium text-gray-900">{project.name}</div>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
+                               project.status === 'completed' ? 'bg-green-100 text-green-800' :
+                               project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                               project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
+                               'bg-gray-100 text-gray-800'
+                             }`}>
+                               {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                             </span>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="flex items-center">
+                               <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
+                                 <div 
+                                   className={`h-2.5 rounded-full ${
+                                     project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
+                                   }`}
+                                   style={{ width: `${project.progress}%` }}
+                                 ></div>
+                               </div>
+                               <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
+                             </div>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                             {project.status === 'completed' ? (
+                               <span className="flex items-center text-green-600 font-medium">
+                                 <CheckCircle className="h-4 w-4 mr-1.5" />
+                                 Completed
+                               </span>
+                             ) : (
+                               <span>{project.daysRemaining} days remaining</span>
+                             )}
+                           </td>
+                         </tr>
+                       ))}
+                     </tbody>
+                   </table>
+                 </div>
+             </motion.div>
+          </div>
+        );
+      case 'sell':
+        return (
+           <div className="space-y-8">
+             {/* Sell View Layout - Emphasize Readiness & Summaries */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* M&A Readiness Score (New) */}
+                 <MAReadinessScorecard />
+                 {/* AI Documentation Checklist (New) */}
+                 <AIDocumentationChecklist />
+              </div>
+             {/* Growth Metrics (Existing - Summary?) */}
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 {growthMetrics.map((metric, index) => (
+                   <motion.div
+                     key={metric.label}
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ delay: index * 0.1 }}
+                     className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
+                   >
+                     <div className="flex justify-between items-start mb-4">
+                       <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
+                       {metric.trend === 'up' ? (
+                         <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                           <span className="mr-1">+{metric.percentChange}%</span>
+                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                           </svg>
+                         </div>
+                       ) : metric.trend === 'down' ? (
+                         <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
+                           metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
+                             ? 'bg-green-100 text-green-700' // Green for positive reduction
+                             : 'bg-red-100 text-red-700' // Red for negative change
+                         }`}>
+                           <span className="mr-1">{metric.percentChange}%</span>
+                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                           </svg>
+                         </div>
+                       ) : null }
+                     </div>
+                     <div className="flex items-end">
+                       <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
+                       <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
+                     </div>
+                     <div className="mt-1 text-sm text-gray-500">
+                       Previous: {metric.previous}{metric.unit}
+                     </div>
+                   </motion.div>
+                 ))}
+             </div>
+              {/* Projects Table (Existing - focus on Completed?) */}
+             <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
+                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                   <Users className="h-6 w-6 mr-3 text-purple-600" />
+                   Implementation Projects
+                 </h2>
+                 <div className="overflow-x-auto">
+                   <table className="min-w-full divide-y divide-gray-200">
+                     <thead className="bg-gray-50">
+                       <tr>
+                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Project Name
+                         </th>
+                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Status
+                         </th>
+                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Progress
+                         </th>
+                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                           Timeline
+                         </th>
+                       </tr>
+                     </thead>
+                     <tbody className="bg-white divide-y divide-gray-200">
+                       {projects.map((project, index) => (
+                         <tr key={index} className="hover:bg-gray-50/50">
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="text-sm font-medium text-gray-900">{project.name}</div>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
+                               project.status === 'completed' ? 'bg-green-100 text-green-800' :
+                               project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                               project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
+                               'bg-gray-100 text-gray-800'
+                             }`}>
+                               {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                             </span>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <div className="flex items-center">
+                               <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
+                                 <div 
+                                   className={`h-2.5 rounded-full ${
+                                     project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
+                                   }`}
+                                   style={{ width: `${project.progress}%` }}
+                                 ></div>
+                               </div>
+                               <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
+                             </div>
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                             {project.status === 'completed' ? (
+                               <span className="flex items-center text-green-600 font-medium">
+                                 <CheckCircle className="h-4 w-4 mr-1.5" />
+                                 Completed
+                               </span>
+                             ) : (
+                               <span>{project.daysRemaining} days remaining</span>
+                             )}
+                           </td>
+                         </tr>
+                       ))}
+                     </tbody>
+                   </table>
+                 </div>
+             </motion.div>
+               {/* Maturity Scores (Existing - lower priority?) */}
+              <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
+                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center"><Activity className="h-6 w-6 mr-3 text-purple-600" /> AI Maturity Scores</h2>
+                 <div className="space-y-5">
+                    {maturityScores.map((item) => (
+                      <div key={item.category}>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-md font-medium text-gray-800">{item.category}</span>
+                          <span className="text-sm font-semibold text-gray-700 flex items-center">
+                            <span>{item.score}%</span>
+                            {item.improvement > 0 && (
+                              <span className="text-green-600 ml-2 flex items-center text-xs font-bold">
+                                <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                </svg>
+                                {item.improvement}%
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-3">
+                          <div 
+                            className="bg-gradient-to-r from-purple-500 to-purple-700 h-3 rounded-full transition-all duration-500 ease-out" 
+                            style={{ width: `${item.score}%` }}
+                          ></div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1.5">Last updated: {new Date(item.lastUpdated).toLocaleDateString()}</p>
+                      </div>
+                    ))}
+                 </div>
+              </motion.div>
+           </div>
+        );
+      default:
+        return <div>Invalid view selected</div>;
+    }
+  };
+
+  // --- Main Return ---
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
       <div className="container mx-auto px-4">
@@ -240,225 +738,51 @@ export default function ClientDashboard() {
            </div>
         )}
         
-        {/* Growth Metrics Cards - Enhanced Styling */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {growthMetrics.map((metric, index) => (
-            <motion.div
-              key={metric.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
-                {metric.trend === 'up' ? (
-                  <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                    <span className="mr-1">+{metric.percentChange}%</span>
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                    </svg>
-                  </div>
-                ) : metric.trend === 'down' ? (
-                  <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
-                    metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
-                      ? 'bg-green-100 text-green-700' // Green for positive reduction
-                      : 'bg-red-100 text-red-700' // Red for negative change
-                  }`}>
-                    <span className="mr-1">{metric.percentChange}%</span>
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
-                  </div>
-                ) : null }
-              </div>
-              <div className="flex items-end">
-                <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
-                <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
-              </div>
-              <div className="mt-1 text-sm text-gray-500">
-                Previous: {metric.previous}{metric.unit}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* AI Maturity Scores - Enhanced Styling */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 lg:col-span-2 transition-shadow hover:shadow-xl"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-              <Activity className="h-6 w-6 mr-3 text-purple-600" />
-              AI Maturity Scores
-            </h2>
-            <div className="space-y-5">
-              {maturityScores.map((item) => (
-                <div key={item.category}>
-                  <div className="flex justify-between mb-1">
-                    <span className="text-md font-medium text-gray-800">{item.category}</span>
-                    <span className="text-sm font-semibold text-gray-700 flex items-center">
-                      <span>{item.score}%</span>
-                      {item.improvement > 0 && (
-                        <span className="text-green-600 ml-2 flex items-center text-xs font-bold">
-                          <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                          </svg>
-                          {item.improvement}%
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className="bg-gradient-to-r from-purple-500 to-purple-700 h-3 rounded-full transition-all duration-500 ease-out" 
-                      style={{ width: `${item.score}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1.5">Last updated: {new Date(item.lastUpdated).toLocaleDateString()}</p>
-                </div>
+        {/* === TABS for View Switching === */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+              {tabItems.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveView(tab.id)}
+                  className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors duration-150 ease-in-out ${
+                    activeView === tab.id
+                      ? 'border-purple-600 text-purple-700'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  aria-current={activeView === tab.id ? 'page' : undefined}
+                >
+                  <tab.icon className={`-ml-0.5 mr-2 h-5 w-5 ${activeView === tab.id ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                  {tab.label}
+                </button>
               ))}
-            </div>
-          </motion.div>
+            </nav>
+          </div>
+        </div>
+        {/* === End Tabs === */}
 
-          {/* Recent Activities - Enhanced Styling & Fixed Link */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-              <Clock className="h-6 w-6 mr-3 text-purple-600" />
-              Recent Activities
-            </h2>
-            <div className="space-y-4">
-               <div className="border-l-4 border-purple-400 pl-4 py-2 bg-purple-50/50 rounded-r-md">
-                 <p className="text-sm font-semibold text-purple-800">AI Readiness Assessment</p>
-                 <p className="text-xs text-gray-700">Score: {assessments.length > 0 ? `${assessments[0].score}%` : 'N/A'}</p>
-                 <p className="text-xs text-gray-500">{assessments.length > 0 ? new Date(assessments[0].date).toLocaleDateString() : 'Invalid Date'}</p>
-               </div>
-               <div className="border-l-4 border-green-400 pl-4 py-2 bg-green-50/50 rounded-r-md">
-                 <p className="text-sm font-semibold text-green-800">ROI Calculation</p>
-                 <p className="text-xs text-gray-700">{roiCalculations.length > 0 ? `${roiCalculations[0].package} Plan • ${roiCalculations[0].roi}% ROI` : 'N/A'}</p>
-                 <p className="text-xs text-gray-500">{roiCalculations.length > 0 ? new Date(roiCalculations[0].date).toLocaleDateString() : 'Invalid Date'}</p>
-               </div>
-               {projects.filter(p => p.status === 'completed').slice(0, 1).map((project) => (
-                 <div key={project.name} className="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-md">
-                   <p className="text-sm font-semibold text-blue-800">{project.name} Completed</p>
-                   <p className="text-xs text-gray-500">Recently Completed</p>
-                 </div>
-               ))}
+        {/* === Conditionally Rendered View Content === */}
+        <div className="dashboard-content-area mt-8">
+           {renderDashboardView()} {/* Call the function to render the active view */} 
+        </div>
+        {/* === End Conditional Content Area === */}
+        
+        {/* Keep CTA at the bottom */}
+         <motion.div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-xl shadow-xl p-8 flex flex-col md:flex-row items-center justify-between mt-12">
+            <div className="mb-4 md:mb-0 md:mr-6 text-center md:text-left">
+              <h2 className="text-xl font-bold mb-2">Ready to take your AI implementation to the next level?</h2>
+              <p className="text-purple-100/90">Schedule a consultation with our experts to discuss optimizing your AI strategy.</p>
             </div>
-            <div className="mt-6">
-              <a href="#" // Keep href to #
-                 onClick={(e) => e.preventDefault()} // Prevent default anchor behavior
-                 className="text-sm text-purple-600 hover:text-purple-800 font-semibold cursor-not-allowed opacity-50" // Style as disabled
-                 title="Activity Log page not yet implemented"
-               >
-                View All Activity →
+            <div className="flex-shrink-0 flex space-x-4">
+              <a 
+                href="/schedule-consultation" 
+                className="button-secondary-light"
+              >
+                Schedule Consultation
               </a>
             </div>
-          </motion.div>
-        </div>
-
-        {/* Implementation Projects Table - Enhanced Styling */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 mb-8 transition-shadow hover:shadow-xl"
-        >
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <Users className="h-6 w-6 mr-3 text-purple-600" />
-            Implementation Projects
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Project Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Progress
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Timeline
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {projects.map((project, index) => (
-                  <tr key={index} className="hover:bg-gray-50/50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{project.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
-                        project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                        project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
-                          <div 
-                            className={`h-2.5 rounded-full ${
-                              project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
-                            }`}
-                            style={{ width: `${project.progress}%` }}
-                          ></div>
-                        </div>
-                        <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {project.status === 'completed' ? (
-                        <span className="flex items-center text-green-600 font-medium">
-                          <CheckCircle className="h-4 w-4 mr-1.5" />
-                          Completed
-                        </span>
-                      ) : (
-                        <span>{project.daysRemaining} days remaining</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-
-        {/* Call to action - Enhanced Styling */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-xl shadow-xl p-8 flex flex-col md:flex-row items-center justify-between"
-        >
-          <div className="mb-4 md:mb-0 md:mr-6 text-center md:text-left">
-            <h2 className="text-xl font-bold mb-2">Ready to take your AI implementation to the next level?</h2>
-            <p className="text-purple-100/90">Schedule a consultation with our experts to discuss optimizing your AI strategy.</p>
-          </div>
-          <div className="flex-shrink-0 flex space-x-4">
-            <a 
-              href="/schedule-consultation" 
-              className="button-secondary-light"
-            >
-              Schedule Consultation
-            </a>
-          </div>
-        </motion.div>
+         </motion.div>
 
       </div>
     </main>
