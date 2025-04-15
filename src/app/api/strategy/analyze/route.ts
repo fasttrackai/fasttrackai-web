@@ -67,7 +67,27 @@ function extractAnalysisFromText(text: string): Partial<AnalysisResult> {
 }
 // --- End Helper Function ---
 
+// Helper to check if required API keys are available
+function areRequiredApisAvailable(): boolean {
+  // Check if the OpenAI API key is available
+  const openAiKey = process.env.OPENAI_API_KEY || process.env.Open_AI_Key;
+  return !!openAiKey;
+}
+
 export async function POST(request: NextRequest) {
+  // Check if APIs are available
+  if (!areRequiredApisAvailable()) {
+    console.warn("[API/analyze] Required API keys not available - returning fallback");
+    return NextResponse.json({ 
+      error: 'API configuration incomplete',
+      fallback: true,
+      reportId: `fallback_${Date.now()}`,
+      aiOpportunities: ["Assess current AI readiness", "Identify automation opportunities"],
+      suggestedSteps: ["Schedule consultation for detailed analysis", "Prepare business requirements"],
+      opportunityScore: 70
+    }, { status: 200 });
+  }
+
   // 1. Verify Initialization - TEMPORARILY BYPASSED
   /* 
   if (!adminDb) {
