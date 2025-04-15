@@ -131,10 +131,9 @@ export async function POST(request: NextRequest) {
       }
 
       const aiData = await aiResponse.json();
-      // IMPORTANT: Check the actual response structure from your /api/openai/chat route.
-      // Assuming it returns a structure like { text: "..." } or similar.
-      // Adjust `aiData.text` if the actual field name is different (e.g., aiData.choices[0].message.content)
-      const aiText = aiData.text || aiData.choices?.[0]?.message?.content; 
+      
+      // Updated to match the OpenAI chat route's actual response structure
+      const aiText = aiData.content || aiData.text || aiData.choices?.[0]?.message?.content; 
 
       if (!aiText) {
          console.error("[API/analyze] OpenAI API route returned empty or unexpected response structure:", aiData);
@@ -149,9 +148,9 @@ export async function POST(request: NextRequest) {
         console.error("[API/analyze] Error calling or processing AI response:", error);
         // Fallback to basic analysis if AI fails
         analysis = {
-            aiOpportunities: ["Review AI strategy options"],
-            suggestedSteps: ["Schedule consultation for detailed analysis"],
-            opportunityScore: 40
+            aiOpportunities: ["Review AI strategy options", "Explore process automation opportunities"],
+            suggestedSteps: ["Schedule consultation for detailed analysis", "Assess current business processes"],
+            opportunityScore: 65
         };
     }
 
