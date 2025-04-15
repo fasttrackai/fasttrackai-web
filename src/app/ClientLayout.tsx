@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard, UserCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import AnimatedRocket from './components/AnimatedRocket';
@@ -26,7 +26,7 @@ export default function ClientLayout({
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const profileTimeoutRef = useRef<NodeJS.Timeout | null>(null); 
 
-  const { user, signOut } = useAuth(); 
+  const { user, signOut, loading: authLoading } = useAuth(); 
   const pathname = usePathname(); 
 
   const isActive = (path: string) => pathname === path; 
@@ -47,6 +47,9 @@ export default function ClientLayout({
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
+      if (profileTimeoutRef.current) {
+        clearTimeout(profileTimeoutRef.current);
+      }
     };
   }, []);
   
@@ -64,6 +67,30 @@ export default function ClientLayout({
     timeoutRef.current = setTimeout(() => {
       setSolutionsDropdownOpen(false);
     }, 300); // 300ms delay
+  };
+
+  // Profile dropdown handlers
+  const handleProfileDropdownEnter = () => {
+    if (profileTimeoutRef.current) {
+      clearTimeout(profileTimeoutRef.current);
+      profileTimeoutRef.current = null;
+    }
+    setIsProfileDropdownOpen(true);
+  };
+
+  const handleProfileDropdownLeave = () => {
+    profileTimeoutRef.current = setTimeout(() => {
+      setIsProfileDropdownOpen(false);
+    }, 300);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setIsProfileDropdownOpen(false);
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   return (
@@ -129,9 +156,80 @@ export default function ClientLayout({
               <Link href="/contact" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
                 Contact
               </Link>
-              <Link href="/client-dashboard" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
-                Dashboard
+              <Link 
+                href="/client-dashboard" 
+                className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm flex items-center"
+              >
+                <LayoutDashboard className="h-4 w-4 mr-1" />
+                {user ? 'Client Dashboard' : 'Demo Dashboard'}
               </Link>
+              
+              {/* Sign In/Profile Section */}
+              {!authLoading && (
+                !user ? (
+                  <Link 
+                    href="/sign-in" 
+                    className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm flex items-center"
+                  >
+                    <User className="h-4 w-4 mr-1" />
+                    Sign In
+                  </Link>
+                ) : (
+                  <div className="relative ml-1">
+                    <button
+                      className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm flex items-center"
+                      onMouseEnter={handleProfileDropdownEnter}
+                      onMouseLeave={handleProfileDropdownLeave}
+                      onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                    >
+                      <UserCircle2 className="h-5 w-5 mr-1" />
+                      {user.displayName || user.email?.split('@')[0] || 'Profile'}
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </button>
+
+                    {isProfileDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10 py-1 border"
+                        onMouseEnter={handleProfileDropdownEnter}
+                        onMouseLeave={handleProfileDropdownLeave}
+                      >
+                        <div className="px-4 py-2 text-sm text-gray-500">
+                          Signed in as<br />
+                          <span className="font-medium text-gray-900 truncate block">
+                            {user.email}
+                          </span>
+                        </div>
+                        <div className="border-t my-1"></div>
+                        <Link 
+                          href="/profile" 
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          Your Profile
+                        </Link>
+                        <Link 
+                          href="/client-dashboard" 
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                        >
+                          <LayoutDashboard className="h-4 w-4 mr-2" />
+                          Dashboard
+                        </Link>
+                        <button
+                          onClick={handleSignOut}
+                          className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Sign Out
+                        </button>
+                      </motion.div>
+                    )}
+                  </div>
+                )
+              )}
+              
               <Link 
                 href="/schedule-consultation" 
                 className="bg-purple-700 text-white px-3 py-1.5 rounded-lg hover:bg-purple-800 transition-colors font-medium ml-1 shadow-sm hover:shadow whitespace-nowrap text-sm"
@@ -210,11 +308,48 @@ export default function ClientLayout({
                 </Link>
                 <Link 
                   href="/client-dashboard"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  <LayoutDashboard className="h-5 w-5 mr-2" />
+                  {user ? 'Client Dashboard' : 'Demo Dashboard'}
                 </Link>
+                
+                {/* Mobile Sign In/Profile */}
+                {!authLoading && (
+                  !user ? (
+                    <Link 
+                      href="/sign-in"
+                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="h-5 w-5 mr-2" />
+                      Sign In
+                    </Link>
+                  ) : (
+                    <>
+                      <Link 
+                        href="/profile"
+                        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <User className="h-5 w-5 mr-2" />
+                        Your Profile
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          await handleSignOut();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
+                      >
+                        <LogOut className="h-5 w-5 mr-2" />
+                        Sign Out
+                      </button>
+                    </>
+                  )
+                )}
+                
                 <Link 
                   href="/schedule-consultation"
                   className="block px-3 py-2 rounded-md text-base font-medium bg-purple-700 text-white hover:bg-purple-800"

@@ -119,6 +119,7 @@ export default function ImplementationRoadmap() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { user, loading: authLoading } = useAuth();
+  const [usedMockData, setUsedMockData] = useState(false);
 
   useEffect(() => {
     // Set a timeout to ensure we don't get stuck in loading state
@@ -126,67 +127,77 @@ export default function ImplementationRoadmap() {
       if (isLoading) {
         console.log("Loading timeout reached, using mock data");
         setPhases(mockImplementationProgress.phases);
+        setUsedMockData(true);
         setIsLoading(false);
       }
     }, 2000); // 2 seconds timeout
 
     async function fetchRoadmapData() {
       try {
-        // For development, always use mock data
-        console.log("Using mock implementation data for development");
-        setPhases(mockImplementationProgress.phases);
-        setIsLoading(false);
-        return;
+        // If user auth is still loading, wait for it to resolve
+        if (authLoading) {
+          return; // Exit and wait for auth to resolve
+        }
 
-        // The code below is commented out for development
-        // In production, uncomment this code to fetch real data
-        /*
         // Try to get real data if user is authenticated
         if (user) {
           try {
             const token = await user.getIdToken();
-            const response = await fetch('/api/client/dashboard', {
+            const response = await fetch('/api/client/implementation-roadmap', {
               headers: {
                 'Authorization': `Bearer ${token}`
               }
             });
             
             if (!response.ok) {
-              throw new Error('Failed to fetch roadmap data');
+              throw new Error(`Failed to fetch roadmap data: ${response.status}`);
             }
 
             const result = await response.json();
             
-            if (!result.success) {
+            if (!result.success && !result.data) {
               throw new Error(result.error || 'Failed to fetch roadmap data');
             }
 
-            setPhases(result.data.implementationProgress.phases);
+            // Check if the API returned actual implementation data
+            if (result.data && result.data.implementationProgress && result.data.implementationProgress.phases) {
+              setPhases(result.data.implementationProgress.phases);
+              setUsedMockData(result.usedMockData || false);
+            } else {
+              // If API response is valid but no implementation data
+              console.warn("API response missing implementation data, using mock data");
+              setPhases(mockImplementationProgress.phases);
+              setUsedMockData(true);
+            }
           } catch (err) {
             console.warn("API call failed, using mock data:", err);
             // Fallback to mock data if API call fails
             setPhases(mockImplementationProgress.phases);
+            setUsedMockData(true);
+            setError(err instanceof Error ? err.message : 'Failed to fetch data');
           }
         } else {
           // No user, use mock data
+          console.log("No authenticated user, using mock data");
           setPhases(mockImplementationProgress.phases);
+          setUsedMockData(true);
         }
-        */
       } catch (err) {
         console.error("Error in fetchRoadmapData:", err);
         setError(err instanceof Error ? err.message : 'An error occurred');
         // Still use mock data even if there's an error
         setPhases(mockImplementationProgress.phases);
+        setUsedMockData(true);
       } finally {
         setIsLoading(false);
       }
     }
 
-    // Always fetch data immediately, don't wait for auth
+    // Always fetch data immediately, but handle auth state properly
     fetchRoadmapData();
 
     return () => clearTimeout(timeoutId);
-  }, []); // Remove user and authLoading dependencies
+  }, [user, authLoading]); // Depend on user object and auth loading state
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -243,7 +254,14 @@ export default function ImplementationRoadmap() {
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Implementation Roadmap</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-900">Implementation Roadmap</h2>
+        {usedMockData && (
+          <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full font-medium">
+            Sample Data
+          </span>
+        )}
+      </div>
       <div className="space-y-8">
         {phases.map((phase, phaseIndex) => (
           <motion.div

@@ -168,18 +168,18 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                <div>
+      <div>
                   <h3 className="heading-3 mb-3 text-purple-900">{item.title}</h3>
                   <p className="text-gray-600 mb-8">{item.description}</p>
-                </div>
-                <div>
+      </div>
+      <div>
                   <Link href={item.link} className="text-purple-700 font-medium flex items-center hover:text-purple-900">
                     Learn more <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </div>
               </motion.div>
             ))}
-          </div>
+      </div>
         </ResponsiveContainer>
       </section>
 
@@ -240,13 +240,13 @@ export default function Home() {
                 <p className="text-left text-gray-200 italic">"{testimonial.quote}"</p>
               </motion.div>
             ))}
-          </div>
+        </div>
 
           <div className="mt-12">
             <Link href="/case-studies" className="button-secondary inline-flex items-center">
               View All Case Studies <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-          </div>
+        </div>
         </ResponsiveContainer>
       </section>
 
@@ -273,11 +273,11 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-            </div>
+        </div>
             <div>
               <ChatBot />
-            </div>
-          </div>
+        </div>
+      </div>
         </ResponsiveContainer>
       </section>
     </main>

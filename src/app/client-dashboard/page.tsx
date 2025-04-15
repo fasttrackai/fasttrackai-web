@@ -3,15 +3,19 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle, RefreshCw, Info, LayoutDashboard, LayoutList, TrendingUp, Target as TargetIcon } from 'lucide-react';
+import { BarChart, LineChart, Activity, Users, CheckCircle, Clock, Loader, AlertCircle, RefreshCw, Info, LayoutDashboard, LayoutList, TrendingUp, Target, BarChart3, DollarSign, Building, ClipboardCheck, Check, CircleAlert, Zap } from 'lucide-react';
 import { 
   DataSourceHealthCheck, 
   OpportunityTeaser, 
   SavingsEstimator, 
   AutomationPotential, 
   MAReadinessScorecard, 
-  AIDocumentationChecklist 
+  AIDocumentationChecklist,
+  ImplementationRoadmap,
+  ROICalculator,
+  ProgressTracker
 } from './ValueAddComponents';
+import { useRouter } from 'next/navigation';
 
 // Define types for the dashboard data
 interface MaturityScore {
@@ -94,10 +98,124 @@ const mockROICalculations: ROICalculation[] = [
 ];
 
 // Define type for active view
-type DashboardView = 'grow' | 'optimize' | 'sell';
+type DashboardView = 'overview' | 'roi' | 'progress';
+type DashboardCategory = 'grow' | 'optimize' | 'sell';
+
+// Define interfaces for package-specific metrics and KPIs
+interface PackageMetric {
+  name: string;
+  value: number;
+  previous: number;
+  unit: string;
+  change: number;
+  trend: 'up' | 'down';
+}
+
+interface PackageKPI {
+  name: string;
+  value: string;
+  target: string;
+  progress: number;
+}
+
+interface FocusArea {
+  name: string;
+  priority: 'Critical' | 'High' | 'Medium' | 'Low';
+  status: 'Deployed' | 'In Progress' | 'Planning' | 'On Hold';
+}
+
+interface PackageData {
+  metrics: PackageMetric[];
+  kpis: PackageKPI[];
+  focusAreas: FocusArea[];
+  recommendations: string[];
+}
+
+// Package-specific dashboard data
+// GROW package data - focused on customer acquisition, AI readiness, and revenue growth
+const growPackageData: PackageData = {
+  metrics: [
+    { name: 'Customer Satisfaction', value: 92, previous: 86, unit: '%', change: 7, trend: 'up' },
+    { name: 'Response Time', value: 2.8, previous: 4.5, unit: 'hours', change: 38, trend: 'down' },
+    { name: 'AI Readiness Score', value: 68, previous: 55, unit: '%', change: 24, trend: 'up' },
+    { name: 'New Customers', value: 34, previous: 22, unit: '', change: 55, trend: 'up' }
+  ],
+  kpis: [
+    { name: 'AI-Augmented Revenue', value: '$285K', target: '$300K', progress: 95 },
+    { name: 'Customer Retention', value: '94%', target: '90%', progress: 104 },
+    { name: 'AI Adoption Rate', value: '78%', target: '85%', progress: 92 },
+    { name: 'Service Quality Score', value: '4.7/5', target: '4.5/5', progress: 104 }
+  ],
+  focusAreas: [
+    { name: 'Customer Data Integration', priority: 'High', status: 'In Progress' },
+    { name: 'AI Chatbot Implementation', priority: 'Medium', status: 'Planning' },
+    { name: 'Predictive Analytics Model', priority: 'High', status: 'In Progress' }
+  ],
+  recommendations: [
+    'Enhance data collection for customer behavior analysis',
+    'Implement AI-powered lead scoring system',
+    'Deploy natural language processing for customer feedback analysis',
+    'Create customer journey mapping with AI insights'
+  ]
+};
+
+// OPTIMIZE package data - focused on operational efficiency, cost reduction, and process improvement
+const optimizePackageData: PackageData = {
+  metrics: [
+    { name: 'Process Efficiency', value: 78, previous: 65, unit: '%', change: 20, trend: 'up' },
+    { name: 'Cost Reduction', value: 22, previous: 15, unit: '%', change: 47, trend: 'up' },
+    { name: 'Time Savings', value: 240, previous: 180, unit: 'hrs/mo', change: 33, trend: 'up' },
+    { name: 'Error Rate', value: 0.8, previous: 3.5, unit: '%', change: 77, trend: 'down' }
+  ],
+  kpis: [
+    { name: 'Automation Coverage', value: '65%', target: '80%', progress: 81 },
+    { name: 'Manual Process Reduction', value: '45%', target: '50%', progress: 90 },
+    { name: 'Operational Cost Savings', value: '$125K', target: '$150K', progress: 83 },
+    { name: 'Process Cycle Time', value: '2.2 days', target: '2 days', progress: 91 }
+  ],
+  focusAreas: [
+    { name: 'Invoice Processing Automation', priority: 'High', status: 'Deployed' },
+    { name: 'Inventory Management AI', priority: 'Medium', status: 'In Progress' },
+    { name: 'Customer Onboarding Automation', priority: 'High', status: 'Planning' }
+  ],
+  recommendations: [
+    'Implement robotic process automation for repetitive tasks',
+    'Deploy machine learning for demand forecasting',
+    'Integrate AI-powered quality control systems',
+    'Automate document processing workflow'
+  ]
+};
+
+// SELL package data - focused on M&A readiness, business valuation, and documentation
+const sellPackageData: PackageData = {
+  metrics: [
+    { name: 'M&A Readiness', value: 82, previous: 65, unit: '%', change: 26, trend: 'up' },
+    { name: 'Business Valuation', value: 5.2, previous: 4.3, unit: 'x EBITDA', change: 21, trend: 'up' },
+    { name: 'Documentation', value: 85, previous: 60, unit: '%', change: 42, trend: 'up' },
+    { name: 'Risk Score', value: 18, previous: 35, unit: '', change: 49, trend: 'down' }
+  ],
+  kpis: [
+    { name: 'AI Asset Valuation', value: '$1.8M', target: '$1.5M', progress: 120 },
+    { name: 'IP Documentation', value: '85%', target: '90%', progress: 94 },
+    { name: 'Compliance Score', value: '92/100', target: '90/100', progress: 102 },
+    { name: 'Due Diligence Readiness', value: '78%', target: '85%', progress: 92 }
+  ],
+  focusAreas: [
+    { name: 'AI IP Documentation', priority: 'Critical', status: 'In Progress' },
+    { name: 'Data Governance Framework', priority: 'High', status: 'Deployed' },
+    { name: 'Security Audit', priority: 'High', status: 'In Progress' }
+  ],
+  recommendations: [
+    'Complete comprehensive AI asset inventory',
+    'Finalize data governance policy documentation',
+    'Implement rigorous model performance tracking',
+    'Create detailed AI ROI analysis reports'
+  ]
+};
 
 export default function ClientDashboard() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [maturityScores, setMaturityScores] = useState<MaturityScore[]>([]);
@@ -106,96 +224,435 @@ export default function ClientDashboard() {
   const [assessments, setAssessments] = useState<AssessmentSummary[]>([]);
   const [roiCalculations, setRoiCalculations] = useState<ROICalculation[]>([]);
   const [usedMockData, setUsedMockData] = useState(false);
-  const [activeView, setActiveView] = useState<DashboardView>('grow'); // Default to 'grow'
+  const [activeView, setActiveView] = useState<DashboardView>('overview'); // Default to 'overview'
+  const [activeCategory, setActiveCategory] = useState<DashboardCategory>('grow'); // Default to 'grow'
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
+
+  // Function to handle sign in button click
+  const handleSignIn = () => {
+    router.push('/sign-in');
+  };
+
+  // --- Category Tabs Data ---
+  const categoryTabs: { id: DashboardCategory; label: string; color: string; icon: React.ElementType }[] = [
+    { id: 'grow', label: 'Grow', color: 'emerald', icon: TrendingUp },
+    { id: 'optimize', label: 'Optimize', color: 'blue', icon: BarChart3 },
+    { id: 'sell', label: 'Sell', color: 'purple', icon: DollarSign },
+  ];
+
+  // --- Tab Data ---
+  const tabItems: { id: DashboardView; label: string; icon: React.ElementType }[] = [
+    { id: 'overview', label: 'Overview', icon: LayoutList },
+    { id: 'roi', label: 'ROI Calculation', icon: Target },
+    { id: 'progress', label: 'Progress Tracker', icon: TrendingUp },
+  ];
+
+  // Function to render preview banner for mock data
+  const renderPreviewBanner = () => {
+    if (isUsingMockData) {
+      return (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 mb-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-amber-400" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-amber-700">
+                You're viewing sample data. <a href="#" onClick={handleSignIn} className="font-medium underline hover:text-amber-600">Sign in</a> to see your actual dashboard.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+  
+  // Define the renderDashboardContent function for the selected category
+  const renderDashboardContent = () => {
+    // Function to render generic metrics cards based on package data
+    const renderPackageMetricsCards = (metrics: PackageMetric[]) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {metrics.map((metric: PackageMetric, index: number) => (
+          <div key={index} className="bg-white rounded-lg shadow p-5 border border-gray-100">
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-sm font-medium text-gray-700">{metric.name}</h3>
+              <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                metric.trend === 'up' 
+                  ? (metric.name === 'Error Rate' || metric.name === 'Risk Score' ? 'bg-green-100 text-green-800' : 'bg-green-100 text-green-800')
+                  : (metric.name === 'Error Rate' || metric.name === 'Risk Score' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')
+              }`}>
+                {metric.trend === 'up' ? '+' : '-'}{metric.change}% {metric.trend === 'up' ? '↑' : '↓'}
+              </span>
+            </div>
+            <div className="flex items-baseline">
+              <span className="text-3xl font-bold text-purple-700">{metric.value}</span>
+              <span className="ml-2 text-sm text-gray-500">{metric.unit} (was {metric.previous}{metric.unit})</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+
+    // Function to render KPI cards for each package
+    const renderKPICards = (kpis: PackageKPI[]) => (
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="flex items-center mb-6">
+          <BarChart className="h-5 w-5 mr-2 text-purple-600" />
+          <h2 className="text-xl font-semibold text-gray-900">Key Performance Indicators</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {kpis.map((kpi: PackageKPI, index: number) => (
+            <div key={index} className="border-b pb-4 last:border-b-0">
+              <div className="flex justify-between items-center mb-1">
+                <h3 className="text-sm font-medium text-gray-700">{kpi.name}</h3>
+                <div className="flex items-center">
+                  <span className={`text-sm font-medium ${
+                    kpi.progress >= 100 ? 'text-green-600' : 'text-blue-600'
+                  }`}>{kpi.value}</span>
+                  <span className="mx-1 text-xs text-gray-400">|</span>
+                  <span className="text-xs text-gray-500">Target: {kpi.target}</span>
+                </div>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className={`h-2.5 rounded-full ${
+                    kpi.progress >= 100 ? 'bg-green-500' : 'bg-blue-600'
+                  }`} 
+                  style={{ width: `${Math.min(kpi.progress, 100)}%` }}
+                ></div>
+              </div>
+              <div className="text-right mt-1">
+                <span className="text-xs text-gray-500">{kpi.progress}% of target</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    // Function to render focus areas
+    const renderFocusAreas = (focusAreas: FocusArea[]) => (
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="flex items-center mb-6">
+          <Target className="h-5 w-5 mr-2 text-purple-600" />
+          <h2 className="text-xl font-semibold text-gray-900">Focus Areas</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Initiative</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {focusAreas.map((area: FocusArea, index: number) => (
+                <tr key={index}>
+                  <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{area.name}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      area.priority === 'Critical' ? 'bg-red-100 text-red-800' :
+                      area.priority === 'High' ? 'bg-orange-100 text-orange-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      {area.priority}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      area.status === 'Deployed' ? 'bg-green-100 text-green-800' :
+                      area.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {area.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+
+    // Function to render AI recommendations
+    const renderRecommendations = (recommendations: string[]) => (
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="flex items-center mb-6">
+          <Zap className="h-5 w-5 mr-2 text-purple-600" />
+          <h2 className="text-xl font-semibold text-gray-900">AI Recommendations</h2>
+        </div>
+        <ul className="space-y-3">
+          {recommendations.map((rec, index) => (
+            <li key={index} className="flex items-start">
+              <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+              <span className="text-gray-700">{rec}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+
+    // Function to render AI Maturity Scores
+    const renderMaturityScores = () => (
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <div className="flex items-center mb-6">
+          <Activity className="h-5 w-5 mr-2 text-purple-600" />
+          <h2 className="text-xl font-semibold text-gray-900">AI Maturity Scores</h2>
+        </div>
+        
+        <div className="space-y-6">
+          {maturityScores.length > 0 ? maturityScores.map((score, index) => (
+            <div key={index}>
+              <div className="flex justify-between mb-1">
+                <h3 className="text-sm font-medium text-gray-700">{score.category}</h3>
+                <div className="flex items-center">
+                  <span className="text-sm font-medium text-gray-900">{score.score}%</span>
+                  <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs">+{score.improvement}%</span>
+                </div>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="bg-purple-600 h-2.5 rounded-full" style={{ width: `${score.score}%` }}></div>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">Last updated: {score.lastUpdated}</div>
+            </div>
+          )) : mockMaturityScores.map((score, index) => (
+            <div key={index}>
+              <div className="flex justify-between mb-1">
+                <h3 className="text-sm font-medium text-gray-700">{score.category}</h3>
+                <div className="flex items-center">
+                  <span className="text-sm font-medium text-gray-900">{score.score}%</span>
+                  <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-green-800 rounded text-xs">+{score.improvement}%</span>
+                </div>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div className="bg-purple-600 h-2.5 rounded-full" style={{ width: `${score.score}%` }}></div>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">Last updated: {score.lastUpdated}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+
+    // Content for each category based on activeCategory
+    switch (activeCategory) {
+      case 'grow':
+        return (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                <LayoutDashboard className="h-6 w-6 mr-2 text-emerald-600" />
+                Growth AI Dashboard
+                <span className="ml-3 px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs rounded-md font-medium">
+                  GROW Package
+                </span>
+              </h2>
+              <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Data
+              </button>
+            </div>
+            
+            {renderPackageMetricsCards(growPackageData.metrics)}
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {renderKPICards(growPackageData.kpis)}
+            </div>
+            
+            {renderFocusAreas(growPackageData.focusAreas)}
+            {renderRecommendations(growPackageData.recommendations)}
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                {renderMaturityScores()}
+              </div>
+              <div className="lg:col-span-1">
+                <div className="bg-white rounded-lg shadow p-6 h-full">
+                  <div className="flex items-center mb-6">
+                    <Clock className="h-5 w-5 mr-2 text-purple-600" />
+                    <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="border-l-2 border-purple-200 pl-4 py-1">
+                      <h3 className="text-sm font-medium text-gray-900">AI Readiness Assessment</h3>
+                      <p className="text-xs text-gray-500">Score: 64% | 10/14/2023</p>
+                    </div>
+                    <div className="border-l-2 border-green-200 pl-4 py-1">
+                      <h3 className="text-sm font-medium text-gray-900">Customer Analytics Setup</h3>
+                      <p className="text-xs text-gray-500">Phase 1 Complete | 10/17/2023</p>
+                    </div>
+                    <div className="border-l-2 border-blue-200 pl-4 py-1">
+                      <h3 className="text-sm font-medium text-gray-900">AI Training Session</h3>
+                      <p className="text-xs text-gray-500">Team Onboarding | 10/22/2023</p>
+                    </div>
+                  </div>
+                  <div className="mt-6 text-center">
+                    <a href="#" className="text-sm text-purple-600 hover:text-purple-800 flex items-center justify-center">
+                      View All Activity 
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-1">
+                        <path d="M8.14645 3.14645C8.34171 2.95118 8.65829 2.95118 8.85355 3.14645L12.8536 7.14645C13.0488 7.34171 13.0488 7.65829 12.8536 7.85355L8.85355 11.8536C8.65829 12.0488 8.34171 12.0488 8.14645 11.8536C7.95118 11.6583 7.95118 11.3417 8.14645 11.1464L11.2929 8H2.5C2.22386 8 2 7.77614 2 7.5C2 7.22386 2.22386 7 2.5 7H11.2929L8.14645 3.85355C7.95118 3.65829 7.95118 3.34171 8.14645 3.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        );
+      case 'optimize':
+        return (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="h-6 w-6 mr-2 text-blue-600" />
+                Optimization Dashboard
+                <span className="ml-3 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-md font-medium">
+                  OPTIMIZE Package
+                </span>
+              </h2>
+              <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Data
+              </button>
+            </div>
+            
+            {renderPackageMetricsCards(optimizePackageData.metrics)}
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {renderKPICards(optimizePackageData.kpis)}
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="lg:col-span-1">
+                <AutomationPotential usedMockData={isUsingMockData} />
+              </div>
+              <div className="lg:col-span-1">
+                <SavingsEstimator usedMockData={isUsingMockData} />
+              </div>
+            </div>
+            
+            {renderFocusAreas(optimizePackageData.focusAreas)}
+            {renderRecommendations(optimizePackageData.recommendations)}
+            
+            <ImplementationRoadmap usedMockData={isUsingMockData} />
+          </>
+        );
+      case 'sell':
+        return (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                <DollarSign className="h-6 w-6 mr-2 text-purple-600" />
+                M&A Readiness Dashboard
+                <span className="ml-3 px-2 py-0.5 bg-purple-100 text-purple-800 text-xs rounded-md font-medium">
+                  SELL Package
+                </span>
+              </h2>
+              <button className="flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh Data
+              </button>
+            </div>
+            
+            {renderPackageMetricsCards(sellPackageData.metrics)}
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+              {renderKPICards(sellPackageData.kpis)}
+            </div>
+            
+            {renderFocusAreas(sellPackageData.focusAreas)}
+            {renderRecommendations(sellPackageData.recommendations)}
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="lg:col-span-1">
+                <ROICalculator usedMockData={isUsingMockData} />
+              </div>
+              <div className="lg:col-span-1">
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center mb-4">
+                      <Building className="h-5 w-5 mr-2 text-cyan-600" /> M&A Readiness Score
+                    </h2>
+                    <div className="text-center">
+                      <p className="text-5xl font-bold text-cyan-700 mb-1">B+</p>
+                      <p className="text-sm text-gray-500">Illustrative score based on current AI maturity & documentation.</p>
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-lg shadow p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 flex items-center mb-4">
+                      <ClipboardCheck className="h-5 w-5 mr-2 text-rose-600" /> AI Documentation Status
+                    </h2>
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-center text-gray-700"><Check className="h-4 w-4 mr-2 text-green-500"/> Model Performance Reports</li>
+                      <li className="flex items-center text-gray-700"><CircleAlert className="h-4 w-4 mr-2 text-amber-500"/> Process Integration Maps</li>
+                      <li className="flex items-center text-gray-700"><Check className="h-4 w-4 mr-2 text-green-500"/> Data Governance Policy</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ProgressTracker usedMockData={isUsingMockData} />
+          </>
+        );
+      default:
+        return (
+          <div className="p-6 bg-white rounded-lg shadow">
+            <h3 className="text-lg font-medium text-gray-900">Select a dashboard view</h3>
+            <p className="mt-1 text-sm text-gray-500">Please select a view from the tabs above.</p>
+          </div>
+        );
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchDashboardData = async () => {
-      // Check if user is loaded and authenticated
-      if (!user) {
-        console.log("[Dashboard] No user logged in, using mock data.");
-        setMaturityScores(mockMaturityScores);
-        setGrowthMetrics(mockGrowthMetrics);
-        setProjects(mockProjects);
-        setAssessments(mockAssessments);
-        setRoiCalculations(mockROICalculations);
-        setUsedMockData(true);
-        setLoading(false);
-        return; // Exit if no user
-      }
-
-      // User is logged in, proceed to fetch real data
-      setLoading(true);
-      setError(null);
-      setUsedMockData(false); // Assume we'll get real data
-
-      try {
-        // Get the Firebase ID token
-        const token = await user.getIdToken();
-
-        // Attempt to fetch from API with Authorization header
-        const response = await fetch('/api/client/dashboard', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // Send the token
-          },
-        });
-
-        const data = await response.json();
-
-        if (isMounted) {
-          if (!response.ok || data.usedMockData) {
-            // Use mock data as fallback if API returns an error (e.g., 401, 404, 500)
-            console.warn(`API fetch ${!response.ok ? `failed (${response.status})` : 'indicated mock data'}, using mock data. Error: ${data.error || data.message}`);
-            setMaturityScores(mockMaturityScores);
-            setGrowthMetrics(mockGrowthMetrics);
-            setProjects(mockProjects);
-            setAssessments(mockAssessments);
-            setRoiCalculations(mockROICalculations);
-            setUsedMockData(true);
-            // Set error message based on API response if available
-            setError(data.message || data.error || 'Failed to load dashboard data. Using sample data.'); 
-          } else {
-            // API call was successful
-            console.log("[Dashboard] Successfully fetched real data.");
-            setMaturityScores(data.maturityScores || []);
-            setGrowthMetrics(data.growthMetrics || []);
-            setProjects(data.projects || []);
-            setAssessments(data.assessments || []);
-            setRoiCalculations(data.roiCalculations || []);
-            setUsedMockData(false); // Trust API's flag if present
-            setError(null); // Clear any previous errors
-          }
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        if (isMounted) {
-          // Use mock data on network or other unexpected errors
-          setMaturityScores(mockMaturityScores);
-          setGrowthMetrics(mockGrowthMetrics);
-          setProjects(mockProjects);
-          setAssessments(mockAssessments);
-          setRoiCalculations(mockROICalculations);
-          setUsedMockData(true);
-          setError('Failed to connect to server. Using sample data.');
-          setLoading(false);
-        }
-      }
-    };
-
-    // Call the fetch function only when user object is available
-    if (user !== undefined) { // Check if useAuth has determined auth state
-        fetchDashboardData();
+    // Check if we have a user - if not, we'll use mock data for anonymous preview
+    if (!user) {
+      setIsUsingMockData(true);
+      setLoading(false);
+      return;
     }
 
-    // Cleanup function
-    return () => {
-      isMounted = false;
+    const loadClientData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch data from Firebase or API
+        const response = await fetch('/api/client/dashboard');
+        
+        if (!response.ok) {
+          throw new Error('Failed to load dashboard data');
+        }
+        
+        const data = await response.json();
+        
+        // Update state with the data
+        setMaturityScores(data.maturityScores || []);
+        setGrowthMetrics(data.growthMetrics || []);
+        setProjects(data.projects || []);
+        setAssessments(data.assessments || []);
+        setRoiCalculations(data.roiCalculations || []);
+        setUsedMockData(data.usedMockData);
+        
+        // If the API returned that it used mock data, set our state flag
+        if (data.usedMockData) {
+          setIsUsingMockData(true);
+        }
+        
+      } catch (err) {
+        console.error('Error loading dashboard data:', err);
+        setError('Failed to load dashboard data. Please try again later.');
+        setIsUsingMockData(true); // Fallback to mock data on error
+      } finally {
+        setLoading(false);
+      }
     };
-  }, [user]); // Depend only on user object
+
+    loadClientData();
+  }, [user]);
 
   // Loading state
   if (loading) {
@@ -216,560 +673,68 @@ export default function ClientDashboard() {
     );
   }
 
-  // --- Tab Data ---
-  const tabItems: { id: DashboardView; label: string; icon: React.ElementType }[] = [
-    { id: 'grow', label: 'Grow', icon: LayoutList },
-    { id: 'optimize', label: 'Optimize', icon: TrendingUp },
-    { id: 'sell', label: 'Sell', icon: TargetIcon },
-  ];
-
-  // --- RENDER VIEW Function ---
-  const renderDashboardView = () => {
-    switch (activeView) {
-      case 'grow':
-        return (
-          <div className="space-y-8">
-            {/* Grow View Layout - Emphasize Maturity & Opportunities */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-               {/* Maturity takes more space */}
-              <motion.div className="lg:col-span-2"> 
-                 {/* AI Maturity Scores Component (Existing) */}
-                 <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl h-full">
-                     <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center"><Activity className="h-6 w-6 mr-3 text-purple-600" /> AI Maturity Scores</h2>
-                     <div className="space-y-5">
-                       {maturityScores.map((item) => (
-                         <div key={item.category}>
-                           <div className="flex justify-between mb-1">
-                             <span className="text-md font-medium text-gray-800">{item.category}</span>
-                             <span className="text-sm font-semibold text-gray-700 flex items-center">
-                               <span>{item.score}%</span>
-                               {item.improvement > 0 && (
-                                 <span className="text-green-600 ml-2 flex items-center text-xs font-bold">
-                                   <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                   </svg>
-                                   {item.improvement}%
-                                 </span>
-                               )}
-                             </span>
-                           </div>
-                           <div className="w-full bg-gray-200 rounded-full h-3">
-                             <div 
-                               className="bg-gradient-to-r from-purple-500 to-purple-700 h-3 rounded-full transition-all duration-500 ease-out" 
-                               style={{ width: `${item.score}%` }}
-                             ></div>
-                           </div>
-                           <p className="text-xs text-gray-500 mt-1.5">Last updated: {new Date(item.lastUpdated).toLocaleDateString()}</p>
-                         </div>
-                       ))}
-                     </div>
-                 </motion.div>
-              </motion.div>
-              <div className="space-y-6">
-                 {/* Data Source Health (New) */}
-                <DataSourceHealthCheck />
-                 {/* Opportunity Teaser (New) */}
-                <OpportunityTeaser />
+  // No user means anonymous view with mock data
+  if (!user && !loading) {
+    return (
+      <div className="bg-gray-50 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Dashboard Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Client Dashboard</h1>
+              <p className="text-gray-600 mt-1">
+                Your AI integration and automation insights
+              </p>
+            </div>
+          </div>
+          
+          {/* Preview Banner if using mock data */}
+          {renderPreviewBanner()}
+          
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <AlertCircle className="h-5 w-5 text-red-400" />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
               </div>
             </div>
-            {/* Projects Table (Existing) */}
-             <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                  <Users className="h-6 w-6 mr-3 text-purple-600" />
-                  Implementation Projects
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Project Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Progress
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          Timeline
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {projects.map((project, index) => (
-                        <tr key={index} className="hover:bg-gray-50/50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{project.name}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
-                              project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                              project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                              project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
-                                <div 
-                                  className={`h-2.5 rounded-full ${
-                                    project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
-                                  }`}
-                                  style={{ width: `${project.progress}%` }}
-                                ></div>
-                              </div>
-                              <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {project.status === 'completed' ? (
-                              <span className="flex items-center text-green-600 font-medium">
-                                <CheckCircle className="h-4 w-4 mr-1.5" />
-                                Completed
-                              </span>
-                            ) : (
-                              <span>{project.daysRemaining} days remaining</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-             </motion.div>
-             {/* Growth Metrics (Existing - lower priority for Grow) */}
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                 {growthMetrics.map((metric, index) => (
-                   <motion.div
-                     key={metric.label}
-                     initial={{ opacity: 0, y: 20 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: index * 0.1 }}
-                     className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
-                   >
-                     <div className="flex justify-between items-start mb-4">
-                       <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
-                       {metric.trend === 'up' ? (
-                         <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                           <span className="mr-1">+{metric.percentChange}%</span>
-                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                           </svg>
-                         </div>
-                       ) : metric.trend === 'down' ? (
-                         <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
-                           metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
-                             ? 'bg-green-100 text-green-700' // Green for positive reduction
-                             : 'bg-red-100 text-red-700' // Red for negative change
-                         }`}>
-                           <span className="mr-1">{metric.percentChange}%</span>
-                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                           </svg>
-                         </div>
-                       ) : null }
-                     </div>
-                     <div className="flex items-end">
-                       <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
-                       <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
-                     </div>
-                     <div className="mt-1 text-sm text-gray-500">
-                       Previous: {metric.previous}{metric.unit}
-                     </div>
-                   </motion.div>
-                 ))}
-             </div>
+          )}
+          
+          {/* Category Tabs Navigation */}
+          <div className="mb-6">
+            <div className="flex border-b border-gray-200">
+              {categoryTabs.map((tab) => {
+                const Icon = tab.icon;
+                const activeColor = tab.id === 'grow' ? 'emerald' : tab.id === 'optimize' ? 'blue' : 'purple';
+                
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveCategory(tab.id)}
+                    className={`${
+                      activeCategory === tab.id
+                        ? `border-${activeColor}-500 text-${activeColor}-600`
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    } flex items-center py-4 px-8 border-b-2 font-medium text-base`}
+                  >
+                    <Icon className="mr-2 h-5 w-5" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        );
-      case 'optimize':
-        return (
-          <div className="space-y-8">
-             {/* Optimize View Layout - Emphasize Metrics & Automation */}
-             {/* Growth Metrics (Existing - High priority) */}
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                 {growthMetrics.map((metric, index) => (
-                   <motion.div
-                     key={metric.label}
-                     initial={{ opacity: 0, y: 20 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: index * 0.1 }}
-                     className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
-                   >
-                     <div className="flex justify-between items-start mb-4">
-                       <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
-                       {metric.trend === 'up' ? (
-                         <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                           <span className="mr-1">+{metric.percentChange}%</span>
-                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                           </svg>
-                         </div>
-                       ) : metric.trend === 'down' ? (
-                         <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
-                           metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
-                             ? 'bg-green-100 text-green-700' // Green for positive reduction
-                             : 'bg-red-100 text-red-700' // Red for negative change
-                         }`}>
-                           <span className="mr-1">{metric.percentChange}%</span>
-                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                           </svg>
-                         </div>
-                       ) : null }
-                     </div>
-                     <div className="flex items-end">
-                       <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
-                       <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
-                     </div>
-                     <div className="mt-1 text-sm text-gray-500">
-                       Previous: {metric.previous}{metric.unit}
-                     </div>
-                   </motion.div>
-                 ))}
-             </div>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                 {/* Savings Estimator (New) */}
-                 <SavingsEstimator />
-                 {/* Automation Potential (New) */}
-                 <AutomationPotential />
-                  {/* Recent Activities (Existing) */}
-                 <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
-                      <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                        <Clock className="h-6 w-6 mr-3 text-purple-600" />
-                        Recent Activities
-                      </h2>
-                      <div className="space-y-4">
-                         <div className="border-l-4 border-purple-400 pl-4 py-2 bg-purple-50/50 rounded-r-md">
-                           <p className="text-sm font-semibold text-purple-800">AI Readiness Assessment</p>
-                           <p className="text-xs text-gray-700">Score: {assessments.length > 0 ? `${assessments[0].score}%` : 'N/A'}</p>
-                           <p className="text-xs text-gray-500">{assessments.length > 0 ? new Date(assessments[0].date).toLocaleDateString() : 'Invalid Date'}</p>
-                         </div>
-                         <div className="border-l-4 border-green-400 pl-4 py-2 bg-green-50/50 rounded-r-md">
-                           <p className="text-sm font-semibold text-green-800">ROI Calculation</p>
-                           <p className="text-xs text-gray-700">{roiCalculations.length > 0 ? `${roiCalculations[0].package} Plan • ${roiCalculations[0].roi}% ROI` : 'N/A'}</p>
-                           <p className="text-xs text-gray-500">{roiCalculations.length > 0 ? new Date(roiCalculations[0].date).toLocaleDateString() : 'Invalid Date'}</p>
-                         </div>
-                         {projects.filter(p => p.status === 'completed').slice(0, 1).map((project) => (
-                           <div key={project.name} className="border-l-4 border-blue-400 pl-4 py-2 bg-blue-50/50 rounded-r-md">
-                             <p className="text-sm font-semibold text-blue-800">{project.name} Completed</p>
-                             <p className="text-xs text-gray-500">Recently Completed</p>
-                           </div>
-                         ))}
-                      </div>
-                      <div className="mt-6">
-                        <a href="#" // Keep href to #
-                           onClick={(e) => e.preventDefault()} // Prevent default anchor behavior
-                           className="text-sm text-purple-600 hover:text-purple-800 font-semibold cursor-not-allowed opacity-50" // Style as disabled
-                           title="Activity Log page not yet implemented"
-                         >
-                          View All Activity →
-                        </a>
-                      </div>
-                  </motion.div>
-              </div>
-             {/* Projects Table (Existing) */}
-             <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
-                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                   <Users className="h-6 w-6 mr-3 text-purple-600" />
-                   Implementation Projects
-                 </h2>
-                 <div className="overflow-x-auto">
-                   <table className="min-w-full divide-y divide-gray-200">
-                     <thead className="bg-gray-50">
-                       <tr>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Project Name
-                         </th>
-                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Status
-                         </th>
-                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Progress
-                         </th>
-                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Timeline
-                         </th>
-                       </tr>
-                     </thead>
-                     <tbody className="bg-white divide-y divide-gray-200">
-                       {projects.map((project, index) => (
-                         <tr key={index} className="hover:bg-gray-50/50">
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="text-sm font-medium text-gray-900">{project.name}</div>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
-                               project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                               project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                               project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
-                               'bg-gray-100 text-gray-800'
-                             }`}>
-                               {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                             </span>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="flex items-center">
-                               <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
-                                 <div 
-                                   className={`h-2.5 rounded-full ${
-                                     project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
-                                   }`}
-                                   style={{ width: `${project.progress}%` }}
-                                 ></div>
-                               </div>
-                               <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
-                             </div>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                             {project.status === 'completed' ? (
-                               <span className="flex items-center text-green-600 font-medium">
-                                 <CheckCircle className="h-4 w-4 mr-1.5" />
-                                 Completed
-                               </span>
-                             ) : (
-                               <span>{project.daysRemaining} days remaining</span>
-                             )}
-                           </td>
-                         </tr>
-                       ))}
-                     </tbody>
-                   </table>
-                 </div>
-             </motion.div>
-          </div>
-        );
-      case 'sell':
-        return (
-           <div className="space-y-8">
-             {/* Sell View Layout - Emphasize Readiness & Summaries */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* M&A Readiness Score (New) */}
-                 <MAReadinessScorecard />
-                 {/* AI Documentation Checklist (New) */}
-                 <AIDocumentationChecklist />
-              </div>
-             {/* Growth Metrics (Existing - Summary?) */}
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                 {growthMetrics.map((metric, index) => (
-                   <motion.div
-                     key={metric.label}
-                     initial={{ opacity: 0, y: 20 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: index * 0.1 }}
-                     className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl"
-                   >
-                     <div className="flex justify-between items-start mb-4">
-                       <h3 className="text-gray-500 font-semibold">{metric.label}</h3>
-                       {metric.trend === 'up' ? (
-                         <div className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                           <span className="mr-1">+{metric.percentChange}%</span>
-                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                           </svg>
-                         </div>
-                       ) : metric.trend === 'down' ? (
-                         <div className={`text-xs font-bold px-2 py-1 rounded-full flex items-center ${
-                           metric.label.toLowerCase().includes('time') || metric.label.toLowerCase().includes('cost') 
-                             ? 'bg-green-100 text-green-700' // Green for positive reduction
-                             : 'bg-red-100 text-red-700' // Red for negative change
-                         }`}>
-                           <span className="mr-1">{metric.percentChange}%</span>
-                           <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                           </svg>
-                         </div>
-                       ) : null }
-                     </div>
-                     <div className="flex items-end">
-                       <span className="text-4xl font-bold text-purple-700">{metric.current}</span>
-                       <span className="ml-1 text-gray-600 font-medium">{metric.unit}</span>
-                     </div>
-                     <div className="mt-1 text-sm text-gray-500">
-                       Previous: {metric.previous}{metric.unit}
-                     </div>
-                   </motion.div>
-                 ))}
-             </div>
-              {/* Projects Table (Existing - focus on Completed?) */}
-             <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
-                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-                   <Users className="h-6 w-6 mr-3 text-purple-600" />
-                   Implementation Projects
-                 </h2>
-                 <div className="overflow-x-auto">
-                   <table className="min-w-full divide-y divide-gray-200">
-                     <thead className="bg-gray-50">
-                       <tr>
-                          <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Project Name
-                         </th>
-                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Status
-                         </th>
-                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Progress
-                         </th>
-                         <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                           Timeline
-                         </th>
-                       </tr>
-                     </thead>
-                     <tbody className="bg-white divide-y divide-gray-200">
-                       {projects.map((project, index) => (
-                         <tr key={index} className="hover:bg-gray-50/50">
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="text-sm font-medium text-gray-900">{project.name}</div>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full shadow-sm ${
-                               project.status === 'completed' ? 'bg-green-100 text-green-800' :
-                               project.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                               project.status === 'review' ? 'bg-yellow-100 text-yellow-800' :
-                               'bg-gray-100 text-gray-800'
-                             }`}>
-                               {project.status.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                             </span>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap">
-                             <div className="flex items-center">
-                               <div className="w-full bg-gray-200 rounded-full h-2.5 w-32">
-                                 <div 
-                                   className={`h-2.5 rounded-full ${
-                                     project.status === 'completed' ? 'bg-green-600' : 'bg-gradient-to-r from-purple-500 to-purple-700'
-                                   }`}
-                                   style={{ width: `${project.progress}%` }}
-                                 ></div>
-                               </div>
-                               <span className="ml-3 text-sm font-medium text-gray-700">{project.progress}%</span>
-                             </div>
-                           </td>
-                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                             {project.status === 'completed' ? (
-                               <span className="flex items-center text-green-600 font-medium">
-                                 <CheckCircle className="h-4 w-4 mr-1.5" />
-                                 Completed
-                               </span>
-                             ) : (
-                               <span>{project.daysRemaining} days remaining</span>
-                             )}
-                           </td>
-                         </tr>
-                       ))}
-                     </tbody>
-                   </table>
-                 </div>
-             </motion.div>
-               {/* Maturity Scores (Existing - lower priority?) */}
-              <motion.div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 transition-shadow hover:shadow-xl">
-                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center"><Activity className="h-6 w-6 mr-3 text-purple-600" /> AI Maturity Scores</h2>
-                 <div className="space-y-5">
-                    {maturityScores.map((item) => (
-                      <div key={item.category}>
-                        <div className="flex justify-between mb-1">
-                          <span className="text-md font-medium text-gray-800">{item.category}</span>
-                          <span className="text-sm font-semibold text-gray-700 flex items-center">
-                            <span>{item.score}%</span>
-                            {item.improvement > 0 && (
-                              <span className="text-green-600 ml-2 flex items-center text-xs font-bold">
-                                <svg className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                                </svg>
-                                {item.improvement}%
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-3">
-                          <div 
-                            className="bg-gradient-to-r from-purple-500 to-purple-700 h-3 rounded-full transition-all duration-500 ease-out" 
-                            style={{ width: `${item.score}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1.5">Last updated: {new Date(item.lastUpdated).toLocaleDateString()}</p>
-                      </div>
-                    ))}
-                 </div>
-              </motion.div>
-           </div>
-        );
-      default:
-        return <div>Invalid view selected</div>;
-    }
-  };
-
-  // --- Main Return ---
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
-      <div className="container mx-auto px-4">
-        {/* Header - Enhanced Title & Layout */}
-        <div className="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-6">
-          {/* Title with Icon */}
-          <div className="flex items-center mb-4 sm:mb-0">
-             <LayoutDashboard className="h-8 w-8 mr-3 text-purple-600 flex-shrink-0" /> 
-             <h1 className="text-3xl font-bold text-gray-800 tracking-tight">AI Performance Dashboard</h1>
-          </div>
-          {/* Buttons and Banner Area */}
-          <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-             {/* Sample Data Banner - Amber Color */}
-             {usedMockData && (
-               <span className={`text-sm inline-flex items-center bg-amber-100 text-amber-800 font-medium px-3 py-1 rounded-full shadow-sm order-2 sm:order-1'`}>
-                  <Info className="h-4 w-4 mr-1.5" /> Viewing sample data
-               </span>
-             )}
-            <button 
-              className="button-primary inline-flex items-center order-1 sm:order-2" // Themed button
-              onClick={() => window.location.reload()}
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh Data
-            </button>
-          </div>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-           <div className="mb-6 p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg flex items-center shadow-sm">
-             <AlertCircle className="h-5 w-5 mr-3 flex-shrink-0" />
-             <p className="font-medium">{error}</p>
-           </div>
-        )}
-        
-        {/* === TABS for View Switching === */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
-              {tabItems.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveView(tab.id)}
-                  className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors duration-150 ease-in-out ${
-                    activeView === tab.id
-                      ? 'border-purple-600 text-purple-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                  aria-current={activeView === tab.id ? 'page' : undefined}
-                >
-                  <tab.icon className={`-ml-0.5 mr-2 h-5 w-5 ${activeView === tab.id ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-500'}`} />
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
-        {/* === End Tabs === */}
-
-        {/* === Conditionally Rendered View Content === */}
-        <div className="dashboard-content-area mt-8">
-           {renderDashboardView()} {/* Call the function to render the active view */} 
-        </div>
-        {/* === End Conditional Content Area === */}
-        
-        {/* Keep CTA at the bottom */}
-         <motion.div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-xl shadow-xl p-8 flex flex-col md:flex-row items-center justify-between mt-12">
+          
+          {/* Dynamic View Content */}
+          {renderDashboardContent()}
+          
+          {/* CTA Section */}
+          <div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-xl shadow-xl p-8 flex flex-col md:flex-row items-center justify-between mt-12">
             <div className="mb-4 md:mb-0 md:mr-6 text-center md:text-left">
               <h2 className="text-xl font-bold mb-2">Ready to take your AI implementation to the next level?</h2>
               <p className="text-purple-100/90">Schedule a consultation with our experts to discuss optimizing your AI strategy.</p>
@@ -777,14 +742,92 @@ export default function ClientDashboard() {
             <div className="flex-shrink-0 flex space-x-4">
               <a 
                 href="/schedule-consultation" 
-                className="button-secondary-light"
+                className="px-4 py-2 border border-white text-white bg-transparent hover:bg-white/10 rounded-md font-medium text-sm"
               >
                 Schedule Consultation
               </a>
             </div>
-         </motion.div>
-
+          </div>
+        </div>
       </div>
-    </main>
+    );
+  }
+
+  // --- Main Return ---
+  return (
+    <div className="bg-gray-50 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Dashboard Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Client Dashboard</h1>
+            <p className="text-gray-600 mt-1">
+              Your AI integration and automation insights
+            </p>
+          </div>
+        </div>
+        
+        {/* Preview Banner if using mock data */}
+        {renderPreviewBanner()}
+        
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border-l-4 border-red-400 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-red-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Category Tabs Navigation */}
+        <div className="mb-6">
+          <div className="flex border-b border-gray-200">
+            {categoryTabs.map((tab) => {
+              const Icon = tab.icon;
+              const activeColor = tab.id === 'grow' ? 'emerald' : tab.id === 'optimize' ? 'blue' : 'purple';
+              
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveCategory(tab.id)}
+                  className={`${
+                    activeCategory === tab.id
+                      ? `border-${activeColor}-500 text-${activeColor}-600`
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  } flex items-center py-4 px-8 border-b-2 font-medium text-base`}
+                >
+                  <Icon className="mr-2 h-5 w-5" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        
+        {/* Dynamic View Content */}
+        {renderDashboardContent()}
+        
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-purple-700 to-purple-900 text-white rounded-xl shadow-xl p-8 flex flex-col md:flex-row items-center justify-between mt-12">
+          <div className="mb-4 md:mb-0 md:mr-6 text-center md:text-left">
+            <h2 className="text-xl font-bold mb-2">Ready to take your AI implementation to the next level?</h2>
+            <p className="text-purple-100/90">Schedule a consultation with our experts to discuss optimizing your AI strategy.</p>
+          </div>
+          <div className="flex-shrink-0 flex space-x-4">
+            <a 
+              href="/schedule-consultation" 
+              className="px-4 py-2 border border-white text-white bg-transparent hover:bg-white/10 rounded-md font-medium text-sm"
+            >
+              Schedule Consultation
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 } 
