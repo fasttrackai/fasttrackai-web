@@ -344,8 +344,8 @@ export default function StrategyReport() {
             </div>
             
             {/* Score */}
-            <div className="flex justify-center mb-10">
-              <div className="relative w-36 h-36 md:w-44 md:h-44">
+            <div className="flex justify-center mb-10 md:mb-12">
+              <div className="relative w-40 h-40 md:w-48 md:h-48">
                 <svg className="w-full h-full" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="8" />
                   <motion.circle
@@ -368,49 +368,61 @@ export default function StrategyReport() {
               </div>
             </div>
             
-            {/* Heat Map - Refactored UI with Color Scale */}
-            <div className="mb-10">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">Opportunity Heat Map</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-                {heatMapData.length > 0 ? heatMapData
-                  .sort((a, b) => b.score - a.score) // Sort by score descending
-                  .map((area, index) => {
-                    // Determine background color based on score
-                    const getBgColor = (score: number): string => {
-                      if (score >= 85) return 'bg-purple-700'; // High
-                      if (score >= 65) return 'bg-purple-600'; // Medium-High
-                      if (score >= 45) return 'bg-purple-500'; // Medium
-                      return 'bg-purple-400'; // Low
-                    };
-                    const bgColorClass = getBgColor(area.score || 0);
-                    
-                    return (
-                      <motion.div 
-                        key={index} 
-                        className={`relative p-4 rounded-lg shadow-md transition-shadow duration-300 hover:shadow-xl border border-purple-200/30 flex flex-col justify-between ${bgColorClass}`}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 + index * 0.1 }}
-                      >
-                        <div>
-                          <h4 className="text-white font-semibold text-base mb-1.5 drop-shadow">{area.area}</h4>
-                          <p className="text-purple-100/95 text-sm mb-3 drop-shadow-sm">{area.topOpportunity || 'Key Opportunity'}</p>
-                        </div>
-                        <div className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-sm backdrop-blur-sm border border-white/30 shadow">
-                          {area.score !== undefined ? area.score : '?'}
-                        </div>
-                      </motion.div>
-                    );
-                  }) : (
-                  <p className="text-gray-500 italic col-span-full">Heatmap data could not be generated. Please consult for details.</p>
-                )}
+            {/* Heat Map - Refactored UI with Table */}
+            <div className="mb-12 md:mb-16">
+              <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-5 text-center">Opportunity Heat Map</h3>
+              <div className="max-w-2xl mx-auto overflow-hidden rounded-lg shadow-lg border border-gray-200">
+                <table className="w-full border-collapse">
+                  {/* Assuming 3 items for a single row table for simplicity */}
+                  {/* More complex logic needed for wrapping/multiple rows if heatMapData > 3 */}
+                  <tbody>
+                    <tr className="divide-x divide-purple-300/30">
+                      {heatMapData.length > 0 ? heatMapData
+                        .sort((a, b) => b.score - a.score) // Sort by score descending
+                        .slice(0, 3) // Take top 3 for one row display
+                        .map((area, index) => {
+                          // Determine background color based on score
+                          const getBgColor = (score: number): string => {
+                            if (score >= 85) return 'bg-purple-700'; // High
+                            if (score >= 65) return 'bg-purple-600'; // Medium-High
+                            if (score >= 45) return 'bg-purple-500'; // Medium
+                            return 'bg-purple-400'; // Low
+                          };
+                          const bgColorClass = getBgColor(area.score || 0);
+                          
+                          return (
+                            <td 
+                              key={index} 
+                              className={`relative p-5 text-white transition-colors duration-300 ${bgColorClass}`}
+                            >
+                              <div className="flex flex-col items-center text-center">
+                                <span className="absolute top-2 right-2 text-xs font-bold bg-white/20 rounded-full px-2 py-0.5 backdrop-blur-sm">
+                                  {area.score !== undefined ? area.score : '?'}
+                                </span>
+                                <h4 className="font-semibold text-base mb-2 mt-4 drop-shadow">{area.area}</h4>
+                                <p className="text-purple-100/95 text-sm leading-snug drop-shadow-sm">{area.topOpportunity || 'Key Opportunity'}</p>
+                              </div>
+                            </td>
+                          );
+                        }) : (
+                          <td className="p-6 text-center text-gray-500 italic col-span-3 bg-gray-50">
+                            Heatmap data could not be generated. Please consult for details.
+                          </td>
+                        )}
+                      {/* Add empty cells if less than 3 results to maintain layout */}
+                      {Array(Math.max(0, 3 - heatMapData.length)).fill(0).map((_, i) => (
+                         <td key={`empty-${i}`} className="p-6 bg-gray-100"></td> 
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
             
             {/* Roadmap Teaser */}
-            <div className="mb-10">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3">Preliminary Roadmap Steps</h3>
-              <div className="relative pt-4">
+            <div className="mb-12 md:mb-16">
+              <h3 className="text-xl md:text-2xl font-semibold text-gray-800 mb-6 text-center">Preliminary Roadmap Steps</h3>
+              <div className="relative pt-4 max-w-2xl mx-auto">
                 <div className="absolute left-5 top-0 bottom-0 w-0.5 bg-purple-200 rounded-full"></div>
                 {roadmapSteps.map((step, i: number) => (
                   <div key={i} className="relative mb-4 pl-12 last:mb-0">
@@ -427,9 +439,9 @@ export default function StrategyReport() {
             </div>
             
             {/* Try AI Chat */}
-            <div className="mb-10 bg-purple-50 rounded-lg p-5 md:p-6 border border-purple-100">
-              <h3 className="text-lg font-semibold mb-3 flex items-center text-purple-800">
-                <MessageCircle className="mr-2" size={18} />
+            <div className="mb-12 md:mb-16 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-6 md:p-8 border border-purple-100 shadow-sm">
+              <h3 className="text-lg font-semibold mb-4 flex items-center text-purple-800">
+                <MessageCircle className="mr-2.5" size={20} />
                 Quick Question for Our AI?
               </h3>
               <div className="mb-3">
@@ -444,7 +456,7 @@ export default function StrategyReport() {
               <button 
                 onClick={handleAskAI}
                 disabled={isTypingResponse || !chatQuestion.trim()}
-                className="px-4 py-1.5 bg-purple-600 text-white text-sm rounded hover:bg-purple-700 transition-colors flex items-center justify-center disabled:bg-purple-300"
+                className="px-5 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700 transition-colors flex items-center justify-center disabled:bg-purple-300 shadow hover:shadow-md disabled:shadow-none"
               >
                 {isTypingResponse ? (
                    <>
@@ -456,22 +468,22 @@ export default function StrategyReport() {
                 )}
               </button>
               {chatResponse && (
-                <div className="bg-white p-3 rounded border border-purple-100 mt-3 text-sm text-gray-700">
+                <div className="bg-white p-4 rounded-md border border-purple-100 mt-4 text-sm text-gray-700 shadow-inner">
                   {chatResponse}
                 </div>
               )}
             </div>
             
             {/* Final CTA */}
-            <div className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white rounded-lg p-6 md:p-8 shadow-lg mt-8">
+            <div className="bg-gradient-to-r from-purple-700 to-indigo-700 text-white rounded-xl p-8 md:p-10 shadow-xl mt-10">
               <div className="text-center">
-                <h3 className="text-xl md:text-2xl font-bold mb-2">Unlock Your Full AI Potential</h3>
-                <p className="text-white/90 mb-5 text-sm md:text-base max-w-xl mx-auto">
+                <h3 className="text-2xl md:text-3xl font-bold mb-3">Unlock Your Full AI Potential</h3>
+                <p className="text-white/90 mb-6 text-base md:text-lg max-w-xl mx-auto">
                   This snapshot shows promising directions. Schedule your free consultation to get a detailed, actionable AI strategy and implementation plan.
                 </p>
                 <Link 
                   href={`/schedule-consultation?source=strategy-report-results&id=${analysisResult?.reportId || 'ai-report'}`}
-                  className="inline-block px-6 py-2.5 bg-white text-purple-700 font-semibold rounded-md hover:bg-gray-100 transition text-sm md:text-base shadow"
+                  className="inline-block px-8 py-3 bg-white text-purple-700 font-semibold rounded-lg hover:bg-gray-100 transition text-base shadow-md hover:shadow-lg transform hover:-translate-y-0.5 duration-150"
                 >
                   Schedule Free Consultation
                 </Link>
@@ -556,14 +568,14 @@ export default function StrategyReport() {
 
   // --- Main Component Return --- 
   return (
-    <main className="bg-gradient-to-b from-purple-50 via-white to-white min-h-screen py-12 md:py-20">
+    <main className="bg-gradient-to-b from-gray-50 via-purple-50 to-white min-h-screen py-16 md:py-24">
       <style jsx>{`
-        .input-field { @apply w-full p-2.5 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-150; }
-        .button-primary { @apply w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 px-5 rounded-md transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed; }
+        .input-field { @apply w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-150 shadow-sm; }
+        .button-primary { @apply w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-5 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow hover:shadow-md disabled:shadow; }
       `}</style>
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto px-4">
         <motion.div 
-          className="bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100"
+          className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100/50"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -571,12 +583,12 @@ export default function StrategyReport() {
           <div className="p-6 md:p-10">
             {/* Header */}
             {stage === 'form' && (
-              <div className="text-center mb-6 md:mb-8">
-                 <div className="inline-block p-3 bg-purple-100 rounded-full mb-3">
-                   <FileText className="h-8 w-8 text-purple-600" />
+              <div className="text-center mb-8 md:mb-10">
+                 <div className="inline-block p-4 bg-purple-100 rounded-full mb-4 shadow-inner">
+                   <FileText className="h-10 w-10 text-purple-600" />
                  </div>
-                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">AI Strategy Quick Assessment</h1>
-                 <p className="text-gray-500 text-sm md:text-base">Answer 5 questions for a personalized AI opportunity analysis.</p>
+                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">AI Strategy Quick Assessment</h1>
+                 <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">Answer a few questions for a personalized AI opportunity snapshot.</p>
               </div>
             )}
             
