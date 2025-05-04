@@ -175,41 +175,19 @@ export default function StrategyReport() {
     try {
       sessionStorage.setItem('strategyReportFormData', JSON.stringify(formData));
 
-      // Construct the prompt for the OpenAI API
+      // Construct the prompt for the OpenAI API - Refined for specificity and value
       const prompt = `
-        Analyze the following business information and generate a brief AI opportunity assessment.
+        Analyze the following business information for "${formData.businessName}", specializing in the ${formData.industry} industry, and generate a brief AI opportunity assessment focused on high-impact areas.
         Business Name: ${formData.businessName}
         Industry: ${formData.industry}
         Company Size: ${formData.companySize} employees
         Top Challenges/Goals: ${formData.topChallenges}
         Estimated AI Budget: ${formData.budget}
 
-        Please provide the following in your response, ideally formatted as a JSON object within triple backticks (\`\`\`json ... \`\`\`):
-        1.  **opportunityScore**: An estimated AI opportunity score (integer between 0 and 100).
-        2.  **heatMap**: An array of 3-6 key business areas (e.g., 'Operations', 'Sales & Marketing', 'Customer Experience') with:
-            *   'area': Name of the area (string).
-            *   'score': Relevance/opportunity score for this area (integer 0-100).
-            *   'topOpportunity': A brief description of the top AI opportunity in this area (string).
-        3.  **roadmap**: An array of 3-4 high-level roadmap steps (teaser) with:
-            *   'title': Name of the step (string).
-            *   'description': Brief description of the step (string).
+        Please provide the following in your response, formatted as a JSON object within triple backticks (\`\`\`json ... \`\`\`):\n        1.  **opportunityScore**: An estimated AI opportunity score (integer 0-100), reflecting the potential impact AI could have based on the inputs.\n        2.  **heatMap**: An array of 3-4 key business areas *highly relevant* to a ${formData.industry} business like "${formData.businessName}". For each area:\n            *   'area': Name of the area (string).\n            *   'score': Relevance/opportunity score (integer 0-100).\n            *   'topOpportunity': A compelling, specific AI opportunity description for this area (string, e.g., "AI-powered dynamic pricing for camp spots" instead of just "Pricing optimization". Briefly mention the potential *benefit*.\n        3.  **roadmap**: An array of 2-3 high-level roadmap steps (teaser). For each step:\n            *   'title': Name of the step (string).\n            *   'description': Brief description highlighting the value, implicitly suggesting complexity requiring consultation (e.g., "Implement pilot project for [Top Opportunity Area]" rather than just "Pilot Project").\n
 
-        Keep descriptions concise and focused on providing a *teaser* that encourages booking a consultation for full details. If you cannot generate specific details based on the input, provide more general suggestions appropriate for the industry. For example JSON format:
-        \`\`\`json
-        {
-          "opportunityScore": 75,
-          "heatMap": [
-            { "area": "Customer Experience", "score": 85, "topOpportunity": "AI Chatbots for Support" },
-            { "area": "Operations", "score": 70, "topOpportunity": "Process Automation" },
-            { "area": "Sales & Marketing", "score": 65, "topOpportunity": "Lead Scoring" }
-          ],
-          "roadmap": [
-            { "title": "Data Readiness Check", "description": "Assess data sources for AI application." },
-            { "title": "Pilot Project Identification", "description": "Select a high-impact starter project." },
-            { "title": "Develop Full Strategy", "description": "Outline long-term AI integration plan." }
-          ]
-        }
-        \`\`\`
+        Keep descriptions concise but benefit-oriented. The goal is to provide valuable insights *as a teaser*, strongly encouraging the user to book a consultation for the full, detailed strategy and implementation plan. Example JSON structure:\n        \`\`\`json
+        {\n          "opportunityScore": 85,\n          "heatMap": [\n            { "area": "Dynamic Camp Scheduling", "score": 90, "topOpportunity": "Use AI to optimize camp schedules based on predicted demand, maximizing resource usage." },\n            { "area": "Targeted Marketing", "score": 80, "topOpportunity": "AI analysis of past attendee data to identify high-potential audiences for personalized campaigns, boosting enrollment." },\n            { "area": "Automated Support", "score": 75, "topOpportunity": "Implement AI chatbots trained on camp info to provide instant answers to common questions, freeing up staff time." }\n          ],\n          "roadmap": [\n            { "title": "Data Integration & Readiness", "description": "Consolidate and prepare your existing data sources for effective AI analysis." },\n            { "title": "Pilot [Top Opportunity Area] Implementation", "description": "Launch a focused pilot project to demonstrate ROI in your highest potential area." },\n            { "title": "Develop Scalable AI Strategy", "description": "Create a comprehensive plan for wider AI adoption across the business." }\n          ]\n        }\`\`\`
       `;
 
       console.log("Sending prompt to OpenAI:", prompt);
@@ -385,36 +363,38 @@ export default function StrategyReport() {
               </div>
             </div>
             
-            {/* --- TEMPORARY DEBUGGING START --- */}
-            {analysisResult?.rawAIResponse && (
-              <div className="my-6 p-4 bg-gray-100 border border-gray-300 rounded-md overflow-x-auto">
-                <h4 className="text-sm font-semibold mb-2 text-gray-700">Raw AI Response (for debugging):</h4>
-                <pre className="text-xs text-gray-600 whitespace-pre-wrap break-words">
-                  {analysisResult.rawAIResponse}
-                </pre>
-              </div>
-            )}
-            {/* --- TEMPORARY DEBUGGING END --- */}
-
-            {/* Heat Map */}
+            {/* Heat Map - Refactored UI */}
             <div className="mb-10">
-              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3">Opportunity Heat Map</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                {heatMapData.map((area, index) => (
-                  <div 
-                    key={index} 
-                    className="relative p-3 md:p-4 rounded-lg transition-shadow duration-300 hover:shadow-md border border-transparent"
-                    style={{ background: `rgba(124, 58, 237, ${Math.max(0.05, Math.min(1, (area.score || 0) / 120))})` }}
-                  >
-                    <h4 className="text-purple-900 font-semibold text-sm md:text-base mb-1">{area.area}</h4>
-                    <div className="flex items-center justify-between">
-                      <span className="text-purple-800/90 text-xs md:text-sm italic">{area.topOpportunity || 'Key Opportunity'}</span>
-                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-purple-600 text-white flex items-center justify-center flex-shrink-0 ml-2 shadow-sm">
-                        <span className="font-bold text-sm md:text-base">{area.score !== undefined ? area.score : '?'}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">Opportunity Heat Map</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+                {heatMapData.length > 0 ? heatMapData
+                  .sort((a, b) => b.score - a.score) // Sort by score descending
+                  .map((area, index) => {
+                    // Calculate opacity based on score (e.g., 0.2 to 1.0)
+                    const opacity = 0.2 + (area.score / 100) * 0.8;
+                    return (
+                      <motion.div 
+                        key={index} 
+                        className="relative p-4 rounded-lg shadow-sm transition-shadow duration-300 hover:shadow-lg border border-purple-200/50 flex flex-col justify-between"
+                        style={{ 
+                          backgroundColor: `rgba(124, 58, 237, ${opacity})`, // Use opacity for heat effect
+                        }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 + index * 0.1 }}
+                      >
+                        <div>
+                          <h4 className="text-white font-semibold text-base mb-1 drop-shadow-sm">{area.area}</h4>
+                          <p className="text-purple-100/90 text-sm mb-3 drop-shadow-sm">{area.topOpportunity || 'Key Opportunity'}</p>
+                        </div>
+                        <div className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/30 text-white flex items-center justify-center font-bold text-sm backdrop-blur-sm border border-white/50 shadow">
+                          {area.score !== undefined ? area.score : '?'}
+                        </div>
+                      </motion.div>
+                    );
+                  }) : (
+                  <p className="text-gray-500 italic col-span-full">Heatmap data could not be generated. Please consult for details.</p>
+                )}
               </div>
             </div>
             
