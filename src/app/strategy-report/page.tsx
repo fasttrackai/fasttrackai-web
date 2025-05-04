@@ -338,6 +338,11 @@ export default function StrategyReport() {
               </p>
             </div>
             
+            {/* Disclaimer */}
+            <div className="text-center mb-8 px-4">
+              <p className="text-sm text-gray-500 italic"><Info size={14} className="inline mr-1.5 -mt-0.5" />This is an AI-generated snapshot based on your inputs. For a comprehensive, tailored strategy developed by our experts, please schedule a consultation.</p>
+            </div>
+            
             {/* Score */}
             <div className="flex justify-center mb-10">
               <div className="relative w-36 h-36 md:w-44 md:h-44">
@@ -363,31 +368,35 @@ export default function StrategyReport() {
               </div>
             </div>
             
-            {/* Heat Map - Refactored UI */}
+            {/* Heat Map - Refactored UI with Color Scale */}
             <div className="mb-10">
               <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">Opportunity Heat Map</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
                 {heatMapData.length > 0 ? heatMapData
                   .sort((a, b) => b.score - a.score) // Sort by score descending
                   .map((area, index) => {
-                    // Calculate opacity based on score (e.g., 0.2 to 1.0)
-                    const opacity = 0.2 + (area.score / 100) * 0.8;
+                    // Determine background color based on score
+                    const getBgColor = (score: number): string => {
+                      if (score >= 85) return 'bg-purple-700'; // High
+                      if (score >= 65) return 'bg-purple-600'; // Medium-High
+                      if (score >= 45) return 'bg-purple-500'; // Medium
+                      return 'bg-purple-400'; // Low
+                    };
+                    const bgColorClass = getBgColor(area.score || 0);
+                    
                     return (
                       <motion.div 
                         key={index} 
-                        className="relative p-4 rounded-lg shadow-sm transition-shadow duration-300 hover:shadow-lg border border-purple-200/50 flex flex-col justify-between"
-                        style={{ 
-                          backgroundColor: `rgba(124, 58, 237, ${opacity})`, // Use opacity for heat effect
-                        }}
+                        className={`relative p-4 rounded-lg shadow-md transition-shadow duration-300 hover:shadow-xl border border-purple-200/30 flex flex-col justify-between ${bgColorClass}`}
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 + index * 0.1 }}
                       >
                         <div>
-                          <h4 className="text-white font-semibold text-base mb-1 drop-shadow-sm">{area.area}</h4>
-                          <p className="text-purple-100/90 text-sm mb-3 drop-shadow-sm">{area.topOpportunity || 'Key Opportunity'}</p>
+                          <h4 className="text-white font-semibold text-base mb-1.5 drop-shadow">{area.area}</h4>
+                          <p className="text-purple-100/95 text-sm mb-3 drop-shadow-sm">{area.topOpportunity || 'Key Opportunity'}</p>
                         </div>
-                        <div className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/30 text-white flex items-center justify-center font-bold text-sm backdrop-blur-sm border border-white/50 shadow">
+                        <div className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-sm backdrop-blur-sm border border-white/30 shadow">
                           {area.score !== undefined ? area.score : '?'}
                         </div>
                       </motion.div>
@@ -429,7 +438,7 @@ export default function StrategyReport() {
                   value={chatQuestion}
                   onChange={(e) => setChatQuestion(e.target.value)}
                   placeholder="E.g., How long does AI implementation usually take?"
-                  className="w-full p-2 border border-purple-200 rounded text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full p-2 border border-purple-300 rounded text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 bg-white"
                 />
               </div>
               <button 
