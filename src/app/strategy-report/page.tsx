@@ -385,6 +385,17 @@ export default function StrategyReport() {
               </div>
             </div>
             
+            {/* --- TEMPORARY DEBUGGING START --- */}
+            {analysisResult?.rawAIResponse && (
+              <div className="my-6 p-4 bg-gray-100 border border-gray-300 rounded-md overflow-x-auto">
+                <h4 className="text-sm font-semibold mb-2 text-gray-700">Raw AI Response (for debugging):</h4>
+                <pre className="text-xs text-gray-600 whitespace-pre-wrap break-words">
+                  {analysisResult.rawAIResponse}
+                </pre>
+              </div>
+            )}
+            {/* --- TEMPORARY DEBUGGING END --- */}
+
             {/* Heat Map */}
             <div className="mb-10">
               <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3">Opportunity Heat Map</h3>
