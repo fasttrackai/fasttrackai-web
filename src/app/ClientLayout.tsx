@@ -153,9 +153,6 @@ export default function ClientLayout({
                 Training Portal
               </Link>
               */}
-              <Link href="/contact" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
-                Contact
-              </Link>
               <Link href="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
                 About Us
               </Link>
@@ -303,13 +300,6 @@ export default function ClientLayout({
                 </Link>
                 */}
                 <Link 
-                  href="/contact"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Contact
-                </Link>
-                <Link 
                   href="/about"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -413,6 +403,7 @@ export default function ClientLayout({
               <ul className="space-y-2 text-gray-600">
                 <li>contact@fasttrack.ai</li>
                 <li>1-800-AI-BOOST</li>
+                <li><Link href="/schedule-consultation?source=footer" className="hover:text-gray-900 transition-colors">Schedule a Consultation</Link></li>
               </ul>
             </div>
           </div>
