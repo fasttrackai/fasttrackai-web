@@ -175,7 +175,7 @@ const FloatingObjects = () => {
 const NeuralNetworkAnimation = () => {
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      <svg width="100%" height="100%" viewBox="0 0 800 600" className="opacity-20">
+      <svg width="100%" height="100%" viewBox="0 0 800 600" className="opacity-10">
         <g>
           {/* Neural network nodes */}
           {[...Array(20)].map((_, i) => (
@@ -403,8 +403,8 @@ export default function SignIn() {
       <NeuralNetworkAnimation />
       <Meteors />
       
-      {/* Portal effect animation */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      {/* Portal effect animation - now centered properly with improved z-index */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         <motion.div 
           className="relative w-full h-full flex items-center justify-center"
           initial={false}
@@ -442,9 +442,9 @@ export default function SignIn() {
             }}
           />
           
-          {/* Welcome text that fades in after portal opens */}
+          {/* Welcome text that fades in after portal opens - positioned better to avoid overlap */}
           <motion.div
-            className="absolute text-center z-10 pointer-events-none"
+            className="absolute text-center z-20 pointer-events-none"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ 
               opacity: showWelcomeText ? 1 : 0,
@@ -453,7 +453,8 @@ export default function SignIn() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-200"
+              className="text-4xl md:text-6xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-200 text-shadow-lg"
+              style={{ textShadow: '0 2px 10px rgba(139, 92, 246, 0.5)' }}
               initial={{ y: 20 }}
               animate={{ y: showWelcomeText ? 0 : 20 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
@@ -461,7 +462,8 @@ export default function SignIn() {
               Welcome to FastTrackAI
             </motion.h1>
             <motion.p 
-              className="text-lg md:text-xl text-purple-100 max-w-md mx-auto"
+              className="text-lg md:text-xl text-purple-100 max-w-md mx-auto text-shadow-sm"
+              style={{ textShadow: '0 1px 5px rgba(0, 0, 0, 0.5)' }}
               initial={{ y: 20 }}
               animate={{ y: showWelcomeText ? 0 : 20 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
@@ -472,9 +474,9 @@ export default function SignIn() {
         </motion.div>
       </div>
       
-      {/* Main content container */}
-      <div className="relative z-10 min-h-screen flex">
-        {/* Left panel: Immersive visual experience */}
+      {/* Main content container - improved positioning for two-column layout */}
+      <div className="relative z-20 min-h-screen flex">
+        {/* Left panel: Immersive visual experience - better spacing */}
         <div className="hidden lg:flex w-1/2 relative flex-col justify-center items-center p-12">
           <FloatingObjects />
           
@@ -482,10 +484,10 @@ export default function SignIn() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: animationComplete ? 1 : 0, y: animationComplete ? 0 : 30 }}
             transition={{ duration: 0.8, delay: 2.5 }}
-            className="relative z-10"
+            className="relative z-10 mt-20"
           >
-            {/* Enhanced 3D AI Brain visualization */}
-            <div className="relative">
+            {/* Enhanced 3D AI Brain visualization - adjusted positioning */}
+            <div className="relative h-80">
               {/* Glowing base */}
               <div className="w-72 h-72 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div className="w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
@@ -551,14 +553,14 @@ export default function SignIn() {
                     />
                   </motion.div>
                   
-                  {/* Orbiting elements */}
+                  {/* Orbiting elements - increased distance from center */}
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
                     className="absolute w-full h-full pointer-events-none"
                   >
                     <motion.div 
-                      className="absolute -top-4 left-1/2 transform -translate-x-1/2"
+                      className="absolute -top-6 left-1/2 transform -translate-x-1/2"
                       whileHover={{ scale: 1.2 }}
                     >
                       <Zap className="h-8 w-8 text-purple-400" style={{ filter: 'drop-shadow(0 0 5px rgba(168, 85, 247, 0.5))' }} />
@@ -571,7 +573,7 @@ export default function SignIn() {
                     className="absolute w-full h-full pointer-events-none"
                   >
                     <motion.div 
-                      className="absolute top-1/2 -right-8 transform -translate-y-1/2"
+                      className="absolute top-1/2 -right-10 transform -translate-y-1/2"
                       whileHover={{ scale: 1.2 }}
                     >
                       <Sparkles className="h-8 w-8 text-indigo-400" style={{ filter: 'drop-shadow(0 0 5px rgba(129, 140, 248, 0.5))' }} />
@@ -584,7 +586,7 @@ export default function SignIn() {
                     className="absolute w-full h-full pointer-events-none"
                   >
                     <motion.div 
-                      className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
+                      className="absolute -bottom-6 left-1/2 transform -translate-x-1/2"
                       whileHover={{ scale: 1.2 }}
                     >
                       <Shield className="h-8 w-8 text-blue-400" style={{ filter: 'drop-shadow(0 0 5px rgba(96, 165, 250, 0.5))' }} />
@@ -597,7 +599,7 @@ export default function SignIn() {
                     className="absolute w-full h-full pointer-events-none"
                   >
                     <motion.div 
-                      className="absolute top-1/2 -left-8 transform -translate-y-1/2"
+                      className="absolute top-1/2 -left-10 transform -translate-y-1/2"
                       whileHover={{ scale: 1.2 }}
                     >
                       <Lightbulb className="h-8 w-8 text-amber-400" style={{ filter: 'drop-shadow(0 0 5px rgba(251, 191, 36, 0.5))' }} />
@@ -607,10 +609,11 @@ export default function SignIn() {
               </motion.div>
             </div>
             
-            {/* Enhanced tagline */}
-            <div className="text-center mt-8">
+            {/* Enhanced tagline - better spacing and shadows for readability */}
+            <div className="text-center mt-16">
               <motion.h2 
                 className="text-3xl md:text-4xl font-bold mb-4 text-white tracking-tight"
+                style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 3, duration: 0.8 }}
@@ -620,6 +623,7 @@ export default function SignIn() {
               
               <motion.p 
                 className="text-lg text-purple-100/80 max-w-md"
+                style={{ textShadow: '0 1px 5px rgba(0, 0, 0, 0.5)' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 3.2, duration: 0.8 }}
@@ -628,14 +632,14 @@ export default function SignIn() {
               </motion.p>
             </div>
             
-            {/* Enhanced features list with icons */}
+            {/* Enhanced features list with icons - increased spacing between items */}
             <motion.div 
-              className="mt-12 text-white/90"
+              className="mt-14 text-white/90"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 3.4, duration: 0.8 }}
             >
-              <ul className="space-y-5">
+              <ul className="space-y-6">
                 {[
                   { text: 'AI strategy tailored to your business goals', icon: <BrainCircuit className="h-5 w-5 text-purple-300" /> },
                   { text: 'Real-time implementation tracking dashboard', icon: <Zap className="h-5 w-5 text-indigo-300" /> },
@@ -660,8 +664,8 @@ export default function SignIn() {
           </motion.div>
         </div>
         
-        {/* Right panel: Sign in form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12">
+        {/* Right panel: Sign in form - adjusted to ensure good visibility and no overlap */}
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative z-30">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: animationComplete ? 1 : 0 }}
@@ -705,7 +709,7 @@ export default function SignIn() {
             
             {/* Card container with frosted glass effect */}
             <motion.div
-              className="backdrop-blur-xl bg-black/40 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
               initial={{ opacity: 0, y: 20 }}
               animate={{ 
                 opacity: animationComplete ? 1 : 0, 
