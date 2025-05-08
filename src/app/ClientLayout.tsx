@@ -156,6 +156,9 @@ export default function ClientLayout({
               <Link href="/contact" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
                 Contact
               </Link>
+              <Link href="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm">
+                About Us
+              </Link>
               <Link 
                 href="/client-dashboard" 
                 className="text-gray-700 hover:text-gray-900 transition-colors font-medium px-2 py-1.5 hover:bg-gray-50 rounded-md whitespace-nowrap text-sm flex items-center"
@@ -307,6 +310,13 @@ export default function ClientLayout({
                   Contact
                 </Link>
                 <Link 
+                  href="/about"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  About Us
+                </Link>
+                <Link 
                   href="/client-dashboard"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 flex items-center"
                   onClick={() => setIsMobileMenuOpen(false)}
@@ -373,6 +383,10 @@ export default function ClientLayout({
                 <h3 className="text-lg font-semibold text-gray-800">About Us</h3>
               </div>
               <p className="text-gray-600">Accelerating AI integration for business transformation.</p>
+              <ul className="space-y-2 mt-4 text-gray-600">
+                <li><Link href="/about" className="hover:text-gray-900 transition-colors">Our Story</Link></li>
+                <li><Link href="/about#values" className="hover:text-gray-900 transition-colors">Our Values</Link></li>
+              </ul>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Solutions</h3>
