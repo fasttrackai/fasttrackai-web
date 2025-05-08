@@ -1,0 +1,7 @@
+// Backup of original blog main page (currently disabled)
+// To re-enable, rename to page.tsx
+
+'use client';
+
+// Content copied from the original blog/page.tsx
+// Preserving this file for future use 

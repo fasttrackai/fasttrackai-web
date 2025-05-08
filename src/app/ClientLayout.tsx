@@ -388,9 +388,10 @@ export default function ClientLayout({
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Resources</h3>
               <ul className="space-y-2 text-gray-600">
-                <li><Link href="/docs" className="hover:text-gray-900 transition-colors">Documentation</Link></li>
+                {/* Docs has been temporarily removed */}
                 <li><Link href="/schedule-consultation?source=nav" className="hover:text-gray-900 transition-colors">AI Strategy Consultation</Link></li>
                 <li><Link href="/roi-calculator" className="hover:text-gray-900 transition-colors">ROI Calculator</Link></li>
+                {/* Blog and Case Studies have been temporarily removed */}
               </ul>
             </div>
             <div>
