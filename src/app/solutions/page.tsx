@@ -103,11 +103,19 @@ export default function Solutions() {
             AI Solutions for Your Business
           </motion.h1>
           <motion.p 
-            className="body-large max-w-2xl mx-auto text-white"
+            className="body-large max-w-2xl mx-auto text-white mb-8"
             variants={fadeInUp}
           >
             Discover how our AI solutions can transform your operations, 
             enhance customer experiences, and drive growth.
+          </motion.p>
+          <motion.p 
+            className="body-normal max-w-3xl mx-auto text-purple-200/90"
+            variants={fadeInUp}
+            transition={{ delay: 0.1 }}
+          >
+            Explore our individual AI Solutions, crafted to tackle specific business challenges and opportunities. 
+            These solutions can be implemented independently to address targeted needs or integrated as part of our comprehensive <Link href='/packages' className="font-semibold text-purple-100 hover:underline">Packages</Link> (Grow, Optimize, Sell).
           </motion.p>
         </motion.div>
       </motion.section>

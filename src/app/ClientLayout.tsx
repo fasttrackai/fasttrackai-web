@@ -372,7 +372,7 @@ export default function ClientLayout({
               <div className="flex items-center space-x-2 mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">About Us</h3>
               </div>
-              <p className="text-gray-600">Accelerating AI integration for small businesses.</p>
+              <p className="text-gray-600">Accelerating AI integration for business transformation.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Solutions</h3>
@@ -388,12 +388,7 @@ export default function ClientLayout({
             <div>
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Resources</h3>
               <ul className="space-y-2 text-gray-600">
-                <li><Link href="/case-studies" className="hover:text-gray-900 transition-colors">Case Studies</Link></li>
-                <li><Link href="/blog" className="hover:text-gray-900 transition-colors">Blog</Link></li>
                 <li><Link href="/docs" className="hover:text-gray-900 transition-colors">Documentation</Link></li>
-                {/* Training Portal temporarily hidden, but available for future integration
-                <li><Link href="/training-portal" className="hover:text-gray-900 transition-colors">Training Portal</Link></li>
-                */}
                 <li><Link href="/schedule-consultation?source=nav" className="hover:text-gray-900 transition-colors">AI Strategy Consultation</Link></li>
                 <li><Link href="/roi-calculator" className="hover:text-gray-900 transition-colors">ROI Calculator</Link></li>
               </ul>

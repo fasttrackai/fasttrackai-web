@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { ArrowRight, Bot, BarChart, Target, Zap } from "lucide-react";
+import { ArrowRight, Bot, BarChart, Target, Zap, UserCircle2 } from "lucide-react";
 import ChatBot from "./components/ChatBot";
 import { motion } from "framer-motion";
 import ResponsiveContainer from "./components/ResponsiveContainer";
@@ -47,8 +47,7 @@ export default function Home() {
               className="body-large mb-8 text-white"
               variants={fadeInUp}
             >
-              Accelerating the integration of AI capabilities into everyday results for small businesses.
-              Transform your operations and become an attractive M&A target.
+              Accelerating AI integration for businesses of all sizes. Optimize operations, enhance value, and prepare for growth.
             </motion.p>
             <motion.div
               variants={fadeInUp}
@@ -63,56 +62,56 @@ export default function Home() {
         </ResponsiveContainer>
       </motion.section>
 
-      {/* Value Proposition Section */}
-      <section className="py-12 md:py-20 gradient-secondary">
-        <ResponsiveContainer>
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            {[
-              {
-                icon: Zap,
-                title: "Rapid Integration",
-                description: "Deploy AI solutions in weeks, not months. Quick implementation with measurable results."
-              },
-              {
-                icon: BarChart,
-                title: "Enhanced Valuation",
-                description: "Boost your company's value with proven AI capabilities and documented ROI."
-              },
-              {
-                icon: Target,
-                title: "M&A Ready",
-                description: "Position your business as an attractive acquisition target with modern AI infrastructure."
-              }
-            ].map((item, index) => {
-              const Icon = item.icon;
-              return (
-                <motion.div 
-                  key={item.title}
-                  className="text-center"
-                  variants={fadeInUp}
-                  whileHover={{ y: -5 }}
-                >
-                  <motion.div 
-                    className="bg-purple-100 p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center"
-                  >
-                    <Icon className="h-8 w-8 text-purple-800" />
-                  </motion.div>
-                  <h3 className="heading-3 mb-3 text-white">{item.title}</h3>
-                  <p className="text-gray-200 mx-auto max-w-sm">{item.description}</p>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </ResponsiveContainer>
-      </section>
+      {/* Value Proposition Section - RESTORED */}
+       <section className="py-12 md:py-20 gradient-secondary">
+         <ResponsiveContainer>
+            <motion.div 
+             className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
+             variants={staggerContainer}
+             initial="initial"
+             whileInView="animate"
+               viewport={{ once: true }}
+           >
+             {[
+               {
+                 icon: Zap,
+                 title: "Rapid Integration",
+                 description: "Deploy AI solutions in weeks, not months. Quick implementation with measurable results."
+               },
+               {
+                 icon: BarChart,
+                 title: "Enhanced Valuation",
+                 description: "Boost your company's value with proven AI capabilities and documented ROI."
+               },
+               {
+                 icon: Target,
+                 title: "M&A Ready",
+                 description: "Position your business as an attractive acquisition target with modern AI infrastructure."
+               }
+             ].map((item, index) => {
+               const Icon = item.icon;
+               return (
+                 <motion.div 
+                   key={item.title}
+                   className="text-center"
+                   variants={fadeInUp}
+                   whileHover={{ y: -5 }}
+                 >
+                   <motion.div 
+                     className="bg-purple-100 p-4 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center"
+                   >
+                     <Icon className="h-8 w-8 text-purple-800" />
+                   </motion.div>
+                   <h3 className="heading-3 mb-3 text-white">{item.title}</h3>
+                   <p className="text-gray-200 mx-auto max-w-sm">{item.description}</p>
+                 </motion.div>
+               );
+             })}
+           </motion.div>
+          </ResponsiveContainer>
+       </section>
 
-      {/* Value Prop Component - NEW */}
+      {/* Value Prop Component - Heading Removed */}
       <ValueProp />
 
       {/* Solutions Section */}
@@ -183,72 +182,63 @@ export default function Home() {
         </ResponsiveContainer>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-12 md:py-20 gradient-secondary">
-        <ResponsiveContainer className="text-center">
-          <h2 className="heading-2 mb-4 text-white">Success Stories</h2>
-          <p className="body-large text-gray-200 max-w-3xl mx-auto mb-12">
-            See how our clients have transformed their businesses with our AI implementation strategy.
-          </p>
+      {/* Testimonials Section - RESTORED */}
+       <section className="py-12 md:py-20 gradient-secondary">
+         <ResponsiveContainer className="text-center">
+           <h2 className="heading-2 mb-4 text-white">Success Stories</h2>
+           <p className="body-large text-gray-200 max-w-3xl mx-auto mb-12">
+             See how our clients have transformed their businesses with our AI implementation strategy.
+           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah Chen",
-                title: "CEO, TechSolutions Inc.",
-                quote: "FastTrack AI helped us implement intelligent automation that reduced our operational costs by 35% in just three months.",
-                avatar: "/avatars/sarah-chen.jpg"
-              },
-              {
-                name: "Marcus Johnson",
-                title: "Operations Director, LogiTech",
-                quote: "After implementing their AI strategy, our valuation increased by 2.5x, leading to a successful acquisition.",
-                avatar: "/avatars/marcus-johnson.jpg"
-              },
-              {
-                name: "Aisha Patel",
-                title: "Founder, DataSmart",
-                quote: "The rapid implementation approach meant we saw ROI within weeks, not the months or years we expected.",
-                avatar: "/avatars/aisha-patel.jpg"
-              }
-            ].map((testimonial) => (
-              <motion.div 
-                key={testimonial.name}
-                className="bg-purple-900/50 p-6 md:p-8 rounded-xl border border-purple-800"
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-              >
-                <div className="flex items-center mb-4">
-                  <div className="h-12 w-12 rounded-full bg-purple-100 flex-shrink-0 overflow-hidden mr-4">
-                    <img 
-                      src={testimonial.avatar} 
-                      alt={testimonial.name}
-                      className="h-full w-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "/avatars/placeholder.jpg";
-                        e.currentTarget.onerror = null; // Prevent infinite loop
-                      }}
-                    />
-                  </div>
-                  <div className="text-left">
-                    <h4 className="font-bold text-white">{testimonial.name}</h4>
-                    <p className="text-purple-300 text-sm">{testimonial.title}</p>
-                  </div>
-                </div>
-                <p className="text-left text-gray-200 italic">"{testimonial.quote}"</p>
-              </motion.div>
-            ))}
-        </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+             {[
+               {
+                 title: "CEO", 
+                 quote: "Their team quickly understood our challenges and implemented intelligent solutions that noticeably cut down our operational overhead and boosted overall efficiency in about a quarter.",
+                 color: "bg-emerald-500"
+               },
+               {
+                 title: "Operations Director", 
+                 quote: "Their AI strategy insights clearly enhanced our company's appeal, and we saw a significant uplift in our final valuation leading to a great outcome.",
+                 color: "bg-blue-500"
+               },
+               {
+                 title: "Founder", 
+                 quote: "We needed better Business Analytics, and they delivered actionable insights in weeks, allowing us to make smarter, data-driven decisions much sooner than we thought possible.",
+                 color: "bg-purple-600"
+               }
+             ].map((testimonial) => (
+               <motion.div 
+                 key={testimonial.title}
+                 className="bg-purple-900/50 p-6 md:p-8 rounded-xl border border-purple-800"
+                 initial={{ opacity: 0, scale: 0.9 }}
+                 whileInView={{ opacity: 1, scale: 1 }}
+                 viewport={{ once: true }}
+                 whileHover={{ y: -5 }}
+               >
+                 <div className="flex items-center mb-4">
+                   <div className="relative h-12 w-12 rounded-full flex-shrink-0 mr-4 flex items-center justify-center border border-purple-100/20 bg-purple-100/10">
+                     <UserCircle2 className="h-8 w-8 text-purple-100/80 z-10" />
+                     <div className={`absolute inset-0 rounded-full ${testimonial.color} opacity-30`}></div>
+                   </div>
+                   <div className="text-left">
+                     <h4 className="font-bold text-white">{testimonial.title}</h4>
+                   </div>
+                 </div>
+                 <p className="text-left text-gray-200 italic">"{testimonial.quote}"</p>
+               </motion.div>
+             ))}
+         </div>
 
-          <div className="mt-12">
-            <Link href="/case-studies" className="button-secondary inline-flex items-center">
-              View All Case Studies <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-        </div>
-        </ResponsiveContainer>
-      </section>
+           {/* HIDE CASE STUDIES BUTTON 
+           <div className="mt-12">
+             <Link href="/case-studies" className="button-secondary inline-flex items-center">
+               View All Case Studies <ArrowRight className="ml-2 h-5 w-5" />
+             </Link>
+           </div>
+           */}
+          </ResponsiveContainer>
+       </section>
 
       {/* Chat Bot Section */}
       <section className="py-12 md:py-20 relative">

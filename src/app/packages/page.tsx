@@ -119,9 +119,14 @@ export default function Packages() {
           <h1 className="heading-1 mb-6">
             Strategic AI Integration Packages
           </h1>
-          <p className="body-large max-w-2xl mx-auto text-white">
+          <p className="body-large max-w-2xl mx-auto text-white mb-8">
             Choose the right AI implementation package aligned with your business goals,
             whether you're looking to grow, optimize, or prepare for acquisition.
+          </p>
+          <p className="body-normal max-w-3xl mx-auto text-purple-200/90">
+            Our curated Packages bundle key AI Solutions designed to achieve specific business outcomes, 
+            whether you're focused on growth, operational efficiency, or M&A readiness. 
+            Explore the packages below, or view our individual <Link href='/solutions' className="font-semibold text-purple-100 hover:underline">AI Solutions</Link>.
           </p>
         </motion.div>
       </motion.div>
