@@ -13,7 +13,7 @@ const ParticleField = () => {
   if (typeof window === 'undefined') return null;
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(50)].map((_, i) => {
+      {[...Array(65)].map((_, i) => {
         const size = Math.random() * 8 + 1;
         const depth = Math.random();
         return (
@@ -25,18 +25,18 @@ const ParticleField = () => {
               height: size,
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              opacity: 0.05 + depth * 0.2, // Reduced opacity for strategy page
-              filter: `blur(${(1 - depth) * 1.5}px)`, // Slightly less blur
-              zIndex: 1 // Ensure they are behind content but visible
+              opacity: 0.05 + depth * 0.25, // Slightly increased opacity
+              filter: `blur(${(1 - depth) * 1.5}px)`,
+              zIndex: 1
             }}
             animate={{
-              y: [0, -Math.random() * 100 - 30], // Slower movement
-              x: [0, (Math.random() - 0.5) * 30],
-              scale: [0, 0.8, depth * 0.8], // Smaller scale
-              opacity: [0, 0.05 + depth * 0.2, 0]
+              y: [0, -Math.random() * 120 - 30], // Slightly faster movement
+              x: [0, (Math.random() - 0.5) * 35],
+              scale: [0, 0.9, depth * 0.9],
+              opacity: [0, 0.05 + depth * 0.25, 0]
             }}
             transition={{
-              duration: 8 + Math.random() * 15, // Slower duration
+              duration: 8 + Math.random() * 15,
               repeat: Infinity,
               ease: "linear",
               delay: Math.random() * 7
@@ -53,36 +53,36 @@ const Meteors = () => {
   if (typeof window === 'undefined') return null;
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(10)].map((_, i) => { // Fewer meteors
-        const width = Math.random() * 200 + 40; // Smaller meteors
-        const speed = Math.random() * 3 + 3; // Slower speed
-        const opacity = Math.random() * 0.4 + 0.1; // More subtle
+      {[...Array(12)].map((_, i) => { // Slightly more meteors
+        const width = Math.random() * 220 + 40;
+        const speed = Math.random() * 2.5 + 2.5; // Balanced speed
+        const opacity = Math.random() * 0.5 + 0.15; // More visible but not distracting
         const hue = Math.floor(Math.random() * 40) + 230; 
         
         return (
           <motion.div
             key={i}
-            className="absolute h-[1px] md:h-[1.5px]" // Thinner
+            className="absolute h-[1px] md:h-[1.5px]"
             style={{
               background: `linear-gradient(90deg, hsla(${hue}, 100%, 70%, 0) 0%, hsla(${hue}, 100%, 70%, ${opacity}) 50%, hsla(${hue}, 100%, 70%, 0) 100%)`,
               width: `${width}px`,
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              rotate: `${Math.random() * 40 - 20}deg`,
+              rotate: `${Math.random() * 45 - 22.5}deg`,
               opacity: 0,
-              boxShadow: `0 0 ${width * 0.03}px hsla(${hue}, 100%, 70%, ${opacity * 0.3})`, // Smaller shadow
+              boxShadow: `0 0 ${width * 0.04}px hsla(${hue}, 100%, 70%, ${opacity * 0.4})`, // Slightly enhanced glow
               zIndex: 1
             }}
             animate={{
               x: [-80, width * 1.3],
               y: [0, width * 0.15],
-              opacity: [0, 0.8, 0],
+              opacity: [0, 0.9, 0],
             }}
             transition={{
               duration: speed,
               repeat: Infinity,
-              delay: Math.random() * 12,
-              repeatDelay: Math.random() * 8 + 6,
+              delay: Math.random() * 10,
+              repeatDelay: Math.random() * 7 + 5,
             }}
           />
         );
@@ -96,12 +96,12 @@ const GlowingOrbs = () => {
   if (typeof window === 'undefined') return null;
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {[...Array(5)].map((_, i) => { // Fewer orbs
-        const size = Math.random() * 200 + 80; // Smaller orbs
+      {[...Array(6)].map((_, i) => { // Slightly more orbs
+        const size = Math.random() * 220 + 80;
         const xPos = Math.random() * 100;
         const yPos = Math.random() * 100;
         const hue = 250 + Math.random() * 60; 
-        const opacity = 0.02 + Math.random() * 0.04; // More subtle
+        const opacity = 0.03 + Math.random() * 0.05; // Subtle but visible
         
         return (
           <motion.div
@@ -113,14 +113,14 @@ const GlowingOrbs = () => {
               top: `${yPos}%`,
               left: `${xPos}%`,
               background: `radial-gradient(circle, hsla(${hue}, 100%, 70%, ${opacity}) 0%, hsla(${hue}, 100%, 50%, 0) 70%)`,
-              filter: 'blur(30px)', // Slightly less blur
-              zIndex: 0 // Furthest back
+              filter: 'blur(30px)',
+              zIndex: 0
             }}
             animate={{
               scale: [1, 1.15, 1],
-              opacity: [opacity, opacity * 1.2, opacity],
-              x: [0, (Math.random() - 0.5) * 20, 0],
-              y: [0, (Math.random() - 0.5) * 20, 0],
+              opacity: [opacity, opacity * 1.3, opacity],
+              x: [0, (Math.random() - 0.5) * 25, 0],
+              y: [0, (Math.random() - 0.5) * 25, 0],
             }}
             transition={{
               duration: 12 + Math.random() * 12,
@@ -139,31 +139,31 @@ const DigitalRain = () => {
   if (typeof window === 'undefined') return null;
   const windowHeight = window.innerHeight;
   return (
-    <div className="absolute inset-0 overflow-hidden opacity-05 pointer-events-none"> {/* Reduced opacity */}
+    <div className="absolute inset-0 overflow-hidden opacity-10 pointer-events-none"> {/* Slightly increased opacity */}
       <div className="absolute top-0 left-0 w-full h-full flex">
-        {[...Array(15)].map((_, i) => ( // Fewer columns
+        {[...Array(18)].map((_, i) => ( // More columns
           <div key={i} className="rain-column flex-1 flex flex-col items-center">
-            {[...Array(10)].map((_, j) => { // Fewer characters per column
+            {[...Array(12)].map((_, j) => { // More characters per column
               const characters = "01";
               const char = characters.charAt(Math.floor(Math.random() * characters.length));
-              const delay = Math.random() * 8; // Slower delay
-              const duration = Math.random() * 3 + 2; // Slower duration
+              const delay = Math.random() * 7;
+              const duration = Math.random() * 2.5 + 1.5;
               
               return (
                 <motion.div
                   key={j}
-                  className="text-xs text-purple-300/70" // More subtle color
+                  className="text-xs text-purple-300/80" // More visible color
                   initial={{ opacity: 0, y: -15 }}
                   animate={{ 
-                    opacity: [0, 0.5, 0],
-                    y: [j * -25, windowHeight] // Use dynamic window height
+                    opacity: [0, 0.6, 0],
+                    y: [j * -25, windowHeight]
                   }}
                   transition={{
                     duration: duration,
                     repeat: Infinity,
                     delay: delay,
                     ease: "linear",
-                    repeatDelay: Math.random() * 3
+                    repeatDelay: Math.random() * 2.5
                   }}
                   style={{ zIndex: 1 }}
                 >
@@ -240,14 +240,14 @@ const SubtlePortalEffect = () => {
         <motion.div
           className="absolute rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(79, 70, 229, 0.05) 40%, transparent 70%)',
-            boxShadow: '0 0 60px rgba(139, 92, 246, 0.2)',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(79, 70, 229, 0.08) 40%, transparent 70%)',
+            boxShadow: '0 0 80px rgba(139, 92, 246, 0.25)',
           }}
           initial={{ width: '100vh', height: '100vh', opacity: 0 }}
           animate={{ 
             width: '150vh', 
             height: '150vh',
-            opacity: [0.1, 0.2, 0.1]
+            opacity: [0.15, 0.25, 0.15]
           }}
           transition={{ 
             duration: 8, 
@@ -262,7 +262,7 @@ const SubtlePortalEffect = () => {
           animate={{ 
             width: '120vh', 
             height: '120vh',
-            opacity: [0.05, 0.1, 0.05]
+            opacity: [0.08, 0.15, 0.08]
           }}
           transition={{ 
             duration: 10,
@@ -271,7 +271,108 @@ const SubtlePortalEffect = () => {
             delay: 1
           }}
         />
+
+        {/* Add a third inner portal ring for depth */}
+        <motion.div
+          className="absolute rounded-full bg-gradient-to-r from-purple-500/5 to-indigo-500/5 backdrop-blur-[1px] border border-purple-300/10"
+          initial={{ width: '50vh', height: '50vh', opacity: 0 }}
+          animate={{ 
+            width: '85vh', 
+            height: '85vh',
+            opacity: [0.05, 0.12, 0.05]
+          }}
+          transition={{ 
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        />
       </motion.div>
+    </div>
+  );
+};
+
+// Add this new Neural Network effect (simplified from sign-in page)
+const SimpleNeuralNetwork = () => {
+  // Ensure window check for SSR compatibility
+  if (typeof window === 'undefined') return null;
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+      <svg width="100%" height="100%" viewBox="0 0 800 600" className="opacity-20">
+        <g>
+          {/* Neural network nodes */}
+          {[...Array(15)].map((_, i) => (
+            <motion.circle
+              key={`node-${i}`}
+              cx={200 + Math.cos(i * 0.8) * 150}
+              cy={300 + Math.sin(i * 0.8) * 150}
+              r="3"
+              fill="#a855f7"
+              animate={{ 
+                r: [3, 5, 3],
+                opacity: [0.2, 0.5, 0.2],
+                fill: ['#a855f7', '#818cf8', '#a855f7']
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity, 
+                delay: i * 0.2,
+                ease: "easeInOut" 
+              }}
+            />
+          ))}
+          
+          {/* Connection lines with pulse effect */}
+          {[...Array(20)].map((_, i) => {
+            const x1 = 200 + Math.cos(i * 0.4) * 150;
+            const y1 = 300 + Math.sin(i * 0.4) * 150;
+            const x2 = 200 + Math.cos((i + 5) * 0.4) * 150;
+            const y2 = 300 + Math.sin((i + 5) * 0.4) * 150;
+            
+            return (
+              <g key={`connection-${i}`}>
+                <motion.line
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="#a855f7"
+                  strokeWidth="0.7"
+                  animate={{ 
+                    strokeOpacity: [0.05, 0.15, 0.05],
+                    stroke: ['#a855f7', '#818cf8', '#a855f7']
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity, 
+                    delay: i * 0.1,
+                    ease: "easeInOut" 
+                  }}
+                />
+                <motion.circle
+                  cx={x1 + (x2 - x1) * 0.3}
+                  cy={y1 + (y2 - y1) * 0.3}
+                  r="1"
+                  fill="#a855f7"
+                  animate={{
+                    cx: [x1, x2, x1],
+                    cy: [y1, y2, y1],
+                    opacity: [0, 0.5, 0],
+                  }}
+                  transition={{
+                    duration: 2 + Math.random() * 2,
+                    repeat: Infinity,
+                    delay: i * 0.05,
+                    ease: "easeInOut",
+                    repeatDelay: Math.random() * 2
+                  }}
+                />
+              </g>
+            );
+          })}
+        </g>
+      </svg>
     </div>
   );
 };
@@ -2001,123 +2102,64 @@ export default function StrategyReport() {
 
   // --- Main Component Return --- 
   return (
-    <main className="bg-gradient-to-b from-gray-50 via-purple-50 to-white min-h-screen py-16 md:py-24 relative isolate overflow-hidden"> {/* Added relative, isolate, and overflow-hidden */}
-      {/* Animated Background - ensure it's behind the main content */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/5 via-[#170b35]/10 to-black/10" /> {/* Subtle dark overlay - slightly stronger */}
-        <GlowingOrbs />
-        <ParticleField />
-        <DigitalRain />
-        <Meteors />
-      </div>
-
-      <style jsx>{`
-        .input-field { @apply w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-150 shadow-sm; }
-        .button-primary { @apply w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-5 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow hover:shadow-md disabled:shadow; }
-        .gradient-hero { @apply bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800; }
-      `}</style>
+    <div className="min-h-screen w-full overflow-hidden relative">
+      {/* Enhanced background layer */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-purple-50" />
       
-      {/* Hero Section with Animation */}
-        <motion.div 
-        className="container mx-auto mb-12 px-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="text-center">
-          <motion.h1 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Discover Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">AI Potential</span>
-          </motion.h1>
-          
-          <motion.p 
-            className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8"
+      {/* Stars background layer */}
+      <div className="absolute inset-0 bg-[url('/stars-bg.png')] bg-repeat opacity-10" />
+      
+      {/* Animation layers */}
+      <SubtlePortalEffect />
+      <GlowingOrbs />
+      <ParticleField />
+      <SimpleNeuralNetwork />
+      <DigitalRain />
+      <Meteors />
+      
+      {/* Main content */}
+      <div className="relative z-10 min-h-screen">
+        <div className="max-w-5xl mx-auto px-4 py-8 md:pt-16 sm:px-6">
+          {/* Content header */}
+          <div className="text-center mb-10 md:mb-16">
+            <motion.h1 
+              className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4 leading-tight"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+            >
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600">
+                AI Strategy Report
+              </span>
+            </motion.h1>
+            <motion.p 
+              className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+            >
+              Get a personalized analysis of how AI can transform your business operations and drive growth.
+            </motion.p>
+          </div>
+
+          {/* Main content based on stage */}
+          <motion.div 
+            className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden relative"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            style={{ boxShadow: '0 0 30px rgba(139, 92, 246, 0.15)' }}
           >
-            Transform your business with AI opportunities tailored to your needs
-          </motion.p>
-          
-          {/* Animated Icons */}
-          <motion.div 
-            className="flex justify-center gap-8 mb-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <motion.div 
-              className="flex flex-col items-center"
-              whileHover={{ y: -5 }}
-            >
-              <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-2">
-                <Zap className="h-8 w-8 text-purple-600" />
-              </div>
-              <span className="text-sm text-gray-600 font-medium">Fast Results</span>
-            </motion.div>
-            
-            <motion.div 
-              className="flex flex-col items-center"
-              whileHover={{ y: -5 }}
-            >
-              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-                <BarChart className="h-8 w-8 text-blue-600" />
-              </div>
-              <span className="text-sm text-gray-600 font-medium">Data-Driven</span>
-            </motion.div>
-            
-            <motion.div 
-              className="flex flex-col items-center"
-              whileHover={{ y: -5 }}
-            >
-              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-2">
-                <Target className="h-8 w-8 text-emerald-600" />
-              </div>
-              <span className="text-sm text-gray-600 font-medium">Actionable</span>
-            </motion.div>
+            {/* Subtle inner glow effect on the form container */}
+            <div className="absolute inset-0 rounded-xl opacity-40 pointer-events-none" 
+              style={{ boxShadow: 'inset 0 0 30px rgba(139, 92, 246, 0.15)' }}
+            />
+      
+            {renderStageContent()}
           </motion.div>
         </div>
-      </motion.div>
-
-      <div className="max-w-5xl mx-auto px-4 relative z-10"> {/* Added relative and z-10 to keep content on top */}
-        <motion.div 
-          className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100/50"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <div className="p-6 md:p-10">
-            {/* Header */}
-            {stage === 'form' && (
-              <div className="text-center mb-8 md:mb-10">
-                <div className="inline-block p-4 bg-purple-100 rounded-full mb-4 shadow-inner">
-                  <FileText className="h-10 w-10 text-purple-600" />
-                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">AI Strategy Quick Assessment</h2>
-                <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">Answer a few questions for a personalized AI opportunity snapshot.</p>
-              </div>
-            )}
-            
-            {/* Error Display */}
-            {error && (
-              <div className="mb-4 bg-red-50 border border-red-200 p-3 rounded-md text-left">
-                <div className="flex items-center">
-                  <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mr-2" />
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              </div>
-            )}
-            
-            {/* Main Content Area */}
-            {renderStageContent()}
-          </div>
-        </motion.div>
       </div>
-    </main>
+    </div>
   );
 }
 
