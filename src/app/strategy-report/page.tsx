@@ -968,14 +968,16 @@ export default function StrategyReport() {
                           
                           <div className={`bg-gradient-to-br ${gradientClass} p-5 text-white h-full flex flex-col backdrop-blur-sm relative z-10`}>
                             <div className="flex justify-between items-start mb-4">
-                              <h4 className="font-bold text-lg">{area.area}</h4>
-                              <div className="relative">
-                                <div className="text-xs text-gray-700 absolute -top-5 right-0 bg-white/80 px-2 py-0.5 rounded-t">score</div>
-                                <div className="flex items-center justify-center bg-white/90 text-gray-800 h-10 w-10 rounded-lg font-bold shadow-lg">
-                                  <span className="text-base">{area.score !== undefined ? area.score : '?'}</span>
-                      </div>
-                    </div>
-                  </div>
+                              <h4 className="font-bold text-lg max-w-[70%]">{area.area}</h4>
+                              <div className="absolute top-0 right-0 -mt-3 -mr-3 z-20">
+                                <div className="relative">
+                                  <div className="text-xs text-white bg-indigo-700 absolute -top-4 inset-x-0 text-center px-1 rounded-t-md">score</div>
+                                  <div className="flex items-center justify-center bg-white shadow-lg w-12 h-12 rounded-lg border-2 border-indigo-700">
+                                    <span className="text-xl font-bold text-gray-800">{area.score !== undefined ? area.score : '?'}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                             
                             <div className="flex-1">
                               <div className="text-white/95 text-base mb-3 font-medium">Top Opportunity:</div>
@@ -1051,14 +1053,14 @@ export default function StrategyReport() {
               </h3>
               
               <div className="max-w-3xl mx-auto px-4">
-                <div className="relative py-12">
+                <div className="relative py-16">
                   {/* Main line */}
-                  <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-200 via-indigo-200 to-purple-100 rounded-full"></div>
+                  <div className="absolute left-1/2 transform -translate-x-1/2 top-0 bottom-0 w-1.5 bg-gradient-to-b from-purple-200 via-indigo-200 to-purple-100 rounded-full"></div>
                   
                   {roadmapSteps.map((step, index) => (
                     <motion.div 
                       key={index} 
-                      className={`relative mb-16 mt-8 last:mb-0 ${index % 2 === 0 ? 'md:ml-auto md:mr-[50%]' : 'md:mr-auto md:ml-[50%]'} md:w-[45%]`}
+                      className={`relative mb-24 mt-12 last:mb-6 ${index % 2 === 0 ? 'md:ml-auto md:mr-[50%]' : 'md:mr-auto md:ml-[50%]'} md:w-[45%]`}
                       initial={{ opacity: 0, x: index % 2 === 0 ? 50 : -50 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.6, delay: 1 + (index * 0.3) }}
@@ -1069,13 +1071,13 @@ export default function StrategyReport() {
                       
                       {/* Step Number Circle - Desktop vs Mobile positioning */}
                       {/* Desktop version - positioned to the side */}
-                      <div className={`hidden md:flex absolute ${index % 2 === 0 ? 'right-0 -translate-x-[135%]' : 'left-0 translate-x-[135%]'} top-0 -translate-y-1/2 bg-white rounded-full border-4 border-purple-100 shadow-md z-20 items-center justify-center h-14 w-14`}>
-                        <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-xl font-bold">{index + 1}</div>
-                  </div>
+                      <div className={`hidden md:flex absolute ${index % 2 === 0 ? 'right-0 -translate-x-[160%]' : 'left-0 translate-x-[160%]'} top-6 bg-white rounded-full border-4 border-purple-100 shadow-md z-20 items-center justify-center h-16 w-16`}>
+                        <div className="flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-2xl font-bold">{index + 1}</div>
+                      </div>
                       
                       {/* Mobile version - positioned above the card */}
-                      <div className="md:hidden absolute left-1/2 transform -translate-x-1/2 -top-8 bg-white rounded-full border-4 border-purple-100 shadow-md z-20 flex items-center justify-center h-14 w-14">
-                        <div className="flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-xl font-bold">{index + 1}</div>
+                      <div className="md:hidden absolute left-1/2 transform -translate-x-1/2 -top-10 bg-white rounded-full border-4 border-purple-100 shadow-md z-20 flex items-center justify-center h-16 w-16">
+                        <div className="flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-2xl font-bold">{index + 1}</div>
                       </div>
                       
                       {/* Card with content - no need for extra padding now */}
