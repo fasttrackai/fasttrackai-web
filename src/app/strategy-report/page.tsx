@@ -377,8 +377,14 @@ export default function StrategyReport() {
     });
 
     // Generate challenge suggestions
-    if (name === 'topChallenges' && value.length > 2 && formData.industry) {
-      getSuggestedChallenges(formData.industry, value);
+    if (name === 'topChallenges') {
+      // Show suggestions even with just 1 character if industry is selected
+      if ((value.length > 0 && formData.industry) || value.length > 2) {
+        getSuggestedChallenges(formData.industry || 'other', value);
+      } else if (value.length === 0) {
+        // Clear suggestions when field is empty
+        setChallengeSuggestions([]);
+      }
     }
   };
 
@@ -469,22 +475,135 @@ export default function StrategyReport() {
   // --- Helper Functions --- 
 
   const getSuggestedChallenges = (industry: string, currentInput: string) => {
+    // Comprehensive industry-specific challenges with more detailed descriptions
     const industrySpecificChallenges: Record<string, string[]> = {
-      'retail': ['Inventory optimization', 'Customer churn prediction', 'Personalized marketing'],
-      'manufacturing': ['Predictive maintenance', 'Supply chain optimization', 'Quality control automation'],
-      'healthcare': ['Patient outcome prediction', 'Administrative workflow automation', 'Medical image analysis'],
-      'finance': ['Fraud detection', 'Risk assessment automation', 'Personalized financial advice'],
-      'technology': ['Development workflow optimization', 'User behavior prediction', 'Support ticket automation'],
-      'education': ['Student performance prediction', 'Personalized learning paths', 'Administrative task automation'],
-      'hospitality': ['Guest experience personalization', 'Revenue management optimization', 'Staff scheduling automation'],
-      'other': ['Process automation', 'Customer insights', 'Operational efficiency']
+      'retail': [
+        'Inventory optimization and demand forecasting',
+        'Customer churn prediction and retention strategies',
+        'Personalized marketing and recommendation systems',
+        'Dynamic pricing optimization',
+        'Fraud detection in transactions',
+        'Customer sentiment analysis from reviews',
+        'Visual search and product recognition'
+      ],
+      'manufacturing': [
+        'Predictive maintenance to prevent equipment failure',
+        'Supply chain optimization and demand forecasting',
+        'Quality control automation and defect detection',
+        'Production scheduling optimization',
+        'Energy consumption optimization',
+        'Raw material usage optimization',
+        'Inventory management and forecasting'
+      ],
+      'healthcare': [
+        'Patient outcome prediction and risk assessment',
+        'Administrative workflow automation and documentation',
+        'Medical image analysis and diagnostic assistance',
+        'Patient readmission prediction',
+        'Treatment effectiveness prediction',
+        'Resource allocation optimization',
+        'Personalized treatment planning'
+      ],
+      'finance': [
+        'Fraud detection and prevention in transactions',
+        'Risk assessment automation for loans and credit',
+        'Personalized financial advice and planning',
+        'Market trend prediction and investment strategies',
+        'Process automation for document processing',
+        'Customer segmentation and targeting',
+        'Regulatory compliance monitoring'
+      ],
+      'technology': [
+        'Development workflow optimization and code analysis',
+        'User behavior prediction and experience personalization',
+        'Support ticket automation and classification',
+        'Bug prediction and code quality assurance',
+        'Infrastructure optimization and scaling',
+        'Security threat detection and prevention',
+        'Product feature prioritization'
+      ],
+      'education': [
+        'Student performance prediction and early intervention',
+        'Personalized learning paths and content recommendations',
+        'Administrative task automation and scheduling',
+        'Content creation and curriculum optimization',
+        'Student engagement analysis and improvement',
+        'Resource allocation optimization',
+        'Dropout risk prediction and prevention'
+      ],
+      'hospitality': [
+        'Guest experience personalization and recommendations',
+        'Revenue management optimization and dynamic pricing',
+        'Staff scheduling optimization and demand forecasting',
+        'Inventory and supply management',
+        'Guest satisfaction prediction and improvement',
+        'Marketing campaign optimization',
+        'Operational efficiency improvement'
+      ],
+      'other': [
+        'Process automation and workflow optimization',
+        'Customer insights and behavior prediction',
+        'Operational efficiency and resource optimization',
+        'Document processing and information extraction',
+        'Data analysis and pattern recognition',
+        'Decision support systems',
+        'Predictive maintenance and failure prevention',
+        'Cost reduction and revenue optimization'
+      ]
     };
-    const relevantChallenges = industrySpecificChallenges[industry.toLowerCase()] || industrySpecificChallenges['other'];
-    const filteredSuggestions = currentInput.length > 1 
-      ? relevantChallenges.filter(challenge => 
-          challenge.toLowerCase().includes(currentInput.toLowerCase()))
-      : [];
-    setChallengeSuggestions(filteredSuggestions.slice(0, 3));
+    
+    // Common challenges that apply across industries
+    const commonChallenges = [
+      'Improve sales forecasting and revenue prediction',
+      'Automate customer support and service processes',
+      'Enhance decision-making with predictive analytics',
+      'Optimize resource allocation and scheduling',
+      'Reduce operational costs through process automation',
+      'Improve customer satisfaction and retention',
+      'Increase marketing effectiveness and ROI'
+    ];
+    
+    // Get industry-specific challenges or fallback to generic ones
+    const industryLower = industry.toLowerCase();
+    const relevantChallenges = [
+      ...(industrySpecificChallenges[industryLower] || []),
+      ...commonChallenges
+    ];
+    
+    // If input is empty or very short, show some default suggestions
+    if (!currentInput || currentInput.length <= 1) {
+      // Show top 3 suggestions for the industry
+      setChallengeSuggestions(relevantChallenges.slice(0, 3));
+      return;
+    }
+    
+    // For longer inputs, do more sophisticated matching
+    const inputLower = currentInput.toLowerCase();
+    
+    // First try exact matches
+    let matches = relevantChallenges.filter(challenge => 
+      challenge.toLowerCase().includes(inputLower)
+    );
+    
+    // If no matches found, try word-by-word matching
+    if (matches.length === 0) {
+      const inputWords = inputLower.split(/\s+/).filter(word => word.length > 2);
+      
+      matches = relevantChallenges.filter(challenge => {
+        const challengeLower = challenge.toLowerCase();
+        // Check if any word from input appears in the challenge
+        return inputWords.some(word => challengeLower.includes(word));
+      });
+    }
+    
+    // Sort matches by relevance (those that start with the input text come first)
+    matches.sort((a, b) => {
+      const aStartsWith = a.toLowerCase().startsWith(inputLower) ? 0 : 1;
+      const bStartsWith = b.toLowerCase().startsWith(inputLower) ? 0 : 1;
+      return aStartsWith - bStartsWith;
+    });
+    
+    setChallengeSuggestions(matches.slice(0, 4)); // Show top 4 matches
   };
 
   // Predefined responses for common questions to use when API is unavailable
@@ -1460,16 +1579,19 @@ export default function StrategyReport() {
                 ></textarea>
                 
                 {challengeSuggestions.length > 0 && (
-                  <div className="absolute z-10 mt-1 w-[calc(100%-2rem)] bg-white shadow-lg rounded-md border border-purple-200 max-h-36 overflow-y-auto">
+                  <div className="absolute z-50 mt-1 w-[calc(100%-2rem)] bg-white shadow-xl rounded-md border-2 border-purple-300 max-h-40 overflow-y-auto left-4 right-4">
+                    <div className="bg-purple-50 py-1 px-3 border-b border-purple-200">
+                      <span className="text-xs font-semibold text-purple-700">Suggested challenges:</span>
+                    </div>
                     <ul className="py-1">
                       {challengeSuggestions.map((suggestion, index) => (
                         <li 
                           key={index} 
-                          className="px-4 py-2 hover:bg-purple-50 cursor-pointer text-sm flex items-center" 
+                          className="px-4 py-2.5 hover:bg-purple-100 cursor-pointer text-gray-700 text-sm flex items-center border-b border-gray-100 last:border-0" 
                           onClick={() => selectChallengeSuggestion(suggestion)}
                         >
-                          <Check className="h-4 w-4 text-purple-500 mr-2 flex-shrink-0" />
-                          {suggestion}
+                          <Check className="h-4 w-4 text-purple-600 mr-2.5 flex-shrink-0" />
+                          <span className="font-medium">{suggestion}</span>
                         </li>
                       ))}
                     </ul>
