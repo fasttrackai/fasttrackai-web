@@ -311,6 +311,7 @@ export default function SignIn() {
   // Portal animation states
   const [portalActive, setPortalActive] = useState(false);
   const [showWelcomeText, setShowWelcomeText] = useState(false);
+  const [hideWelcomeText, setHideWelcomeText] = useState(false);
 
   // Check if already logged in
   useEffect(() => {
@@ -319,7 +320,7 @@ export default function SignIn() {
     }
   }, [user, router, returnUrl]);
 
-  // Trigger welcome animation sequence
+  // Trigger welcome animation sequence with updated timing
   useEffect(() => {
     // Start portal animation after a brief delay
     const portalTimer = setTimeout(() => {
@@ -336,11 +337,17 @@ export default function SignIn() {
       setAnimationComplete(true);
     }, 2500);
     
+    // Hide welcome text after form appears
+    const hideWelcomeTimer = setTimeout(() => {
+      setHideWelcomeText(true);
+    }, 4000);
+    
     // Clean up timers
     return () => {
       clearTimeout(portalTimer);
       clearTimeout(textTimer);
       clearTimeout(completeTimer);
+      clearTimeout(hideWelcomeTimer);
     };
   }, []);
 
@@ -442,35 +449,37 @@ export default function SignIn() {
             }}
           />
           
-          {/* Welcome text that fades in after portal opens - positioned better to avoid overlap */}
-          <motion.div
-            className="absolute text-center z-20 pointer-events-none"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ 
-              opacity: showWelcomeText ? 1 : 0,
-              scale: showWelcomeText ? 1 : 0.9
-            }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-200 text-shadow-lg"
-              style={{ textShadow: '0 2px 10px rgba(139, 92, 246, 0.5)' }}
-              initial={{ y: 20 }}
-              animate={{ y: showWelcomeText ? 0 : 20 }}
-              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-            >
-              Welcome to FastTrackAI
-            </motion.h1>
-            <motion.p 
-              className="text-lg md:text-xl text-purple-100 max-w-md mx-auto text-shadow-sm"
-              style={{ textShadow: '0 1px 5px rgba(0, 0, 0, 0.5)' }}
-              initial={{ y: 20 }}
-              animate={{ y: showWelcomeText ? 0 : 20 }}
-              transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
-            >
-              Your portal to intelligent business transformation
-            </motion.p>
-          </motion.div>
+          {/* Welcome text that fades in after portal opens and fades out when form appears */}
+          <AnimatePresence>
+            {showWelcomeText && !hideWelcomeText && (
+              <motion.div
+                className="absolute text-center z-20 pointer-events-none"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                <motion.h1 
+                  className="text-4xl md:text-6xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-200 text-shadow-lg"
+                  style={{ textShadow: '0 2px 10px rgba(139, 92, 246, 0.5)' }}
+                  initial={{ y: 20 }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+                >
+                  Welcome to FastTrackAI
+                </motion.h1>
+                <motion.p 
+                  className="text-lg md:text-xl text-purple-100 max-w-md mx-auto text-shadow-sm"
+                  style={{ textShadow: '0 1px 5px rgba(0, 0, 0, 0.5)' }}
+                  initial={{ y: 20 }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+                >
+                  Your portal to intelligent business transformation
+                </motion.p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
       
@@ -672,7 +681,7 @@ export default function SignIn() {
             transition={{ delay: 2.8, duration: 0.8 }}
             className="max-w-md w-full"
           >
-            {/* Logo with portal entrance effect */}
+            {/* Logo with portal entrance effect - using FastTrackAI's actual logo */}
             <div className="flex justify-center mb-8">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -697,8 +706,26 @@ export default function SignIn() {
                       repeatType: "reverse",
                       ease: "easeInOut"
                     }}
+                    className="relative h-7 w-7"
                   >
-                    <Rocket className="h-7 w-7 text-purple-400" style={{ filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))' }} />
+                    {/* Use the actual FastTrackAI logo from the site */}
+                    <div className="relative w-7 h-7 text-purple-400">
+                      <div className="absolute top-0 left-0 w-full h-full rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 opacity-20"></div>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute top-0 left-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))' }}>
+                        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                        <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+                      </svg>
+                      {/* Robot/AI head overlay */}
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="absolute top-0 left-0 w-full h-full" style={{ transform: 'scale(0.75) translate(16%, 16%)' }}>
+                        <rect x="3" y="11" width="18" height="10" rx="2" />
+                        <circle cx="12" cy="5" r="2" />
+                        <path d="M12 7v4" />
+                        <line x1="8" y1="16" x2="8" y2="16" />
+                        <line x1="16" y1="16" x2="16" y2="16" />
+                      </svg>
+                    </div>
                   </motion.div>
                   <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
                     FastTrackAI
