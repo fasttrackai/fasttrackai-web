@@ -10,39 +10,43 @@ interface ChatMessage {
 export async function POST(req: Request) {
   try {
     const apiKey = process.env.OPENAI_API_KEY;
-    console.log('API Key available:', !!apiKey); // Log if API key exists
-
-    if (!apiKey) {
-      throw new Error('OpenAI API key not configured');
+    
+    if (!apiKey || apiKey.trim() === '' || apiKey.includes('your_openai_api_key')) {
+      console.error('OpenAI API key missing or invalid');
+      throw new Error('OpenAI API key not properly configured');
     }
 
     const { messages } = await req.json();
-    console.log('Received messages:', JSON.stringify(messages)); // Log received messages
+    
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw new Error('Invalid or empty messages array');
+    }
 
-    // Create OpenAI client with minimal configuration
+    // Create OpenAI client with timeout configuration
     const openai = new OpenAI({
       apiKey,
-      dangerouslyAllowBrowser: true // Allow browser usage
+      dangerouslyAllowBrowser: true, // Required for edge runtime
+      timeout: 15000 // 15 second timeout
     });
 
-    console.log('Making OpenAI API request...'); // Log before API call
+    // Make the API request
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo", // Using a more reliable model
+      model: "gpt-3.5-turbo", // Reliable and cost-effective
       messages: messages.map((m: ChatMessage) => ({
         role: m.role as 'system' | 'user' | 'assistant',
         content: m.content
       })),
       temperature: 0.7,
-      max_tokens: 500 // Reduced for faster responses
+      max_tokens: 600, // Slightly increased for more detailed responses
     });
-    console.log('OpenAI API request successful'); // Log after API call
 
     const response = completion.choices[0]?.message;
-    if (!response) {
-      throw new Error('No response from OpenAI');
+    
+    if (!response || !response.content || response.content.trim() === '') {
+      throw new Error('Empty response from OpenAI');
     }
 
-    console.log('Sending response:', response); // Log response being sent
+    // Return the response
     return new Response(
       JSON.stringify({
         role: response.role,
@@ -59,18 +63,25 @@ export async function POST(req: Request) {
     );
 
   } catch (error) {
-    // Detailed error logging
-    console.error('Chat API error:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : 'No stack trace',
-      name: error instanceof Error ? error.name : 'Unknown error type'
-    });
+    console.error('OpenAI API error:', error instanceof Error ? error.message : 'Unknown error');
     
-    // Return a user-friendly error message
+    let errorMessage = "I apologize, but I encountered an error processing your request.";
+    
+    // Add more specific error messages based on common issues
+    if (error instanceof Error) {
+      if (error.message.includes('API key')) {
+        errorMessage = "API configuration issue. Please contact the site administrator.";
+      } else if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+        errorMessage = "The request took too long to process. Please try again with a simpler question.";
+      } else if (error.message.includes('rate limit')) {
+        errorMessage = "Too many requests at once. Please try again in a moment.";
+      }
+    }
+    
     return new Response(
       JSON.stringify({
         role: "assistant",
-        content: "I apologize, but I encountered an error. Please try again in a moment.",
+        content: errorMessage,
         id: Date.now().toString()
       }),
       {
@@ -78,7 +89,7 @@ export async function POST(req: Request) {
           'Content-Type': 'application/json',
           'Cache-Control': 'no-store'
         },
-        status: 200 // Keep 200 to prevent client-side issues
+        status: 200 // Using 200 for client-friendly error handling
       }
     );
   }
