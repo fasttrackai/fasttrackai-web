@@ -7,12 +7,12 @@ import { useParams } from 'next/navigation';
 
 export default function BlogPostComingSoon() {
   const params = useParams();
-  
+
   return (
     <main className="min-h-screen gradient-primary flex flex-col items-center justify-center px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         className="max-w-2xl mx-auto text-center text-white"
       >
@@ -23,15 +23,15 @@ export default function BlogPostComingSoon() {
         </p>
         <p className="mb-10 opacity-80">
           Please check back later or subscribe to our newsletter to be notified when new content is available.
-        </p>
-        <Link 
+                        </p>
+                        <Link 
           href="/"
           className="inline-flex items-center text-white border border-white/30 px-6 py-3 rounded-lg hover:bg-white/10 transition-colors"
-        >
+                        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Return to Homepage
-        </Link>
-      </motion.div>
-    </main>
+                        </Link>
+                </motion.div>
+      </main>
   );
 } 
