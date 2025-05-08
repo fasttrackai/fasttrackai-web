@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Eye, EyeOff, Lock, Mail, Rocket, 
+  Eye, EyeOff, Lock, Mail, 
   BrainCircuit, Zap, Sparkles, ArrowRight, Check,
   Shield, Lightbulb, ChevronRight
 } from 'lucide-react';
@@ -484,488 +484,483 @@ export default function SignIn() {
       </div>
       
       {/* Main content container - improved positioning for two-column layout */}
-      <div className="relative z-20 min-h-screen flex">
-        {/* Left panel: Immersive visual experience - better spacing */}
-        <div className="hidden lg:flex w-1/2 relative flex-col justify-center items-center p-12">
-          <FloatingObjects />
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: animationComplete ? 1 : 0, y: animationComplete ? 0 : 30 }}
-            transition={{ duration: 0.8, delay: 2.5 }}
-            className="relative z-10 mt-20"
-          >
-            {/* Enhanced 3D AI Brain visualization - adjusted positioning */}
-            <div className="relative h-80">
-              {/* Glowing base */}
-              <div className="w-72 h-72 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
-                <motion.div 
-                  className="w-48 h-48 rounded-full bg-purple-500/5 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                  animate={{
-                    boxShadow: [
-                      '0 0 20px rgba(168, 85, 247, 0.2)',
-                      '0 0 40px rgba(168, 85, 247, 0.4)',
-                      '0 0 20px rgba(168, 85, 247, 0.2)'
-                    ]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                />
-              </div>
-              
-              <motion.div
-                animate={{ 
-                  y: [0, -15, 0],
-                  rotate: [0, 2, 0]
-                }}
-                transition={{ 
-                  duration: 6, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-                className="relative z-20"
-              >
-                <div className="relative w-80 h-80 flex items-center justify-center">
-                  {/* AI Brain with enhanced effects */}
-                  <motion.div
-                    animate={{ 
-                      scale: [1, 1.05, 1],
-                      filter: [
-                        'drop-shadow(0 0 20px rgba(168, 85, 247, 0.3))',
-                        'drop-shadow(0 0 40px rgba(168, 85, 247, 0.5))',
-                        'drop-shadow(0 0 20px rgba(168, 85, 247, 0.3))'
+      <div className="relative z-20 min-h-screen flex justify-center">
+        {/* Container to constrain width and center content */}
+        <div className="flex max-w-6xl w-full mx-auto">
+          {/* Left panel: Immersive visual experience - better spacing */}
+          <div className="hidden lg:flex lg:w-1/2 relative flex-col justify-center items-end p-4 pr-8">
+            <FloatingObjects />
+            
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: animationComplete ? 1 : 0, y: animationComplete ? 0 : 30 }}
+              transition={{ duration: 0.8, delay: 2.5 }}
+              className="relative z-10 max-w-md"
+            >
+              {/* Enhanced 3D AI Brain visualization - adjusted positioning */}
+              <div className="relative h-80">
+                {/* Glowing base */}
+                <div className="w-72 h-72 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <div className="w-64 h-64 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 blur-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+                  <motion.div 
+                    className="w-48 h-48 rounded-full bg-purple-500/5 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    animate={{
+                      boxShadow: [
+                        '0 0 20px rgba(168, 85, 247, 0.2)',
+                        '0 0 40px rgba(168, 85, 247, 0.4)',
+                        '0 0 20px rgba(168, 85, 247, 0.2)'
                       ]
                     }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="relative"
-                  >
-                    {/* Circular glow behind the brain */}
-                    <motion.div 
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full"
-                      style={{ background: 'radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0) 70%)' }}
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    />
-                    
-                    <BrainCircuit className="w-36 h-36 text-purple-300 relative z-10" />
-                    
-                    {/* Pulse rings */}
-                    <motion.div 
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full border border-purple-500/30"
-                      animate={{ scale: [1, 1.8], opacity: [0.8, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-                    />
-                    <motion.div 
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full border border-indigo-500/30"
-                      animate={{ scale: [1, 1.8], opacity: [0.8, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
-                    />
-                  </motion.div>
-                  
-                  {/* Orbiting elements - increased distance from center */}
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-full h-full pointer-events-none"
-                  >
-                    <motion.div 
-                      className="absolute -top-6 left-1/2 transform -translate-x-1/2"
-                      whileHover={{ scale: 1.2 }}
-                    >
-                      <Zap className="h-8 w-8 text-purple-400" style={{ filter: 'drop-shadow(0 0 5px rgba(168, 85, 247, 0.5))' }} />
-                    </motion.div>
-                  </motion.div>
-                  
-                  <motion.div
-                    animate={{ rotate: -360 }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-full h-full pointer-events-none"
-                  >
-                    <motion.div 
-                      className="absolute top-1/2 -right-10 transform -translate-y-1/2"
-                      whileHover={{ scale: 1.2 }}
-                    >
-                      <Sparkles className="h-8 w-8 text-indigo-400" style={{ filter: 'drop-shadow(0 0 5px rgba(129, 140, 248, 0.5))' }} />
-                    </motion.div>
-                  </motion.div>
-                  
-                  <motion.div
-                    animate={{ rotate: 180 }}
-                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-full h-full pointer-events-none"
-                  >
-                    <motion.div 
-                      className="absolute -bottom-6 left-1/2 transform -translate-x-1/2"
-                      whileHover={{ scale: 1.2 }}
-                    >
-                      <Shield className="h-8 w-8 text-blue-400" style={{ filter: 'drop-shadow(0 0 5px rgba(96, 165, 250, 0.5))' }} />
-                    </motion.div>
-                  </motion.div>
-                  
-                  <motion.div
-                    animate={{ rotate: -240 }}
-                    transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
-                    className="absolute w-full h-full pointer-events-none"
-                  >
-                    <motion.div 
-                      className="absolute top-1/2 -left-10 transform -translate-y-1/2"
-                      whileHover={{ scale: 1.2 }}
-                    >
-                      <Lightbulb className="h-8 w-8 text-amber-400" style={{ filter: 'drop-shadow(0 0 5px rgba(251, 191, 36, 0.5))' }} />
-                    </motion.div>
-                  </motion.div>
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  />
                 </div>
-              </motion.div>
-            </div>
-            
-            {/* Enhanced tagline - better spacing and shadows for readability */}
-            <div className="text-center mt-16">
-              <motion.h2 
-                className="text-3xl md:text-4xl font-bold mb-4 text-white tracking-tight"
-                style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)' }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 3, duration: 0.8 }}
-              >
-                Step into the <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-300">future of AI</span>
-              </motion.h2>
+                
+                <motion.div
+                  animate={{ 
+                    y: [0, -15, 0],
+                    rotate: [0, 2, 0]
+                  }}
+                  transition={{ 
+                    duration: 6, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                  className="relative z-20"
+                >
+                  <div className="relative w-80 h-80 flex items-center justify-center">
+                    {/* AI Brain with enhanced effects */}
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.05, 1],
+                        filter: [
+                          'drop-shadow(0 0 20px rgba(168, 85, 247, 0.3))',
+                          'drop-shadow(0 0 40px rgba(168, 85, 247, 0.5))',
+                          'drop-shadow(0 0 20px rgba(168, 85, 247, 0.3))'
+                        ]
+                      }}
+                      transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                      className="relative"
+                    >
+                      {/* Circular glow behind the brain */}
+                      <motion.div 
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full"
+                        style={{ background: 'radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, rgba(168, 85, 247, 0) 70%)' }}
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                      />
+                      
+                      <BrainCircuit className="w-36 h-36 text-purple-300 relative z-10" />
+                      
+                      {/* Pulse rings */}
+                      <motion.div 
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full border border-purple-500/30"
+                        animate={{ scale: [1, 1.8], opacity: [0.8, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                      />
+                      <motion.div 
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-full border border-indigo-500/30"
+                        animate={{ scale: [1, 1.8], opacity: [0.8, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
+                      />
+                    </motion.div>
+                    
+                    {/* Orbiting elements - increased distance from center */}
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      className="absolute w-full h-full pointer-events-none"
+                    >
+                      <motion.div 
+                        className="absolute -top-6 left-1/2 transform -translate-x-1/2"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <Zap className="h-8 w-8 text-purple-400" style={{ filter: 'drop-shadow(0 0 5px rgba(168, 85, 247, 0.5))' }} />
+                      </motion.div>
+                    </motion.div>
+                    
+                    <motion.div
+                      animate={{ rotate: -360 }}
+                      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                      className="absolute w-full h-full pointer-events-none"
+                    >
+                      <motion.div 
+                        className="absolute top-1/2 -right-10 transform -translate-y-1/2"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <Sparkles className="h-8 w-8 text-indigo-400" style={{ filter: 'drop-shadow(0 0 5px rgba(129, 140, 248, 0.5))' }} />
+                      </motion.div>
+                    </motion.div>
+                    
+                    <motion.div
+                      animate={{ rotate: 180 }}
+                      transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                      className="absolute w-full h-full pointer-events-none"
+                    >
+                      <motion.div 
+                        className="absolute -bottom-6 left-1/2 transform -translate-x-1/2"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <Shield className="h-8 w-8 text-blue-400" style={{ filter: 'drop-shadow(0 0 5px rgba(96, 165, 250, 0.5))' }} />
+                      </motion.div>
+                    </motion.div>
+                    
+                    <motion.div
+                      animate={{ rotate: -240 }}
+                      transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+                      className="absolute w-full h-full pointer-events-none"
+                    >
+                      <motion.div 
+                        className="absolute top-1/2 -left-10 transform -translate-y-1/2"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <Lightbulb className="h-8 w-8 text-amber-400" style={{ filter: 'drop-shadow(0 0 5px rgba(251, 191, 36, 0.5))' }} />
+                      </motion.div>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              </div>
               
-              <motion.p 
-                className="text-lg text-purple-100/80 max-w-md"
-                style={{ textShadow: '0 1px 5px rgba(0, 0, 0, 0.5)' }}
+              {/* Enhanced tagline - better spacing and shadows for readability */}
+              <div className="text-center mt-8">
+                <motion.h2 
+                  className="text-3xl md:text-4xl font-bold mb-4 text-white tracking-tight"
+                  style={{ textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)' }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 3, duration: 0.8 }}
+                >
+                  Step into the <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-300">future of AI</span>
+                </motion.h2>
+                
+                <motion.p 
+                  className="text-lg text-purple-100/80 max-w-md"
+                  style={{ textShadow: '0 1px 5px rgba(0, 0, 0, 0.5)' }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 3.2, duration: 0.8 }}
+                >
+                  Harness the power of artificial intelligence to transform your business with customized solutions
+                </motion.p>
+              </div>
+              
+              {/* Enhanced features list with icons - increased spacing between items */}
+              <motion.div 
+                className="mt-10 text-white/90"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 3.2, duration: 0.8 }}
+                transition={{ delay: 3.4, duration: 0.8 }}
               >
-                Harness the power of artificial intelligence to transform your business with customized solutions
-              </motion.p>
-            </div>
-            
-            {/* Enhanced features list with icons - increased spacing between items */}
-            <motion.div 
-              className="mt-14 text-white/90"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 3.4, duration: 0.8 }}
-            >
-              <ul className="space-y-6">
-                {[
-                  { text: 'AI strategy tailored to your business goals', icon: <BrainCircuit className="h-5 w-5 text-purple-300" /> },
-                  { text: 'Real-time implementation tracking dashboard', icon: <Zap className="h-5 w-5 text-indigo-300" /> },
-                  { text: 'Enterprise-grade security and compliance', icon: <Shield className="h-5 w-5 text-blue-300" /> },
-                  { text: 'Measurable ROI analytics and reporting', icon: <Sparkles className="h-5 w-5 text-amber-300" /> }
-                ].map((feature, index) => (
-                  <motion.li 
-                    key={index}
-                    className="flex items-center gap-3"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 3.5 + (index * 0.15), duration: 0.5 }}
-                  >
-                    <div className="rounded-full bg-gradient-to-r from-purple-600/20 to-indigo-600/20 p-2 backdrop-blur-sm">
-                      {feature.icon}
-                    </div>
-                    <span className="text-base">{feature.text}</span>
-                  </motion.li>
-                ))}
-              </ul>
+                <ul className="space-y-4">
+                  {[
+                    { text: 'AI strategy tailored to your business goals', icon: <BrainCircuit className="h-5 w-5 text-purple-300" /> },
+                    { text: 'Real-time implementation tracking dashboard', icon: <Zap className="h-5 w-5 text-indigo-300" /> },
+                    { text: 'Enterprise-grade security and compliance', icon: <Shield className="h-5 w-5 text-blue-300" /> },
+                    { text: 'Measurable ROI analytics and reporting', icon: <Sparkles className="h-5 w-5 text-amber-300" /> }
+                  ].map((feature, index) => (
+                    <motion.li 
+                      key={index}
+                      className="flex items-center gap-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 3.5 + (index * 0.15), duration: 0.5 }}
+                    >
+                      <div className="rounded-full bg-gradient-to-r from-purple-600/20 to-indigo-600/20 p-2 backdrop-blur-sm">
+                        {feature.icon}
+                      </div>
+                      <span className="text-base">{feature.text}</span>
+                    </motion.li>
+                  ))}
+                </ul>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </div>
-        
-        {/* Right panel: Sign in form - adjusted to ensure good visibility and no overlap */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative z-30">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: animationComplete ? 1 : 0 }}
-            transition={{ delay: 2.8, duration: 0.8 }}
-            className="max-w-md w-full"
-          >
-            {/* Logo with portal entrance effect - using FastTrackAI's actual logo */}
-            <div className="flex justify-center mb-8">
+          </div>
+          
+          {/* Right panel: Sign in form - adjusted to ensure good visibility and no overlap */}
+          <div className="w-full lg:w-1/2 flex items-center justify-start p-6 md:p-12 relative z-30">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: animationComplete ? 1 : 0 }}
+              transition={{ delay: 2.8, duration: 0.8 }}
+              className="max-w-md w-full"
+            >
+              {/* Logo with portal entrance effect - using FastTrackAI's actual logo */}
+              <div className="flex justify-center mb-8">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ 
+                    opacity: animationComplete ? 1 : 0, 
+                    scale: animationComplete ? 1 : 0.8,
+                    y: animationComplete ? 0 : 20
+                  }}
+                  transition={{ duration: 0.6, delay: 3 }}
+                  className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-purple-500/30"
+                  style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.15)' }}
+                >
+                  <div className="text-white flex items-center gap-2">
+                    <motion.div
+                      animate={{ 
+                        rotate: [0, 10, 0, -10, 0],
+                        scale: [1, 1.1, 1, 1.1, 1]
+                      }}
+                      transition={{ 
+                        duration: 5,
+                        repeat: Infinity,
+                        repeatType: "reverse",
+                        ease: "easeInOut"
+                      }}
+                      className="relative h-7 w-7"
+                    >
+                      {/* Use the actual FastTrackAI logo from the site */}
+                      <div className="relative w-7 h-7 text-purple-400">
+                        <div className="absolute top-0 left-0 w-full h-full rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 opacity-20"></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute top-0 left-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))' }}>
+                          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+                        </svg>
+                      </div>
+                    </motion.div>
+                    <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
+                      FastTrackAI
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
+              
+              {/* Card container with frosted glass effect */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
+                className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ 
                   opacity: animationComplete ? 1 : 0, 
-                  scale: animationComplete ? 1 : 0.8,
-                  y: animationComplete ? 0 : 20
+                  y: animationComplete ? 0 : 20 
                 }}
-                transition={{ duration: 0.6, delay: 3 }}
-                className="bg-black/30 backdrop-blur-lg rounded-2xl p-4 border border-purple-500/30"
-                style={{ boxShadow: '0 0 30px rgba(168, 85, 247, 0.15)' }}
+                transition={{ delay: 3.2, duration: 0.6 }}
+                style={{ boxShadow: '0 10px 30px -5px rgba(79, 70, 229, 0.2)' }}
               >
-                <div className="text-white flex items-center gap-2">
-                  <motion.div
-                    animate={{ 
-                      rotate: [0, 10, 0, -10, 0],
-                      scale: [1, 1.1, 1, 1.1, 1]
-                    }}
-                    transition={{ 
-                      duration: 5,
-                      repeat: Infinity,
-                      repeatType: "reverse",
-                      ease: "easeInOut"
-                    }}
-                    className="relative h-7 w-7"
-                  >
-                    {/* Use the actual FastTrackAI logo from the site */}
-                    <div className="relative w-7 h-7 text-purple-400">
-                      <div className="absolute top-0 left-0 w-full h-full rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 opacity-20"></div>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute top-0 left-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))' }}>
-                        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-                        <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-                        <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-                        <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-                      </svg>
-                      {/* Robot/AI head overlay */}
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="absolute top-0 left-0 w-full h-full" style={{ transform: 'scale(0.75) translate(16%, 16%)' }}>
-                        <rect x="3" y="11" width="18" height="10" rx="2" />
-                        <circle cx="12" cy="5" r="2" />
-                        <path d="M12 7v4" />
-                        <line x1="8" y1="16" x2="8" y2="16" />
-                        <line x1="16" y1="16" x2="16" y2="16" />
-                      </svg>
-                    </div>
-                  </motion.div>
-                  <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-200">
-                    FastTrackAI
-                  </span>
+                {/* Form header */}
+                <div className="p-8 pb-6 text-center">
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    Access your portal
+                  </h2>
+                  <p className="text-indigo-200/80 text-sm">
+                    Sign in to your AI implementation dashboard
+                  </p>
                 </div>
-              </motion.div>
-            </div>
-            
-            {/* Card container with frosted glass effect */}
-            <motion.div
-              className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ 
-                opacity: animationComplete ? 1 : 0, 
-                y: animationComplete ? 0 : 20 
-              }}
-              transition={{ delay: 3.2, duration: 0.6 }}
-              style={{ boxShadow: '0 10px 30px -5px rgba(79, 70, 229, 0.2)' }}
-            >
-              {/* Form header */}
-              <div className="p-8 pb-6 text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">
-                  Access your portal
-                </h2>
-                <p className="text-indigo-200/80 text-sm">
-                  Sign in to your AI implementation dashboard
-                </p>
-              </div>
-              
-              {/* Animated divider */}
-              <div className="relative h-px w-full overflow-hidden">
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500 to-transparent"
-                  animate={{ x: ['-100%', '100%'] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                />
-              </div>
-              
-              {/* Form body */}
-              <div className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Error display with enhanced animation */}
-                  <AnimatePresence mode="wait">
-                    {error && (
-                      <motion.div
-                        key="error"
-                        initial={{ opacity: 0, height: 0, y: -10 }}
-                        animate={{ opacity: 1, height: 'auto', y: 0 }}
-                        exit={{ opacity: 0, height: 0, y: -10 }}
-                        transition={{ duration: 0.3 }}
-                        className="p-3 bg-red-900/30 backdrop-blur-sm border border-red-500/30 text-red-100 rounded-lg text-sm flex items-start"
-                      >
-                        <div className="bg-red-500/20 rounded-full p-1 mr-2 mt-0.5">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-red-100" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <span>{error}</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  
-                  {/* Email field with enhanced animation */}
-                  <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-indigo-200 mb-1.5">
-                      Email address
-                    </label>
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <Mail className="h-5 w-5 text-purple-300 group-focus-within:text-purple-200 transition-colors duration-200" />
-                      </div>
-                      <input
-                        ref={inputRef}
-                        id="email"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="bg-black/30 text-white placeholder-indigo-300/50 border border-indigo-500/30 focus:border-indigo-400 block w-full pl-11 pr-3 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
-                        placeholder="name@company.com"
-                      />
-                      {/* Animated underline effect */}
-                      <motion.div 
-                        className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500"
-                        initial={{ width: '0%' }}
-                        animate={{ width: email ? '100%' : '0%' }}
-                        transition={{ duration: 0.3 }}
-                      />
-                      
-                      {/* Subtle glow effect on focus */}
-                      <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500" 
-                        style={{ boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)', zIndex: -1 }}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Password field with enhanced animation */}
-                  <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-indigo-200 mb-1.5">
-                      Password
-                    </label>
-                    <div className="relative group">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-purple-300 group-focus-within:text-purple-200 transition-colors duration-200" />
-                      </div>
-                      <input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        autoComplete="current-password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="bg-black/30 text-white placeholder-indigo-300/50 border border-indigo-500/30 focus:border-indigo-400 block w-full pl-11 pr-12 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
-                        placeholder="••••••••"
-                      />
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-indigo-300 hover:text-indigo-100 transition-colors"
-                        onClick={() => setShowPassword(!showPassword)}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                      {/* Animated underline effect */}
-                      <motion.div 
-                        className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500"
-                        initial={{ width: '0%' }}
-                        animate={{ width: password ? '100%' : '0%' }}
-                        transition={{ duration: 0.3 }}
-                      />
-                      
-                      {/* Subtle glow effect on focus */}
-                      <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500" 
-                        style={{ boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)', zIndex: -1 }}
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Remember me and forgot password */}
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="flex items-center">
-                      <input
-                        id="remember-me"
-                        name="remember-me"
-                        type="checkbox"
-                        className="h-4 w-4 text-purple-500 focus:ring-indigo-500 border-indigo-400/30 rounded bg-black/30"
-                      />
-                      <label htmlFor="remember-me" className="ml-2 block text-sm text-indigo-200">
-                        Remember me
+                
+                {/* Animated divider */}
+                <div className="relative h-px w-full overflow-hidden">
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500 to-transparent"
+                    animate={{ x: ['-100%', '100%'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </div>
+                
+                {/* Form body */}
+                <div className="p-8">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Error display with enhanced animation */}
+                    <AnimatePresence mode="wait">
+                      {error && (
+                        <motion.div
+                          key="error"
+                          initial={{ opacity: 0, height: 0, y: -10 }}
+                          animate={{ opacity: 1, height: 'auto', y: 0 }}
+                          exit={{ opacity: 0, height: 0, y: -10 }}
+                          transition={{ duration: 0.3 }}
+                          className="p-3 bg-red-900/30 backdrop-blur-sm border border-red-500/30 text-red-100 rounded-lg text-sm flex items-start"
+                        >
+                          <div className="bg-red-500/20 rounded-full p-1 mr-2 mt-0.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-red-100" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <span>{error}</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Email field with enhanced animation */}
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-indigo-200 mb-1.5">
+                        Email address
                       </label>
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                          <Mail className="h-5 w-5 text-purple-300 group-focus-within:text-purple-200 transition-colors duration-200" />
+                        </div>
+                        <input
+                          ref={inputRef}
+                          id="email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="bg-black/30 text-white placeholder-indigo-300/50 border border-indigo-500/30 focus:border-indigo-400 block w-full pl-11 pr-3 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                          placeholder="name@company.com"
+                        />
+                        {/* Animated underline effect */}
+                        <motion.div 
+                          className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500"
+                          initial={{ width: '0%' }}
+                          animate={{ width: email ? '100%' : '0%' }}
+                          transition={{ duration: 0.3 }}
+                        />
+                        
+                        {/* Subtle glow effect on focus */}
+                        <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500" 
+                          style={{ boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)', zIndex: -1 }}
+                        />
+                      </div>
                     </div>
                     
-                    <div className="text-sm">
-                      <Link 
-                        href="/forgot-password" 
-                        className="font-medium text-purple-300 hover:text-white transition-colors"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-                  </div>
-                  
-                  {/* Submit button with enhanced effects */}
-                  <div className="pt-4">
-                    <motion.button
-                      type="submit"
-                      disabled={loading}
-                      className={`${
-                        loading 
-                          ? 'bg-purple-900/50 cursor-not-allowed border-purple-800/50' 
-                          : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border-purple-500/50'
-                      } relative w-full flex justify-center items-center py-3 px-4 border shadow-lg text-sm font-medium text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 overflow-hidden`}
-                      whileHover={!loading ? { scale: 1.02 } : {}}
-                      whileTap={!loading ? { scale: 0.98 } : {}}
-                      style={{
-                        boxShadow: !loading ? '0 4px 20px -5px rgba(168, 85, 247, 0.5)' : undefined
-                      }}
-                    >
-                      {/* Button glow effect */}
-                      {!loading && (
-                        <motion.div 
-                          className="absolute inset-0 bg-gradient-to-r from-purple-600/0 via-purple-400/30 to-indigo-600/0"
-                          animate={{ x: ['-100%', '100%'] }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                        />
-                      )}
-                      
-                      {loading ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          <span>Authenticating...</span>
-                        </>
-                      ) : (
-                        <div className="flex items-center relative z-10">
-                          <span className="mr-1">Enter portal</span>
-                          <ChevronRight className="h-4 w-4" />
+                    {/* Password field with enhanced animation */}
+                    <div>
+                      <label htmlFor="password" className="block text-sm font-medium text-indigo-200 mb-1.5">
+                        Password
+                      </label>
+                      <div className="relative group">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                          <Lock className="h-5 w-5 text-purple-300 group-focus-within:text-purple-200 transition-colors duration-200" />
                         </div>
-                      )}
-                    </motion.button>
-                  </div>
-                </form>
-              </div>
-              
-              {/* Footer links with subtle hover effects */}
-              <div className="p-8 pt-4 text-center">
-                <p className="text-sm text-indigo-200">
-                  {"Don't have an account? "}
-                  <Link href="/contact" className="font-medium text-purple-300 hover:text-white transition-colors hover:underline">
-                    Contact us to get started
-                  </Link>
-                </p>
-                
-                <div className="mt-4">
-                  <Link 
-                    href="/client-dashboard" 
-                    className="inline-flex items-center text-xs text-indigo-300 hover:text-white transition-colors group"
-                  >
-                    <span>View demo dashboard</span>
-                    <motion.div
-                      animate={{ x: 0 }}
-                      whileHover={{ x: 3 }}
-                      className="inline-block ml-1"
-                    >
-                      <ArrowRight className="h-3 w-3" />
-                    </motion.div>
-                  </Link>
+                        <input
+                          id="password"
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          autoComplete="current-password"
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="bg-black/30 text-white placeholder-indigo-300/50 border border-indigo-500/30 focus:border-indigo-400 block w-full pl-11 pr-12 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
+                          placeholder="••••••••"
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-indigo-300 hover:text-indigo-100 transition-colors"
+                          onClick={() => setShowPassword(!showPassword)}
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
+                        </button>
+                        {/* Animated underline effect */}
+                        <motion.div 
+                          className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500"
+                          initial={{ width: '0%' }}
+                          animate={{ width: password ? '100%' : '0%' }}
+                          transition={{ duration: 0.3 }}
+                        />
+                        
+                        {/* Subtle glow effect on focus */}
+                        <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500" 
+                          style={{ boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)', zIndex: -1 }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Remember me and forgot password */}
+                    <div className="flex items-center justify-between pt-2">
+                      <div className="flex items-center">
+                        <input
+                          id="remember-me"
+                          name="remember-me"
+                          type="checkbox"
+                          className="h-4 w-4 text-purple-500 focus:ring-indigo-500 border-indigo-400/30 rounded bg-black/30"
+                        />
+                        <label htmlFor="remember-me" className="ml-2 block text-sm text-indigo-200">
+                          Remember me
+                        </label>
+                      </div>
+                      
+                      <div className="text-sm">
+                        <Link 
+                          href="/forgot-password" 
+                          className="font-medium text-purple-300 hover:text-white transition-colors"
+                        >
+                          Forgot password?
+                        </Link>
+                      </div>
+                    </div>
+                    
+                    {/* Submit button with enhanced effects */}
+                    <div className="pt-4">
+                      <motion.button
+                        type="submit"
+                        disabled={loading}
+                        className={`${
+                          loading 
+                            ? 'bg-purple-900/50 cursor-not-allowed border-purple-800/50' 
+                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border-purple-500/50'
+                        } relative w-full flex justify-center items-center py-3 px-4 border shadow-lg text-sm font-medium text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 overflow-hidden`}
+                        whileHover={!loading ? { scale: 1.02 } : {}}
+                        whileTap={!loading ? { scale: 0.98 } : {}}
+                        style={{
+                          boxShadow: !loading ? '0 4px 20px -5px rgba(168, 85, 247, 0.5)' : undefined
+                        }}
+                      >
+                        {/* Button glow effect */}
+                        {!loading && (
+                          <motion.div 
+                            className="absolute inset-0 bg-gradient-to-r from-purple-600/0 via-purple-400/30 to-indigo-600/0"
+                            animate={{ x: ['-100%', '100%'] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                          />
+                        )}
+                        
+                        {loading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span>Authenticating...</span>
+                          </>
+                        ) : (
+                          <div className="flex items-center relative z-10">
+                            <span className="mr-1">Enter portal</span>
+                            <ChevronRight className="h-4 w-4" />
+                          </div>
+                        )}
+                      </motion.button>
+                    </div>
+                  </form>
                 </div>
-              </div>
+                
+                {/* Footer links with subtle hover effects */}
+                <div className="p-8 pt-4 text-center">
+                  <p className="text-sm text-indigo-200">
+                    {"Don't have an account? "}
+                    <Link href="/contact" className="font-medium text-purple-300 hover:text-white transition-colors hover:underline">
+                      Contact us to get started
+                    </Link>
+                  </p>
+                  
+                  <div className="mt-4">
+                    <Link 
+                      href="/client-dashboard" 
+                      className="inline-flex items-center text-xs text-indigo-300 hover:text-white transition-colors group"
+                    >
+                      <span>View demo dashboard</span>
+                      <motion.div
+                        animate={{ x: 0 }}
+                        whileHover={{ x: 3 }}
+                        className="inline-block ml-1"
+                      >
+                        <ArrowRight className="h-3 w-3" />
+                      </motion.div>
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </div>
