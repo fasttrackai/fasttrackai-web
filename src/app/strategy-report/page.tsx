@@ -227,6 +227,55 @@ interface AnalysisResult {
   // fallback?: boolean;
 }
 
+// Add this new component for a subtle portal effect
+const SubtlePortalEffect = () => {
+  // Ensure window check for SSR compatibility
+  if (typeof window === 'undefined') return null;
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
+      <motion.div 
+        className="relative w-full h-full flex items-center justify-center"
+        initial={false}
+      >
+        <motion.div
+          className="absolute rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(79, 70, 229, 0.05) 40%, transparent 70%)',
+            boxShadow: '0 0 60px rgba(139, 92, 246, 0.2)',
+          }}
+          initial={{ width: '100vh', height: '100vh', opacity: 0 }}
+          animate={{ 
+            width: '150vh', 
+            height: '150vh',
+            opacity: [0.1, 0.2, 0.1]
+          }}
+          transition={{ 
+            duration: 8, 
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        
+        <motion.div
+          className="absolute rounded-full bg-white/5 backdrop-blur-sm border border-purple-500/10"
+          initial={{ width: '80vh', height: '80vh', opacity: 0 }}
+          animate={{ 
+            width: '120vh', 
+            height: '120vh',
+            opacity: [0.05, 0.1, 0.05]
+          }}
+          transition={{ 
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: 1
+          }}
+        />
+      </motion.div>
+    </div>
+  );
+};
+
 export default function StrategyReport() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
@@ -1643,213 +1692,308 @@ export default function StrategyReport() {
       
       default: // 'form' stage
         return (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full">
-            <div className="bg-purple-50 p-3 rounded-lg border border-purple-100 mb-6 shadow-inner">
-              <div className="flex items-start">
-                <Info className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5 mr-3" />
-                <p className="text-sm text-purple-800">
-                  This assessment takes just 60 seconds to complete and will provide you with a personalized AI opportunity analysis for your business.
-                </p>
-                </div>
-            </div>
+          <motion.div 
+            className="relative p-6 md:p-8 lg:p-12 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Add subtle portal effect behind the form */}
+            <SubtlePortalEffect />
             
-            <form onSubmit={handleSubmit} className="space-y-6 md:space-y-7">
-              {/* Form Fields - Enhanced layout */}
+            <div className="relative z-10">
               <motion.div 
-                className="grid grid-cols-1 md:grid-cols-2 gap-5"
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
+                className="text-center mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
               >
-                <motion.div 
-                  className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                  variants={fadeInUp}
-                >
-                  <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-2">Business Name</label>
-                  <input 
-                    type="text" 
-                    id="businessName" 
-                    name="businessName" 
-                    required 
-                    className="input-field bg-gray-50 focus:bg-white" 
-                    value={formData.businessName} 
-                    onChange={handleChange} 
-                    placeholder="Your company name"
-                  />
-                </motion.div>
-                
-                <motion.div 
-                  className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                  variants={fadeInUp}
-                >
-                  <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-2">Industry</label>
-                  <select 
-                    id="industry" 
-                    name="industry" 
-                    required 
-                    className="input-field bg-gray-50 focus:bg-white" 
-                    value={formData.industry} 
-                    onChange={handleChange}
-                  >
-                    <option value="">Select your industry...</option>
-                    <option value="retail">Retail</option>
-                    <option value="manufacturing">Manufacturing</option>
-                    <option value="healthcare">Healthcare</option>
-                    <option value="finance">Finance</option>
-                    <option value="technology">Technology</option>
-                    <option value="education">Education</option>
-                    <option value="hospitality">Hospitality</option>
-                    <option value="other">Other</option>
-                  </select>
-                </motion.div>
-              </motion.div>
-              
-              <motion.div 
-                className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-              >
-                <label htmlFor="companySize" className="block text-sm font-medium text-gray-700 mb-2">Company Size</label>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                  {['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'].map((size) => (
-                    <div 
-                      key={size} 
-                      onClick={() => setFormData({...formData, companySize: size})}
-                      className={`cursor-pointer text-center py-2 px-1 rounded border ${
-                        formData.companySize === size 
-                          ? 'bg-purple-100 border-purple-300 text-purple-700 font-medium' 
-                          : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                      } transition-colors text-sm`}
-                    >
-                      {size}
-                </div>
-                  ))}
-              </div>
-                <input type="hidden" name="companySize" value={formData.companySize} required />
-              </motion.div>
-              
-              <motion.div 
-                className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow relative"
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-              >
-                <label htmlFor="topChallenges" className="block text-sm font-medium text-gray-700 mb-2">
-                  Top Challenges / AI Goals
-                </label>
-                <textarea 
-                  id="topChallenges" 
-                  name="topChallenges" 
-                  required 
-                  rows={3} 
-                  className="input-field bg-gray-50 focus:bg-white" 
-                  placeholder="E.g., reduce operational costs, improve sales forecasting, automate customer support..." 
-                  value={formData.topChallenges} 
-                  onChange={handleChange}
-                ></textarea>
-                
-                {challengeSuggestions.length > 0 && (
-                  <div className="absolute z-50 mt-1 w-[calc(100%-2rem)] bg-white shadow-xl rounded-md border-2 border-purple-300 max-h-40 overflow-y-auto left-4 right-4">
-                    <div className="bg-purple-50 py-1 px-3 border-b border-purple-200">
-                      <span className="text-xs font-semibold text-purple-700">Suggested challenges:</span>
-                    </div>
-                    <ul className="py-1">
-                      {challengeSuggestions.map((suggestion, index) => (
-                        <li 
-                          key={index} 
-                          className="px-4 py-2.5 hover:bg-purple-100 cursor-pointer text-gray-700 text-sm flex items-center border-b border-gray-100 last:border-0" 
-                          onClick={() => selectChallengeSuggestion(suggestion)}
-                        >
-                          <Check className="h-4 w-4 text-purple-600 mr-2.5 flex-shrink-0" />
-                          <span className="font-medium">{suggestion}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </motion.div>
-              
-              <motion.div 
-                className="grid grid-cols-1 md:grid-cols-2 gap-5"
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
-              >
-                <motion.div 
-                  className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                  variants={fadeInUp}
-                >
-                  <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-2">Est. AI Budget</label>
-                  <select 
-                    id="budget" 
-                    name="budget" 
-                    required 
-                    className="input-field bg-gray-50 focus:bg-white" 
-                    value={formData.budget} 
-                    onChange={handleChange}
-                  >
-                    <option value="">Select budget range...</option>
-                    <option value="25k-50k">$25k-$50k</option>
-                    <option value="50k-100k">$50k-$100k</option>
-                    <option value="100k-250k">$100k-$250k</option>
-                    <option value="250k+">$250k+</option>
-                  </select>
-                </motion.div>
-                
-                <motion.div 
-                  className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                  variants={fadeInUp}
-                >
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">Business Email</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    required 
-                    className="input-field bg-gray-50 focus:bg-white" 
-                    value={formData.email} 
-                    onChange={handleChange} 
-                    placeholder="you@company.com"
-                  />
-                </motion.div>
-              </motion.div>
-              
-              <motion.div 
-                className="pt-4"
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-              >
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting} 
-                  className="button-primary text-lg py-4 font-medium relative overflow-hidden group"
-                >
-                  <span className="relative z-10 flex items-center justify-center">
-                  {isSubmitting ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Analyzing Your Business...
-                      </>
-                    ) : (
-                      <>
-                        Generate My AI Assessment 
-                        <ArrowRight className="ml-2" size={20} />
-                      </>
-                    )}
-                  </span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                </button>
-                
-                <p className="text-center text-xs text-gray-500 mt-3">
-                  Your information is securely processed. No credit card required.
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">Your AI Strategy Report</h2>
+                <p className="text-gray-600 max-w-2xl mx-auto">
+                  Complete this brief assessment to generate a custom AI opportunity analysis for your business. 
+                  Discover how AI can increase operational efficiency, customer value, and business growth.
                 </p>
               </motion.div>
-            </form>
+              
+              <motion.div 
+                className="max-w-3xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden border border-purple-100"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+                style={{ 
+                  boxShadow: '0 10px 40px -10px rgba(139, 92, 246, 0.25)',
+                  backdropFilter: 'blur(8px)'
+                }}
+              >
+                <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 p-6 border-b border-purple-100">
+                  <div className="flex items-center mb-2">
+                    <FileText className="h-6 w-6 text-purple-600 mr-2" />
+                    <h3 className="text-xl font-bold text-gray-800">Business Information</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    All fields are required to generate your personalized AI opportunity analysis.
+                  </p>
+                </div>
+                
+                <div className="p-6">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <motion.div 
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5, duration: 0.5 }}
+                      >
+                        <label htmlFor="businessName" className="block text-sm font-medium text-gray-700">
+                          Business Name
+                        </label>
+                        <input
+                          type="text"
+                          id="businessName"
+                          name="businessName"
+                          value={formData.businessName}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/80 backdrop-blur-sm"
+                          placeholder="Your Company, LLC"
+                        />
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6, duration: 0.5 }}
+                      >
+                        <label htmlFor="industry" className="block text-sm font-medium text-gray-700">
+                          Industry
+                        </label>
+                        <select
+                          id="industry"
+                          name="industry"
+                          value={formData.industry}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/80 backdrop-blur-sm"
+                        >
+                          <option value="">Select your industry</option>
+                          <option value="retail">Retail / E-commerce</option>
+                          <option value="manufacturing">Manufacturing</option>
+                          <option value="healthcare">Healthcare</option>
+                          <option value="finance">Finance / Banking</option>
+                          <option value="technology">Technology / Software</option>
+                          <option value="education">Education</option>
+                          <option value="hospitality">Hospitality / Travel</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.7, duration: 0.5 }}
+                      >
+                        <label htmlFor="companySize" className="block text-sm font-medium text-gray-700">
+                          Company Size
+                        </label>
+                        <select
+                          id="companySize"
+                          name="companySize"
+                          value={formData.companySize}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/80 backdrop-blur-sm"
+                        >
+                          <option value="">Select company size</option>
+                          <option value="1-10">1-10 employees</option>
+                          <option value="11-50">11-50 employees</option>
+                          <option value="51-200">51-200 employees</option>
+                          <option value="201-500">201-500 employees</option>
+                          <option value="501+">501+ employees</option>
+                        </select>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.8, duration: 0.5 }}
+                      >
+                        <label htmlFor="budget" className="block text-sm font-medium text-gray-700">
+                          Estimated AI Budget
+                        </label>
+                        <select
+                          id="budget"
+                          name="budget"
+                          value={formData.budget}
+                          onChange={handleChange}
+                          required
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/80 backdrop-blur-sm"
+                        >
+                          <option value="">Select budget range</option>
+                          <option value="$10k-$25k">$10,000 - $25,000</option>
+                          <option value="$25k-$50k">$25,000 - $50,000</option>
+                          <option value="$50k-$100k">$50,000 - $100,000</option>
+                          <option value="$100k-$250k">$100,000 - $250,000</option>
+                          <option value="$250k+">$250,000+</option>
+                          <option value="Exploring">Just exploring options</option>
+                        </select>
+                      </motion.div>
+                    </div>
+                    
+                    <motion.div 
+                      className="space-y-2 relative"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.9, duration: 0.5 }}
+                    >
+                      <label htmlFor="topChallenges" className="block text-sm font-medium text-gray-700">
+                        Top Business Challenges or Goals
+                      </label>
+                      <textarea
+                        id="topChallenges"
+                        name="topChallenges"
+                        value={formData.topChallenges}
+                        onChange={handleChange}
+                        required
+                        rows={4}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/80 backdrop-blur-sm"
+                        placeholder="Describe the main challenges your business faces or goals you want to achieve..."
+                      />
+                      
+                      {/* Challenge suggestions */}
+                      {challengeSuggestions.length > 0 && formData.topChallenges.length > 0 && (
+                        <div className="absolute z-20 mt-1 w-full bg-white rounded-lg border border-purple-100 shadow-lg">
+                          <div className="p-2 border-b border-gray-100">
+                            <p className="text-xs text-gray-500">Suggestions (click to select):</p>
+                          </div>
+                          <div className="max-h-48 overflow-y-auto">
+                            {challengeSuggestions.map((suggestion, index) => (
+                              <div 
+                                key={index}
+                                onClick={() => selectChallengeSuggestion(suggestion)}
+                                className="px-3 py-2 hover:bg-purple-50 cursor-pointer text-sm border-b border-gray-50 last:border-0"
+                              >
+                                {suggestion}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                    
+                    <motion.div 
+                      className="space-y-2"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1, duration: 0.5 }}
+                    >
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white/80 backdrop-blur-sm"
+                        placeholder="you@example.com"
+                      />
+                    </motion.div>
+                    
+                    {error && (
+                      <motion.div 
+                        className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="flex">
+                          <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+                          <p>{error}</p>
+                        </div>
+                      </motion.div>
+                    )}
+                    
+                    <motion.div 
+                      className="pt-4"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.1, duration: 0.5 }}
+                    >
+                      <motion.button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className={`${
+                          isSubmitting 
+                            ? 'bg-purple-400 cursor-not-allowed' 
+                            : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg hover:shadow-purple-500/30'
+                        } relative w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg text-white text-lg font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300`}
+                        whileHover={!isSubmitting ? { scale: 1.02, y: -2 } : {}}
+                        whileTap={!isSubmitting ? { scale: 0.98 } : {}}
+                      >
+                        {/* Button glow effect */}
+                        {!isSubmitting && (
+                          <motion.div 
+                            className="absolute inset-0 rounded-lg overflow-hidden"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 1.5 }}
+                          >
+                            <motion.div 
+                              className="absolute inset-0 bg-gradient-to-r from-purple-600/0 via-white/20 to-indigo-600/0"
+                              animate={{ x: ['-100%', '100%'] }}
+                              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.5 }}
+                            />
+                          </motion.div>
+                        )}
+                        
+                        {isSubmitting ? (
+                          <div className="flex items-center">
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </div>
+                        ) : (
+                          <div className="flex items-center relative z-10">
+                            Generate My AI Assessment
+                            <ArrowRight className="ml-2 h-5 w-5" />
+                          </div>
+                        )}
+                      </motion.button>
+                      
+                      <motion.p
+                        className="mt-3 text-center text-xs text-gray-500"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.2 }}
+                      >
+                        Your data is securely processed and never shared with third parties.
+                      </motion.p>
+                    </motion.div>
+                  </form>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                className="mt-8 text-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.3, duration: 0.5 }}
+              >
+                <p className="text-gray-600">
+                  Want personalized AI guidance?{' '}
+                  <Link href="/schedule-consultation" className="text-indigo-600 font-medium hover:text-indigo-500 transition-colors">
+                    Schedule a consultation instead &rarr;
+                  </Link>
+                </p>
+              </motion.div>
+            </div>
           </motion.div>
         );
     }
