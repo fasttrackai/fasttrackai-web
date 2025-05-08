@@ -1093,9 +1093,9 @@ export default function StrategyReport() {
                                   <div className="text-xs text-white bg-indigo-700 absolute -top-4 inset-x-0 text-center px-1 rounded-t-md">score</div>
                                   <div className="flex items-center justify-center bg-white shadow-lg w-12 h-12 rounded-lg border-2 border-indigo-700">
                                     <span className="text-xl font-bold text-gray-800">{area.score !== undefined ? area.score : '?'}</span>
-                                  </div>
-                                </div>
-                              </div>
+                      </div>
+                    </div>
+                  </div>
                             </div>
                             
                             <div className="flex-1">
@@ -1192,7 +1192,7 @@ export default function StrategyReport() {
                       {/* Desktop version - positioned to the side */}
                       <div className={`hidden md:flex absolute ${index % 2 === 0 ? 'right-0 -translate-x-[160%]' : 'left-0 translate-x-[160%]'} top-6 bg-white rounded-full border-4 border-purple-100 shadow-md z-20 items-center justify-center h-16 w-16`}>
                         <div className="flex items-center justify-center h-14 w-14 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white text-2xl font-bold">{index + 1}</div>
-                      </div>
+                  </div>
                       
                       {/* Mobile version - positioned above the card */}
                       <div className="md:hidden absolute left-1/2 transform -translate-x-1/2 -top-10 bg-white rounded-full border-4 border-purple-100 shadow-md z-20 flex items-center justify-center h-16 w-16">
@@ -1686,112 +1686,311 @@ export default function StrategyReport() {
 
   // --- Main Component Return --- 
   return (
-    <main className="bg-gradient-to-b from-gray-50 via-purple-50 to-white min-h-screen py-16 md:py-24">
-      <style jsx>{`
-        .input-field { @apply w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-150 shadow-sm; }
-        .button-primary { @apply w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-5 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow hover:shadow-md disabled:shadow; }
-        .gradient-hero { @apply bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800; }
-      `}</style>
+    <main className="relative min-h-screen py-16 md:py-24 overflow-hidden">
+      {/* Cosmic Background */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-indigo-950 via-[#170b35] to-black">
+        {/* Stars background layer */}
+        <div className="absolute inset-0 bg-[url('/stars-bg.png')] bg-repeat opacity-20"></div>
+        
+        {/* Ambient Glowing Orbs */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(6)].map((_, i) => {
+            const size = Math.random() * 400 + 200;
+            const xPos = Math.random() * 100;
+            const yPos = Math.random() * 100;
+            const hue = 250 + Math.random() * 60; // Purples and blues
+            const opacity = 0.02 + Math.random() * 0.04;
+            
+            return (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  width: size,
+                  height: size,
+                  top: `${yPos}%`,
+                  left: `${xPos}%`,
+                  background: `radial-gradient(circle, hsla(${hue}, 100%, 70%, ${opacity}) 0%, hsla(${hue}, 100%, 50%, 0) 70%)`,
+                  filter: 'blur(60px)',
+                }}
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [opacity, opacity * 1.3, opacity],
+                  x: [0, (Math.random() - 0.5) * 30, 0],
+                  y: [0, (Math.random() - 0.5) * 30, 0],
+                }}
+                transition={{
+                  duration: 15 + Math.random() * 15,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+            );
+          })}
+        </div>
+        
+        {/* Particle Field */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(30)].map((_, i) => {
+            const size = Math.random() * 4 + 1;
+            const depth = Math.random();
+            return (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-white"
+                style={{
+                  width: size,
+                  height: size,
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  opacity: 0.05 + depth * 0.3,
+                  filter: `blur(${(1 - depth) * 2}px)`,
+                  zIndex: Math.floor(depth * 10)
+                }}
+                animate={{
+                  y: [0, -Math.random() * 100 - 50],
+                  x: [0, (Math.random() - 0.5) * 30],
+                  scale: [0, 1, depth],
+                  opacity: [0, 0.05 + depth * 0.3, 0]
+                }}
+                transition={{
+                  duration: 10 + Math.random() * 20,
+                  repeat: Infinity,
+                  ease: "linear",
+                  delay: Math.random() * 5
+                }}
+              />
+            );
+          })}
+        </div>
+        
+        {/* Enhanced meteor animation component */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(7)].map((_, i) => {
+            const width = Math.random() * 250 + 50;
+            const speed = Math.random() * 3 + 3;
+            const opacity = Math.random() * 0.4 + 0.1;
+            const hue = Math.floor(Math.random() * 40) + 230; // Blue to purple range
+            
+            return (
+              <motion.div
+                key={i}
+                className="absolute h-[1px] md:h-[2px]"
+                style={{
+                  background: `linear-gradient(90deg, hsla(${hue}, 100%, 70%, 0) 0%, hsla(${hue}, 100%, 70%, ${opacity}) 50%, hsla(${hue}, 100%, 70%, 0) 100%)`,
+                  width: `${width}px`,
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  rotate: `${Math.random() * 60 - 30}deg`,
+                  opacity: 0,
+                  boxShadow: `0 0 ${width * 0.04}px hsla(${hue}, 100%, 70%, ${opacity * 0.3})`
+                }}
+                animate={{
+                  x: [-100, width * 1.5],
+                  y: [0, width * 0.2],
+                  opacity: [0, 1, 0],
+                }}
+                transition={{
+                  duration: speed,
+                  repeat: Infinity,
+                  delay: Math.random() * 15,
+                  repeatDelay: Math.random() * 10 + 10,
+                }}
+              />
+            );
+          })}
+        </div>
+        
+        {/* Neural Network Visualization */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-5">
+          <svg width="100%" height="100%" viewBox="0 0 800 600" className="opacity-10">
+            <g>
+              {/* Neural network nodes */}
+              {[...Array(15)].map((_, i) => (
+                <motion.circle
+                  key={`node-${i}`}
+                  cx={400 + Math.cos(i * 0.5) * 300}
+                  cy={300 + Math.sin(i * 0.5) * 250}
+                  r="3"
+                  fill="#a855f7"
+                  animate={{ 
+                    r: [3, 5, 3],
+                    opacity: [0.2, 0.5, 0.2],
+                    fill: ['#a855f7', '#818cf8', '#a855f7']
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity, 
+                    delay: i * 0.2,
+                    ease: "easeInOut" 
+                  }}
+                />
+              ))}
+              
+              {/* Connection lines with pulse effect */}
+              {[...Array(20)].map((_, i) => {
+                const x1 = 400 + Math.cos(i * 0.25) * 300;
+                const y1 = 300 + Math.sin(i * 0.25) * 250;
+                const x2 = 400 + Math.cos((i + 3) * 0.25) * 300;
+                const y2 = 300 + Math.sin((i + 3) * 0.25) * 250;
+                
+                return (
+                  <g key={`connection-${i}`}>
+                    <motion.line
+                      x1={x1}
+                      y1={y1}
+                      x2={x2}
+                      y2={y2}
+                      stroke="#a855f7"
+                      strokeWidth="1"
+                      animate={{ 
+                        strokeOpacity: [0.05, 0.1, 0.05],
+                        stroke: ['#a855f7', '#818cf8', '#a855f7']
+                      }}
+                      transition={{ 
+                        duration: 4, 
+                        repeat: Infinity, 
+                        delay: i * 0.1,
+                        ease: "easeInOut" 
+                      }}
+                    />
+                    <motion.circle
+                      cx={x1 + (x2 - x1) * 0.3}
+                      cy={y1 + (y2 - y1) * 0.3}
+                      r="1"
+                      fill="#a855f7"
+                      animate={{
+                        cx: [x1, x2, x1],
+                        cy: [y1, y2, y1],
+                        opacity: [0, 0.6, 0],
+                      }}
+                      transition={{
+                        duration: 3 + Math.random() * 2,
+                        repeat: Infinity,
+                        delay: i * 0.05,
+                        ease: "easeInOut",
+                        repeatDelay: Math.random() * 2
+                      }}
+                    />
+                  </g>
+                );
+              })}
+            </g>
+          </svg>
+        </div>
+      </div>
       
-      {/* Hero Section with Animation */}
-        <motion.div 
-        className="container mx-auto mb-12 px-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="text-center">
-          <motion.h1 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Discover Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">AI Potential</span>
-          </motion.h1>
+      {/* White container for content */}
+      <div className="relative z-10 container mx-auto">
+        {/* This container creates a white background for the content, maintaining the original design */}
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-6 md:p-8 relative z-10">
+          <style jsx>{`
+            .input-field { @apply w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-150 shadow-sm; }
+            .button-primary { @apply w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-5 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow hover:shadow-md disabled:shadow; }
+            .gradient-hero { @apply bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800; }
+          `}</style>
           
-          <motion.p 
-            className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            Transform your business with AI opportunities tailored to your needs
-          </motion.p>
-          
-          {/* Animated Icons */}
-          <motion.div 
-            className="flex justify-center gap-8 mb-10"
+          {/* Hero Section with Animation */}
+            <motion.div 
+            className="container mx-auto mb-12 px-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.8 }}
           >
-            <motion.div 
-              className="flex flex-col items-center"
-              whileHover={{ y: -5 }}
-            >
-              <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-2">
-                <Zap className="h-8 w-8 text-purple-600" />
-              </div>
-              <span className="text-sm text-gray-600 font-medium">Fast Results</span>
-            </motion.div>
-            
-            <motion.div 
-              className="flex flex-col items-center"
-              whileHover={{ y: -5 }}
-            >
-              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-2">
-                <BarChart className="h-8 w-8 text-blue-600" />
-              </div>
-              <span className="text-sm text-gray-600 font-medium">Data-Driven</span>
-            </motion.div>
-            
-            <motion.div 
-              className="flex flex-col items-center"
-              whileHover={{ y: -5 }}
-            >
-              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-2">
-                <Target className="h-8 w-8 text-emerald-600" />
-              </div>
-              <span className="text-sm text-gray-600 font-medium">Actionable</span>
-            </motion.div>
+            <div className="text-center">
+              <motion.h1 
+                className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                Discover Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">AI Potential</span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                Transform your business with AI opportunities tailored to your needs
+              </motion.p>
+              
+              {/* Animated Icons */}
+              <motion.div 
+                className="flex justify-center gap-8 mb-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <motion.div 
+                  className="flex flex-col items-center"
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mb-2">
+                    <Zap className="h-8 w-8 text-purple-600" />
+                  </div>
+                  <span className="text-sm text-gray-600 font-medium">Fast Results</span>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex flex-col items-center"
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mb-2">
+                    <BarChart className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <span className="text-sm text-gray-600 font-medium">Data-Driven</span>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex flex-col items-center"
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mb-2">
+                    <Target className="h-8 w-8 text-emerald-600" />
+                  </div>
+                  <span className="text-sm text-gray-600 font-medium">Actionable</span>
+                </motion.div>
+              </motion.div>
+            </div>
           </motion.div>
-        </div>
-      </motion.div>
 
-      <div className="max-w-5xl mx-auto px-4">
-        <motion.div 
-          className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100/50"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
-          <div className="p-6 md:p-10">
-            {/* Header */}
-            {stage === 'form' && (
-              <div className="text-center mb-8 md:mb-10">
-                <div className="inline-block p-4 bg-purple-100 rounded-full mb-4 shadow-inner">
-                  <FileText className="h-10 w-10 text-purple-600" />
-                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">AI Strategy Quick Assessment</h2>
-                <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">Answer a few questions for a personalized AI opportunity snapshot.</p>
+          <div className="max-w-5xl mx-auto px-4">
+            <motion.div 
+              className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100/50"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
+              <div className="p-6 md:p-10">
+                {/* Header */}
+                {stage === 'form' && (
+                  <div className="text-center mb-8 md:mb-10">
+                    <div className="inline-block p-4 bg-purple-100 rounded-full mb-4 shadow-inner">
+                      <FileText className="h-10 w-10 text-purple-600" />
+                     </div>
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">AI Strategy Quick Assessment</h2>
+                    <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto">Answer a few questions for a personalized AI opportunity snapshot.</p>
+                  </div>
+                )}
+                
+                {/* Error Display */}
+                {error && (
+                  <div className="mb-4 bg-red-50 border border-red-200 p-3 rounded-md text-left">
+                    <div className="flex items-center">
+                      <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mr-2" />
+                      <p className="text-sm text-red-700">{error}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Main Content Area */}
+                {renderStageContent()}
               </div>
-            )}
-            
-            {/* Error Display */}
-            {error && (
-              <div className="mb-4 bg-red-50 border border-red-200 p-3 rounded-md text-left">
-                <div className="flex items-center">
-                  <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mr-2" />
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
-              </div>
-            )}
-            
-            {/* Main Content Area */}
-            {renderStageContent()}
+            </motion.div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </main>
   );
