@@ -7,6 +7,177 @@ import { motion } from 'framer-motion';
 import { FileText, Download, Mail, ArrowRight, Check, Clock, Zap, BarChart, Target, Activity, Users, AlertCircle, RefreshCw, Info, MessageCircle, Send } from 'lucide-react';
 import jsPDF from 'jspdf'; // Keep for potential future use
 
+// Background Animation Components (copied from sign-in page)
+const ParticleField = () => {
+  // Ensure window check for SSR compatibility
+  if (typeof window === 'undefined') return null;
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(50)].map((_, i) => {
+        const size = Math.random() * 8 + 1;
+        const depth = Math.random();
+        return (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-white"
+            style={{
+              width: size,
+              height: size,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              opacity: 0.05 + depth * 0.2, // Reduced opacity for strategy page
+              filter: `blur(${(1 - depth) * 1.5}px)`, // Slightly less blur
+              zIndex: 1 // Ensure they are behind content but visible
+            }}
+            animate={{
+              y: [0, -Math.random() * 100 - 30], // Slower movement
+              x: [0, (Math.random() - 0.5) * 30],
+              scale: [0, 0.8, depth * 0.8], // Smaller scale
+              opacity: [0, 0.05 + depth * 0.2, 0]
+            }}
+            transition={{
+              duration: 8 + Math.random() * 15, // Slower duration
+              repeat: Infinity,
+              ease: "linear",
+              delay: Math.random() * 7
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+const Meteors = () => {
+  // Ensure window check for SSR compatibility
+  if (typeof window === 'undefined') return null;
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(10)].map((_, i) => { // Fewer meteors
+        const width = Math.random() * 200 + 40; // Smaller meteors
+        const speed = Math.random() * 3 + 3; // Slower speed
+        const opacity = Math.random() * 0.4 + 0.1; // More subtle
+        const hue = Math.floor(Math.random() * 40) + 230; 
+        
+        return (
+          <motion.div
+            key={i}
+            className="absolute h-[1px] md:h-[1.5px]" // Thinner
+            style={{
+              background: `linear-gradient(90deg, hsla(${hue}, 100%, 70%, 0) 0%, hsla(${hue}, 100%, 70%, ${opacity}) 50%, hsla(${hue}, 100%, 70%, 0) 100%)`,
+              width: `${width}px`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              rotate: `${Math.random() * 40 - 20}deg`,
+              opacity: 0,
+              boxShadow: `0 0 ${width * 0.03}px hsla(${hue}, 100%, 70%, ${opacity * 0.3})`, // Smaller shadow
+              zIndex: 1
+            }}
+            animate={{
+              x: [-80, width * 1.3],
+              y: [0, width * 0.15],
+              opacity: [0, 0.8, 0],
+            }}
+            transition={{
+              duration: speed,
+              repeat: Infinity,
+              delay: Math.random() * 12,
+              repeatDelay: Math.random() * 8 + 6,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+const GlowingOrbs = () => {
+  // Ensure window check for SSR compatibility
+  if (typeof window === 'undefined') return null;
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {[...Array(5)].map((_, i) => { // Fewer orbs
+        const size = Math.random() * 200 + 80; // Smaller orbs
+        const xPos = Math.random() * 100;
+        const yPos = Math.random() * 100;
+        const hue = 250 + Math.random() * 60; 
+        const opacity = 0.02 + Math.random() * 0.04; // More subtle
+        
+        return (
+          <motion.div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: size,
+              height: size,
+              top: `${yPos}%`,
+              left: `${xPos}%`,
+              background: `radial-gradient(circle, hsla(${hue}, 100%, 70%, ${opacity}) 0%, hsla(${hue}, 100%, 50%, 0) 70%)`,
+              filter: 'blur(30px)', // Slightly less blur
+              zIndex: 0 // Furthest back
+            }}
+            animate={{
+              scale: [1, 1.15, 1],
+              opacity: [opacity, opacity * 1.2, opacity],
+              x: [0, (Math.random() - 0.5) * 20, 0],
+              y: [0, (Math.random() - 0.5) * 20, 0],
+            }}
+            transition={{
+              duration: 12 + Math.random() * 12,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+};
+
+const DigitalRain = () => {
+  // Ensure window check for SSR compatibility
+  if (typeof window === 'undefined') return null;
+  const windowHeight = window.innerHeight;
+  return (
+    <div className="absolute inset-0 overflow-hidden opacity-05 pointer-events-none"> {/* Reduced opacity */}
+      <div className="absolute top-0 left-0 w-full h-full flex">
+        {[...Array(15)].map((_, i) => ( // Fewer columns
+          <div key={i} className="rain-column flex-1 flex flex-col items-center">
+            {[...Array(10)].map((_, j) => { // Fewer characters per column
+              const characters = "01";
+              const char = characters.charAt(Math.floor(Math.random() * characters.length));
+              const delay = Math.random() * 8; // Slower delay
+              const duration = Math.random() * 3 + 2; // Slower duration
+              
+              return (
+                <motion.div
+                  key={j}
+                  className="text-xs text-purple-300/70" // More subtle color
+                  initial={{ opacity: 0, y: -15 }}
+                  animate={{ 
+                    opacity: [0, 0.5, 0],
+                    y: [j * -25, windowHeight] // Use dynamic window height
+                  }}
+                  transition={{
+                    duration: duration,
+                    repeat: Infinity,
+                    delay: delay,
+                    ease: "linear",
+                    repeatDelay: Math.random() * 3
+                  }}
+                  style={{ zIndex: 1 }}
+                >
+                  {char}
+                </motion.div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 }
@@ -1686,7 +1857,16 @@ export default function StrategyReport() {
 
   // --- Main Component Return --- 
   return (
-    <main className="bg-gradient-to-b from-gray-50 via-purple-50 to-white min-h-screen py-16 md:py-24">
+    <main className="bg-gradient-to-b from-gray-50 via-purple-50 to-white min-h-screen py-16 md:py-24 relative isolate overflow-hidden"> {/* Added relative, isolate, and overflow-hidden */}
+      {/* Animated Background - ensure it's behind the main content */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/5 via-[#170b35]/10 to-black/10" /> {/* Subtle dark overlay - slightly stronger */}
+        <GlowingOrbs />
+        <ParticleField />
+        <DigitalRain />
+        <Meteors />
+      </div>
+
       <style jsx>{`
         .input-field { @apply w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-150 shadow-sm; }
         .button-primary { @apply w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-5 rounded-lg transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow hover:shadow-md disabled:shadow; }
@@ -1759,7 +1939,7 @@ export default function StrategyReport() {
         </div>
       </motion.div>
 
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto px-4 relative z-10"> {/* Added relative and z-10 to keep content on top */}
         <motion.div 
           className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100/50"
           initial={{ opacity: 0, y: 20 }}
