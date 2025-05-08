@@ -729,9 +729,9 @@ export default function SignIn() {
               </div>
               
               {/* Card container with frosted glass effect */}
-              <motion.div
+      <motion.div
                 className="backdrop-blur-xl bg-black/50 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-                initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 20 }}
                 animate={{ 
                   opacity: animationComplete ? 1 : 0, 
                   y: animationComplete ? 0 : 20 
@@ -746,9 +746,9 @@ export default function SignIn() {
                   </h2>
                   <p className="text-indigo-200/80 text-sm">
                     Sign in to your AI implementation dashboard
-                  </p>
-                </div>
-                
+          </p>
+        </div>
+        
                 {/* Animated divider */}
                 <div className="relative h-px w-full overflow-hidden">
                   <motion.div 
@@ -763,8 +763,8 @@ export default function SignIn() {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Error display with enhanced animation */}
                     <AnimatePresence mode="wait">
-                      {error && (
-                        <motion.div
+          {error && (
+            <motion.div
                           key="error"
                           initial={{ opacity: 0, height: 0, y: -10 }}
                           animate={{ opacity: 1, height: 'auto', y: 0 }}
@@ -778,31 +778,31 @@ export default function SignIn() {
                             </svg>
                           </div>
                           <span>{error}</span>
-                        </motion.div>
-                      )}
+            </motion.div>
+          )}
                     </AnimatePresence>
-                    
+          
                     {/* Email field with enhanced animation */}
-                    <div>
+            <div>
                       <label htmlFor="email" className="block text-sm font-medium text-indigo-200 mb-1.5">
-                        Email address
-                      </label>
+                Email address
+              </label>
                       <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                           <Mail className="h-5 w-5 text-purple-300 group-focus-within:text-purple-200 transition-colors duration-200" />
-                        </div>
-                        <input
+                </div>
+                <input
                           ref={inputRef}
-                          id="email"
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                           className="bg-black/30 text-white placeholder-indigo-300/50 border border-indigo-500/30 focus:border-indigo-400 block w-full pl-11 pr-3 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
-                          placeholder="name@company.com"
-                        />
+                  placeholder="name@company.com"
+                />
                         {/* Animated underline effect */}
                         <motion.div 
                           className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500"
@@ -815,41 +815,41 @@ export default function SignIn() {
                         <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500" 
                           style={{ boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)', zIndex: -1 }}
                         />
-                      </div>
-                    </div>
-                    
+              </div>
+            </div>
+            
                     {/* Password field with enhanced animation */}
-                    <div>
+            <div>
                       <label htmlFor="password" className="block text-sm font-medium text-indigo-200 mb-1.5">
-                        Password
-                      </label>
+                Password
+              </label>
                       <div className="relative group">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                           <Lock className="h-5 w-5 text-purple-300 group-focus-within:text-purple-200 transition-colors duration-200" />
-                        </div>
-                        <input
-                          id="password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          autoComplete="current-password"
-                          required
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
+                </div>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                           className="bg-black/30 text-white placeholder-indigo-300/50 border border-indigo-500/30 focus:border-indigo-400 block w-full pl-11 pr-12 py-3 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all duration-200"
-                          placeholder="••••••••"
-                        />
-                        <button
-                          type="button"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
                           className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-indigo-300 hover:text-indigo-100 transition-colors"
-                          onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPassword(!showPassword)}
                           aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? (
+                >
+                  {showPassword ? (
                             <EyeOff className="h-5 w-5" />
-                          ) : (
+                  ) : (
                             <Eye className="h-5 w-5" />
-                          )}
-                        </button>
+                  )}
+                </button>
                         {/* Animated underline effect */}
                         <motion.div 
                           className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-indigo-500"
@@ -862,39 +862,39 @@ export default function SignIn() {
                         <div className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 pointer-events-none transition-opacity duration-500" 
                           style={{ boxShadow: '0 0 15px rgba(139, 92, 246, 0.3)', zIndex: -1 }}
                         />
-                      </div>
-                    </div>
-                    
+            </div>
+          </div>
+          
                     {/* Remember me and forgot password */}
                     <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center">
-                        <input
-                          id="remember-me"
-                          name="remember-me"
-                          type="checkbox"
+            <div className="flex items-center">
+              <input
+                id="remember-me"
+                name="remember-me"
+                type="checkbox"
                           className="h-4 w-4 text-purple-500 focus:ring-indigo-500 border-indigo-400/30 rounded bg-black/30"
-                        />
+              />
                         <label htmlFor="remember-me" className="ml-2 block text-sm text-indigo-200">
-                          Remember me
-                        </label>
-                      </div>
-                      
-                      <div className="text-sm">
+                Remember me
+              </label>
+            </div>
+            
+            <div className="text-sm">
                         <Link 
                           href="/forgot-password" 
                           className="font-medium text-purple-300 hover:text-white transition-colors"
                         >
                           Forgot password?
-                        </Link>
-                      </div>
-                    </div>
-                    
+              </Link>
+            </div>
+          </div>
+          
                     {/* Submit button with enhanced effects */}
                     <div className="pt-4">
                       <motion.button
-                        type="submit"
-                        disabled={loading}
-                        className={`${
+              type="submit"
+              disabled={loading}
+              className={`${
                           loading 
                             ? 'bg-purple-900/50 cursor-not-allowed border-purple-800/50' 
                             : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 border-purple-500/50'
@@ -914,33 +914,33 @@ export default function SignIn() {
                           />
                         )}
                         
-                        {loading ? (
-                          <>
+              {loading ? (
+                <>
                             <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                             <span>Authenticating...</span>
-                          </>
-                        ) : (
+                </>
+              ) : (
                           <div className="flex items-center relative z-10">
                             <span className="mr-1">Enter portal</span>
                             <ChevronRight className="h-4 w-4" />
                           </div>
-                        )}
+              )}
                       </motion.button>
-                    </div>
-                  </form>
+          </div>
+        </form>
                 </div>
-                
+        
                 {/* Footer links with subtle hover effects */}
                 <div className="p-8 pt-4 text-center">
                   <p className="text-sm text-indigo-200">
-                    {"Don't have an account? "}
+            {"Don't have an account? "}
                     <Link href="/contact" className="font-medium text-purple-300 hover:text-white transition-colors hover:underline">
-                      Contact us to get started
-                    </Link>
-                  </p>
+              Contact us to get started
+            </Link>
+          </p>
                   
                   <div className="mt-4">
                     <Link 
@@ -955,7 +955,7 @@ export default function SignIn() {
                       >
                         <ArrowRight className="h-3 w-3" />
                       </motion.div>
-                    </Link>
+          </Link>
                   </div>
                 </div>
               </motion.div>
