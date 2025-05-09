@@ -40,18 +40,73 @@ const SparkleEffect = ({
   />
 );
 
+// Robot head outline component
+const RobotHead = () => (
+  <svg 
+    width="14" 
+    height="14" 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    className="absolute -right-1 -top-1 z-20"
+    style={{ filter: "drop-shadow(0 0 1px rgba(255,255,255,0.5))" }}
+  >
+    <rect 
+      x="3" 
+      y="5" 
+      width="18" 
+      height="14" 
+      rx="2" 
+      stroke="white" 
+      strokeWidth="2" 
+      strokeLinecap="round"
+    />
+    <circle cx="9" cy="12" r="2" stroke="white" strokeWidth="2" />
+    <circle cx="15" cy="12" r="2" stroke="white" strokeWidth="2" />
+    <line x1="8" y1="19" x2="16" y2="19" stroke="white" strokeWidth="2" strokeLinecap="round" />
+    <line x1="7" y1="3" x2="7" y2="5" stroke="white" strokeWidth="2" strokeLinecap="round" />
+    <line x1="17" y1="3" x2="17" y2="5" stroke="white" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
 export default function AnimatedRocket() {
   return (
     <div className="flex items-center w-full max-w-6xl mx-auto">
       {/* Logo with Rocket Icon */}
       <Link href="/" className="flex items-center">
-        <div className="relative flex items-center justify-center w-12 h-12 mr-1">
-          <div className="absolute w-10 h-10 bg-gradient-to-b from-purple-600 to-purple-800 rounded-full"></div>
-          <Rocket className="w-5 h-5 text-white relative z-10" />
-        </div>
+        <motion.div 
+          className="relative flex items-center justify-center w-14 h-14 mr-2"
+          whileHover={{ scale: 1.05 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* Rounded square background instead of circle */}
+          <div className="absolute w-12 h-12 bg-purple-700 rounded-lg"></div>
+          
+          {/* White outlined rocket with hover effect */}
+          <motion.div
+            initial={{ y: 0 }}
+            animate={{ y: [0, -2, 0] }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="relative z-10"
+          >
+            <Rocket className="w-6 h-6 text-white stroke-[2.5px] relative z-10" />
+            {/* Robot head near rocket tip */}
+            <RobotHead />
+          </motion.div>
+          
+          {/* Sparkle effects */}
+          <SparkleEffect top="25%" left="25%" delay={0.5} color="white" />
+          <SparkleEffect top="30%" left="70%" delay={1.2} color="white" />
+          <SparkleEffect top="60%" left="40%" delay={0.8} color="white" />
+          <SparkleEffect top="70%" left="65%" delay={1.7} color="white" size={3} />
+        </motion.div>
+        
         <div className="font-bold text-xl tracking-tight">
           <span className="text-black">fasttrack</span>
-          <span className="text-purple-700">ai</span>
+          <span className="text-amber-500">ai</span>
         </div>
       </Link>
 
