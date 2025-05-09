@@ -43,12 +43,12 @@ const SparkleEffect = ({
 // Robot head outline component
 const RobotHead = () => (
   <svg 
-    width="12" 
-    height="12" 
+    width="18" 
+    height="18" 
     viewBox="0 0 24 24" 
     fill="none" 
-    className="absolute right-8 -top-3 z-20"
-    style={{ filter: "drop-shadow(0 0 1px rgba(255,255,255,0.5))" }}
+    className="absolute -top-7 left-9 z-30"
+    style={{ filter: "drop-shadow(0 0 2px rgba(255,255,255,0.7))" }}
   >
     <rect 
       x="3" 
@@ -57,14 +57,14 @@ const RobotHead = () => (
       height="14" 
       rx="2" 
       stroke="white" 
-      strokeWidth="2" 
+      strokeWidth="2.5" 
       strokeLinecap="round"
     />
-    <circle cx="9" cy="12" r="2" stroke="white" strokeWidth="2" />
-    <circle cx="15" cy="12" r="2" stroke="white" strokeWidth="2" />
-    <line x1="8" y1="19" x2="16" y2="19" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    <line x1="7" y1="3" x2="7" y2="5" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    <line x1="17" y1="3" x2="17" y2="5" stroke="white" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="9" cy="12" r="2" stroke="white" strokeWidth="2.5" />
+    <circle cx="15" cy="12" r="2" stroke="white" strokeWidth="2.5" />
+    <line x1="8" y1="19" x2="16" y2="19" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="7" y1="3" x2="7" y2="5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+    <line x1="17" y1="3" x2="17" y2="5" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
   </svg>
 );
 
@@ -75,7 +75,7 @@ export default function AnimatedRocket() {
       <Link href="/" className="flex items-center">
         <div className="relative">
           <motion.div 
-            className="relative flex items-center justify-center w-14 h-14 mr-2"
+            className="relative flex items-center justify-center w-14 h-14 mr-3"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
@@ -107,7 +107,7 @@ export default function AnimatedRocket() {
           <RobotHead />
         </div>
         
-        <div className="font-medium text-xl tracking-tight">
+        <div className="font-light text-2xl tracking-tight">
           <span className="text-black">fasttrack</span>
           <span className="text-amber-500">ai</span>
         </div>
@@ -115,8 +115,7 @@ export default function AnimatedRocket() {
 
       {/* Checkpoints with enhanced animation */}
       <div className="flex items-center justify-center space-x-4 ml-4 relative">
-        {/* Subtle connecting line */}
-        <div className="absolute h-0.5 w-full -z-10 bg-gradient-to-r from-emerald-500/10 via-blue-500/10 to-purple-500/10"></div>
+        {/* Removed the subtle connecting line */}
         
         <motion.div
           initial={{ opacity: 0 }}
