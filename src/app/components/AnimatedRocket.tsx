@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Rocket, Bot, Sparkles } from 'lucide-react';
+import { Rocket } from 'lucide-react';
 import Link from 'next/link';
 
 // Sparkle component for decorative elements
@@ -42,30 +42,17 @@ const SparkleEffect = ({
 
 export default function AnimatedRocket() {
   return (
-    <div className="flex items-center justify-between w-full max-w-6xl mx-auto relative">
-      {/* Logo Placeholder with Link */}
-      <Link href="/" className="relative flex items-center">
-        <span className="font-bold text-xl text-purple-800 tracking-tight">FastTrackAI</span>
-        
-        {/* Subtle sparkle effects around the logo */}
-        <div className="absolute inset-0 overflow-hidden">
-          <SparkleEffect delay={0.5} size={3} top="-2px" left="30%" color="rgba(168, 85, 247, 0.8)" />
-          <SparkleEffect delay={1.2} size={2} top="50%" left="80%" color="rgba(79, 70, 229, 0.8)" />
-          <SparkleEffect delay={2.1} size={2.5} top="80%" left="40%" color="rgba(168, 85, 247, 0.8)" />
-          <SparkleEffect delay={0.8} size={2} top="15%" left="95%" color="rgba(79, 70, 229, 0.8)" />
+    <div className="flex items-center w-full max-w-6xl mx-auto">
+      {/* Logo with Rocket Icon */}
+      <Link href="/" className="flex items-center">
+        <div className="relative flex items-center justify-center w-12 h-12 mr-1">
+          <div className="absolute w-10 h-10 bg-gradient-to-b from-purple-600 to-purple-800 rounded-full"></div>
+          <Rocket className="w-5 h-5 text-white relative z-10" />
         </div>
-        
-        {/* AI Indicator */}
-        <motion.div 
-          className="ml-1 flex items-center bg-gradient-to-r from-indigo-500 to-purple-700 px-1.5 py-0.5 rounded-md shadow-sm"
-          whileHover={{ 
-            scale: 1.05,
-            boxShadow: "0 0 8px rgba(139, 92, 246, 0.5)"
-          }}
-        >
-          <Sparkles className="w-3 h-3 text-white mr-0.5" />
-          <span className="text-white text-xs font-semibold tracking-wide">AI</span>
-        </motion.div>
+        <div className="font-bold text-xl tracking-tight">
+          <span className="text-black">fasttrack</span>
+          <span className="text-purple-700">ai</span>
+        </div>
       </Link>
 
       {/* Checkpoints with enhanced animation */}
