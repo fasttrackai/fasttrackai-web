@@ -12,7 +12,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "FastTrack AI | Accelerate Your AI Journey",
+  title: "fasttrackai | Accelerate Your AI Journey",
   description: "FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.",
   keywords: "AI consulting, artificial intelligence, business automation, AI implementation, machine learning, data analytics, AI training, digital transformation",
   authors: [{ name: "FastTrack AI Team" }],
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   openGraph: {
-    title: "FastTrack AI | Accelerate Your AI Journey",
+    title: "fasttrackai | Accelerate Your AI Journey",
     description: "FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.",
     url: 'https://fasttrackai.io',
     siteName: 'FastTrack AI',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FastTrack AI | Accelerate Your AI Journey',
+    title: 'fasttrackai | Accelerate Your AI Journey',
     description: 'FastTrack AI helps businesses accelerate their AI implementation with expert consulting, custom solutions, and comprehensive training programs.',
     images: ['/twitter-image.svg'],
   },
