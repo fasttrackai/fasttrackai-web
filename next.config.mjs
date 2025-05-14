@@ -37,6 +37,11 @@ const nextConfig = {
   },
   // Output as standalone for easier deployment
   output: 'standalone',
+  // Make sure Next.js loads environment variables from .env.local
+  experimental: {
+    esmExternals: 'loose',
+    serverComponentsExternalPackages: ['openai'],
+  },
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if

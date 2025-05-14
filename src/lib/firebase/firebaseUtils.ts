@@ -1,4 +1,4 @@
-import { auth, db, storage } from "./firebase";
+import { auth, db, storage, database } from "./firebase";
 import {
   signOut,
   GoogleAuthProvider,
@@ -13,6 +13,16 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { 
+  ref as dbRef, 
+  push as dbPush, 
+  set as dbSet, 
+  get as dbGet,
+  update as dbUpdate,
+  query as dbQuery,
+  orderByChild,
+  equalTo,
+} from "firebase/database";
 
 // Auth functions
 export const logoutUser = () => {
@@ -63,4 +73,63 @@ export const uploadFile = async (file: File, path: string) => {
   const storageRef = ref(storage, path);
   await uploadBytes(storageRef, file);
   return getDownloadURL(storageRef);
+};
+
+// Realtime Database functions
+export const saveLead = async (leadData: any) => {
+  if (!database) throw new Error('Firebase Realtime Database not initialized');
+  
+  // Create a reference to the leads collection
+  const leadsRef = dbRef(database, 'leads');
+  
+  // Push a new lead with auto-generated key
+  const newLeadRef = dbPush(leadsRef);
+  
+  // Set the lead data
+  await dbSet(newLeadRef, {
+    ...leadData,
+    status: 'new',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  });
+  
+  return newLeadRef.key;
+};
+
+export const getLeads = async (status?: string) => {
+  if (!database) throw new Error('Firebase Realtime Database not initialized');
+  
+  let leadsQuery;
+  if (status) {
+    // Query leads by status
+    leadsQuery = dbQuery(dbRef(database, 'leads'), orderByChild('status'), equalTo(status));
+  } else {
+    // Get all leads
+    leadsQuery = dbRef(database, 'leads');
+  }
+  
+  const snapshot = await dbGet(leadsQuery);
+  const leads: any[] = [];
+  
+  if (snapshot.exists()) {
+    snapshot.forEach((childSnapshot) => {
+      leads.push({
+        id: childSnapshot.key,
+        ...childSnapshot.val()
+      });
+    });
+  }
+  
+  return leads;
+};
+
+export const updateLeadStatus = async (leadId: string, status: string) => {
+  if (!database) throw new Error('Firebase Realtime Database not initialized');
+  
+  const leadRef = dbRef(database, `leads/${leadId}`);
+  
+  return dbUpdate(leadRef, {
+    status,
+    updatedAt: new Date().toISOString()
+  });
 };
