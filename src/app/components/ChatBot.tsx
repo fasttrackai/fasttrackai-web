@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bot, X, Send, Calendar, PhoneCall, Zap, BarChart, Database, Brain, ChevronRight, MessageSquare } from 'lucide-react';
+import { Bot, X, Send, Calendar, PhoneCall, Zap, BarChart, Database, Brain, ChevronRight, MessageSquare, Clock } from 'lucide-react';
 import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { Message } from 'ai';
@@ -100,12 +100,17 @@ export default function ChatBot() {
   const [minimized, setMinimized] = useState(false);
   const [typingEffect, setTypingEffect] = useState(false);
   const [typingMessage, setTypingMessage] = useState('');
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [userAnswer, setUserAnswer] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [messageFocus, setMessageFocus] = useState(-1);
+  const [contextMemory, setContextMemory] = useState<string[]>([]);
+  const [quickReplies, setQuickReplies] = useState<string[]>([]);
+  const lastMessageTimeRef = useRef<number>(Date.now());
+  const userInactiveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Lead tracking
   const [leadInfo, setLeadInfo] = useState<{
@@ -126,7 +131,7 @@ export default function ChatBot() {
   };
 
   // Connection to our simple-chat API endpoint (the one that works) using the Vercel AI SDK
-  const { messages, input, handleInputChange, handleSubmit: aiHandleSubmit, isLoading, append } = useChat({
+  const { messages, input, handleInputChange, handleSubmit: aiHandleSubmit, isLoading, append, setMessages } = useChat({
     api: '/api/simple-chat', // Using the working API route
     initialMessages: [INITIAL_MESSAGE],
     onFinish: (message) => {
@@ -138,13 +143,28 @@ export default function ChatBot() {
         messageCount: prev.messageCount + 1
       }));
       
+      // Update context memory with key information from AI responses
+      updateContextMemory(message.content);
+      
+      // Generate relevant quick replies based on the AI's response
+      generateQuickReplies(message.content);
+      
+      // Reset typing animation
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+      setTypingEffect(false);
+      
+      // Record last message time for inactivity detection
+      lastMessageTimeRef.current = Date.now();
+      
       // Use a ref to get the current value of showOptions to prevent loops
       const currentShowOptions = showOptionsRef.current;
       
-      // Check if we should prompt for consultation (after 2 messages or 5 minutes)
+      // Check if we should prompt for consultation (after 3 messages or 5 minutes)
       const shouldPromptConsultation = (
         !currentShowOptions && 
-        (leadInfo.messageCount >= 2) && 
+        (leadInfo.messageCount >= 3) && 
         (leadInfo.lastPromptTime === null || (Date.now() - leadInfo.lastPromptTime > 5 * 60 * 1000))
       );
       
@@ -171,8 +191,121 @@ export default function ChatBot() {
           );
         }, 2000);
       }
+      
+      // Set up inactivity detection
+      setupInactivityPrompt();
+    },
+    onError: (error) => {
+      console.error('Chat error:', error);
+      append({
+        id: nanoid(),
+        role: 'assistant',
+        content: "I'm having trouble connecting to our servers. Please try again or contact our support team."
+      });
     }
   });
+
+  // Extract key information from responses to build context
+  const updateContextMemory = (message: string) => {
+    // Look for industry mentions
+    const industryMatch = message.match(/industry.{1,20}(healthcare|retail|manufacturing|technology|finance|education|insurance)/i);
+    if (industryMatch && !contextMemory.some(item => item.includes('industry'))) {
+      setContextMemory(prev => [...prev, `Industry: ${industryMatch[1]}`]);
+    }
+    
+    // Look for company size
+    const sizeMatch = message.match(/(\d+)[ -]+(\d+)?\s*employees/i);
+    if (sizeMatch && !contextMemory.some(item => item.includes('company size'))) {
+      setContextMemory(prev => [...prev, `Company size: ${sizeMatch[0]}`]);
+    }
+    
+    // Look for pain points
+    const painMatch = message.match(/(challenges?|problems?|pain points?|struggles?).{1,30}(efficiency|data|customer|process|cost)/i);
+    if (painMatch && !contextMemory.some(item => item.includes('pain point'))) {
+      setContextMemory(prev => [...prev, `Pain point: ${painMatch[2]}`]);
+    }
+    
+    // Limit context memory size
+    if (contextMemory.length > 5) {
+      setContextMemory(prev => prev.slice(-5));
+    }
+  };
+
+  // Generate quick reply suggestions based on conversation context
+  const generateQuickReplies = (lastMessage: string) => {
+    // If the message is asking a question
+    if (lastMessage.includes('?')) {
+      if (lastMessage.includes('industry') || lastMessage.includes('sector')) {
+        setQuickReplies([
+          'Healthcare', 
+          'Technology', 
+          'Manufacturing', 
+          'Financial Services',
+          'Retail'
+        ]);
+      } else if (lastMessage.includes('employee') || lastMessage.includes('size')) {
+        setQuickReplies([
+          '1-10 employees',
+          '10-50 employees',
+          '50-200 employees',
+          '200-500 employees',
+          '500+ employees'
+        ]);
+      } else if (lastMessage.includes('challenge') || lastMessage.includes('problem')) {
+        setQuickReplies([
+          'Data management challenges',
+          'Operational inefficiency',
+          'Customer insights',
+          'Process automation needs',
+          'Decision-making support'
+        ]);
+      } else {
+        // Default replies for any other question
+        setQuickReplies([
+          'Tell me more about that',
+          'How would AI help with this?',
+          'What solutions do you offer?',
+          'Can you provide case studies?',
+          'What\'s the typical ROI?'
+        ]);
+      }
+    } else {
+      // Clear quick replies if not a question
+      setQuickReplies([]);
+    }
+  };
+
+  // Set up inactivity prompt for engagement
+  const setupInactivityPrompt = () => {
+    // Clear any existing timeout
+    if (userInactiveTimeoutRef.current) {
+      clearTimeout(userInactiveTimeoutRef.current);
+    }
+    
+    // Set new timeout for 2 minutes
+    userInactiveTimeoutRef.current = setTimeout(() => {
+      // Only prompt if chat is open and user hasn't been prompted recently
+      if (isOpen && Date.now() - lastMessageTimeRef.current > 120000 && !showOptions) {
+        append({
+          id: nanoid(),
+          role: 'assistant',
+          content: "I notice you're still thinking. Would you like more information about any specific AI solution or use case?"
+        });
+      }
+    }, 120000); // 2 minutes
+  };
+
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+      if (userInactiveTimeoutRef.current) {
+        clearTimeout(userInactiveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Log lead interaction for hot lead tracking
   const logLeadInteraction = async () => {
@@ -223,6 +356,20 @@ export default function ChatBot() {
     e.preventDefault();
     if (!input.trim()) return;
     setHasInteracted(true);
+    
+    // Reset quick replies when user sends a message
+    setQuickReplies([]);
+    
+    // Reset inactivity timer
+    lastMessageTimeRef.current = Date.now();
+    
+    // Simulate typing effect
+    setTypingEffect(true);
+    const newTimeout = setTimeout(() => {
+      setTypingEffect(false);
+    }, 1000 + Math.random() * 2000); // Random typing time between 1-3 seconds
+    setTypingTimeout(newTimeout);
+    
     await aiHandleSubmit(e);
   };
 
@@ -301,6 +448,9 @@ export default function ChatBot() {
         }, 800);
       }
     }
+    
+    // Reset inactivity timer
+    lastMessageTimeRef.current = Date.now();
   };
 
   // Handle starting guided assessment
@@ -308,14 +458,14 @@ export default function ChatBot() {
     setMode('assessment');
     setShowWelcome(false);
     
-    // Add the first question to the chat
-    setTimeout(() => {
-      append({
+    // Reset messages to only show the first question
+    setMessages([
+      {
         id: nanoid(),
         role: 'assistant',
         content: `What industry are you in and how many employees do you have?`
-      });
-    }, 500);
+      }
+    ]);
   };
 
   // Handle scheduling consultation
@@ -392,6 +542,12 @@ export default function ChatBot() {
   const applySuggestion = (suggestion: string) => {
     setUserAnswer(suggestion);
     setShowSuggestions(false);
+  };
+
+  // Apply quick reply
+  const applyQuickReply = (reply: string) => {
+    handleInputChange({ target: { value: reply } } as React.ChangeEvent<HTMLInputElement>);
+    setQuickReplies([]);
   };
 
   // Reset unread count when chat is opened
@@ -482,8 +638,8 @@ export default function ChatBot() {
             <>
               {/* Assessment progress bar when in assessment mode */}
               {mode === 'assessment' && !assessmentComplete && (
-                <div className="px-4 py-2 bg-gray-50 border-b">
-                  <div className="flex items-center justify-between mb-1 text-xs text-gray-600">
+                <div className="px-4 py-3 bg-gray-50 border-b">
+                  <div className="flex items-center justify-between mb-1.5 text-xs text-gray-600">
                     <span>Assessment Progress</span>
                     <span>{Math.round(((currentStage * 100) + (currentQuestion * 25)) / ASSESSMENT_STAGES.length)}%</span>
                   </div>
@@ -493,13 +649,13 @@ export default function ChatBot() {
                       style={{ width: `${Math.round(((currentStage * 100) + (currentQuestion * 25)) / ASSESSMENT_STAGES.length)}%` }}>
                     </div>
                   </div>
-                  <div className="flex justify-between mt-2">
+                  <div className="flex justify-between mt-3">
                     {ASSESSMENT_STAGES.map((stage, idx) => (
                       <div key={stage.id} className="flex flex-col items-center">
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${idx <= currentStage ? 'bg-purple-700 text-white' : 'bg-gray-200 text-gray-500'}`}>
                           {idx + 1}
                         </div>
-                        <span className="text-xs mt-1 text-gray-600 hidden md:block">{stage.title}</span>
+                        <span className="text-[10px] mt-1 text-gray-600">{stage.title}</span>
                       </div>
                     ))}
                   </div>
@@ -550,6 +706,22 @@ export default function ChatBot() {
               {/* Messages */}
               {!showWelcome && (
                 <div className="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages">
+                  {/* Context banner - show when we have gathered useful information */}
+                  {contextMemory.length > 0 && mode === 'chat' && (
+                    <div className="bg-purple-50 text-purple-800 text-xs px-3 py-2 rounded-lg mb-2">
+                      <div className="flex items-center mb-1">
+                        <Brain className="h-3 w-3 mr-1" />
+                        <span className="font-semibold">AI context awareness</span>
+                      </div>
+                      <div className="text-gray-600 text-[10px]">
+                        {contextMemory.map((item, i) => (
+                          <span key={i} className="mr-2">{item}{i < contextMemory.length - 1 ? ' • ' : ''}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message display */}
                   {messages.map((message, i) => (
                     <div
                       key={i}
@@ -571,6 +743,13 @@ export default function ChatBot() {
                         }`}
                       >
                         {message.content}
+                        
+                        {/* Add timestamp to messages */}
+                        <div className={`text-[9px] mt-1.5 text-right ${
+                          message.role === 'assistant' ? 'text-gray-500' : 'text-purple-200'
+                        }`}>
+                          {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </div>
                       </div>
                       {message.role === 'user' && (
                         <div className="w-8 h-8 rounded-full bg-purple-200 flex-shrink-0 flex items-center justify-center ml-2">
@@ -580,16 +759,34 @@ export default function ChatBot() {
                     </div>
                   ))}
 
-                  {/* Typing indicator */}
+                  {/* Quick replies */}
+                  {quickReplies.length > 0 && !isLoading && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {quickReplies.map((reply, i) => (
+                        <button
+                          key={i}
+                          onClick={() => applyQuickReply(reply)}
+                          className="bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs px-2.5 py-1.5 rounded-full transition-colors"
+                        >
+                          {reply}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Enhanced typing indicator with animated ellipsis */}
                   {isLoading && (
                     <div className="flex justify-start">
                       <div className="w-8 h-8 rounded-full bg-purple-100 flex-shrink-0 flex items-center justify-center mr-2">
                         <Bot className="h-5 w-5 text-purple-700" />
                       </div>
-                      <div className="max-w-[85%] rounded-2xl p-4 bg-gray-100 flex items-center space-x-2">
-                        <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                        <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '200ms' }}></div>
-                        <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '400ms' }}></div>
+                      <div className="max-w-[85%] rounded-2xl p-3.5 bg-gray-100 flex items-center">
+                        <span className="relative h-2">
+                          <span className="absolute w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ left: '0px', animationDelay: '0ms' }}></span>
+                          <span className="absolute w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ left: '6px', animationDelay: '200ms' }}></span>
+                          <span className="absolute w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ left: '12px', animationDelay: '400ms' }}></span>
+                        </span>
+                        <span className="ml-5 text-xs text-gray-500">AI is thinking</span>
                       </div>
                     </div>
                   )}
