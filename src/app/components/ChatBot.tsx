@@ -24,9 +24,14 @@ const ASSESSMENT_STAGES = [
     icon: <Brain className="h-5 w-5" />,
     questions: [
       {
-        id: 'industry_size',
-        question: "What industry are you in, and roughly how many employees does your organization have?",
-        placeholder: "e.g., Healthcare, 50-100 employees"
+        id: 'industry',
+        question: "What industry is your business in?",
+        placeholder: "e.g., Healthcare, Manufacturing, Technology"
+      },
+      {
+        id: 'company_size',
+        question: "Roughly how many employees does your organization have?",
+        placeholder: "e.g., 10-50, 50-200, 200+"
       }
     ]
   },
@@ -39,7 +44,7 @@ const ASSESSMENT_STAGES = [
       {
         id: 'data_systems',
         question: "Do you currently collect and store digital data about your operations, customers, or processes?",
-        placeholder: "Tell us about your data systems"
+        placeholder: "Yes/No and brief details if applicable"
       },
       {
         id: 'current_tech',
@@ -111,6 +116,8 @@ export default function ChatBot() {
   const [quickReplies, setQuickReplies] = useState<string[]>([]);
   const lastMessageTimeRef = useRef<number>(Date.now());
   const userInactiveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [detailsRequested, setDetailsRequested] = useState<Record<string, number>>({});
+  const [assessmentState, setAssessmentState] = useState<'in_progress' | 'reviewing' | 'completed'>('in_progress');
   
   // Lead tracking
   const [leadInfo, setLeadInfo] = useState<{
@@ -161,10 +168,11 @@ export default function ChatBot() {
       // Use a ref to get the current value of showOptions to prevent loops
       const currentShowOptions = showOptionsRef.current;
       
-      // Check if we should prompt for consultation (after 3 messages or 5 minutes)
+      // Only show consultation prompt in chat mode or when assessment is complete
       const shouldPromptConsultation = (
         !currentShowOptions && 
-        (leadInfo.messageCount >= 3) && 
+        (mode === 'chat' && leadInfo.messageCount >= 3 || 
+         (mode === 'assessment' && assessmentComplete)) &&
         (leadInfo.lastPromptTime === null || (Date.now() - leadInfo.lastPromptTime > 5 * 60 * 1000))
       );
       
@@ -192,8 +200,10 @@ export default function ChatBot() {
         }, 2000);
       }
       
-      // Set up inactivity detection
-      setupInactivityPrompt();
+      // Only set up inactivity prompt in chat mode, not during assessment
+      if (mode === 'chat') {
+        setupInactivityPrompt();
+      }
     },
     onError: (error) => {
       console.error('Chat error:', error);
@@ -235,7 +245,8 @@ export default function ChatBot() {
   const generateQuickReplies = (lastMessage: string) => {
     // If the message is asking a question
     if (lastMessage.includes('?')) {
-      if (lastMessage.includes('industry') || lastMessage.includes('sector')) {
+      if ((lastMessage.includes('industry') || lastMessage.includes('sector')) && 
+          !lastMessage.includes('employee')) {
         setQuickReplies([
           'Healthcare', 
           'Technology', 
@@ -251,13 +262,28 @@ export default function ChatBot() {
           '200-500 employees',
           '500+ employees'
         ]);
+      } else if (lastMessage.includes('data') || lastMessage.includes('store')) {
+        setQuickReplies([
+          'Yes, we collect customer data',
+          'Yes, we have operational data',
+          'Limited data collection',
+          'No, we don\'t have organized data'
+        ]);
       } else if (lastMessage.includes('challenge') || lastMessage.includes('problem')) {
         setQuickReplies([
-          'Data management challenges',
           'Operational inefficiency',
+          'Data management challenges',
           'Customer insights',
-          'Process automation needs',
-          'Decision-making support'
+          'Process automation',
+          'Quality control'
+        ]);
+      } else if (lastMessage.includes('ROI') || lastMessage.includes('expectations')) {
+        setQuickReplies([
+          'Cost reduction',
+          'Revenue growth',
+          'Improved efficiency',
+          'Better decision making',
+          'Enhanced customer experience'
         ]);
       } else {
         // Default replies for any other question
@@ -284,8 +310,8 @@ export default function ChatBot() {
     
     // Set new timeout for 2 minutes
     userInactiveTimeoutRef.current = setTimeout(() => {
-      // Only prompt if chat is open and user hasn't been prompted recently
-      if (isOpen && Date.now() - lastMessageTimeRef.current > 120000 && !showOptions) {
+      // Only prompt if chat is open, user hasn't been prompted recently, and not in assessment mode
+      if (isOpen && Date.now() - lastMessageTimeRef.current > 120000 && !showOptions && mode === 'chat') {
         append({
           id: nanoid(),
           role: 'assistant',
@@ -380,10 +406,36 @@ export default function ChatBot() {
     const currentStageData = ASSESSMENT_STAGES[currentStage];
     const currentQuestionData = currentStageData.questions[currentQuestion];
     
+    // Check if the answer is too short and we haven't asked for details twice already
+    const questionId = currentQuestionData.id;
+    const detailsCount = detailsRequested[questionId] || 0;
+    
+    if (userAnswer.length < 5 && detailsCount < 2 && !userAnswer.toLowerCase().includes('yes') && !userAnswer.toLowerCase().includes('no')) {
+      // Ask for more details
+      setDetailsRequested(prev => ({ ...prev, [questionId]: detailsCount + 1 }));
+      
+      append({
+        id: nanoid(),
+        role: 'user',
+        content: userAnswer
+      });
+      
+      setTimeout(() => {
+        append({
+          id: nanoid(),
+          role: 'assistant',
+          content: `Could you provide a bit more detail about that? This will help us better assess your AI readiness.`
+        });
+      }, 500);
+      
+      setUserAnswer('');
+      return;
+    }
+    
     // Save the answer
     setAssessmentAnswers(prev => ({
       ...prev,
-      [currentQuestionData.id]: userAnswer
+      [questionId]: userAnswer
     }));
     
     // Simulate adding messages to the chat
@@ -402,6 +454,9 @@ export default function ChatBot() {
     // Clear input
     setUserAnswer('');
     
+    // Reset inactivity timer
+    lastMessageTimeRef.current = Date.now();
+    
     // Move to next question or stage
     if (currentQuestion < currentStageData.questions.length - 1) {
       // Next question in the same stage
@@ -414,56 +469,108 @@ export default function ChatBot() {
           role: 'assistant',
           content: nextQuestion
         });
-      }, 500);
+      }, 700);
     } else {
       // Move to next stage or complete assessment
       if (currentStage < ASSESSMENT_STAGES.length - 1) {
         setCurrentStage(currentStage + 1);
         setCurrentQuestion(0);
         
+        // Add a transition message between stages
         setTimeout(() => {
-          const nextStage = ASSESSMENT_STAGES[currentStage + 1];
           append({
             id: nanoid(),
             role: 'assistant',
-            content: nextStage.questions[0].question
+            content: `Thanks for that information. Let's move on to ${ASSESSMENT_STAGES[currentStage + 1].title}.`
           });
-        }, 500);
+          
+          // Add a slight pause before showing the next question
+          setTimeout(() => {
+            const nextStage = ASSESSMENT_STAGES[currentStage + 1];
+            append({
+              id: nanoid(),
+              role: 'assistant',
+              content: nextStage.questions[0].question
+            });
+          }, 1000);
+        }, 700);
       } else {
-        // Assessment complete
-        setAssessmentComplete(true);
-        setShowOptions(true);
+        // Assessment complete - set reviewing state
+        setAssessmentState('reviewing');
         
         setTimeout(() => {
           append({
             id: nanoid(),
             role: 'assistant',
-            content: "Thanks! Would you like to schedule a consultation to discuss your personalized AI strategy?"
+            content: "Thanks for completing the assessment! I'm reviewing your information to provide personalized recommendations..."
           });
           
-          // Log the lead interaction when assessment is complete
-          logLeadInteraction().catch(err => 
-            console.error('Failed to log assessment completion lead:', err)
-          );
-        }, 800);
+          // Simulate "thinking" and then provide a personalized recommendation
+          setTimeout(() => {
+            // Generate personalized recommendation based on collected answers
+            const industry = assessmentAnswers['industry'] || '';
+            const painPoints = assessmentAnswers['pain_points'] || '';
+            
+            let recommendation = '';
+            
+            if (industry.toLowerCase().includes('manufacturing')) {
+              recommendation = `Based on your assessment, I see your manufacturing business could benefit from AI in ${painPoints.toLowerCase().includes('efficien') ? 'process optimization and predictive maintenance' : 'quality control and supply chain management'}. Our team has helped similar manufacturers achieve 15-30% efficiency gains.`;
+            } else if (industry.toLowerCase().includes('health')) {
+              recommendation = `For your healthcare organization, AI can transform ${painPoints.toLowerCase().includes('data') ? 'patient data analysis and care optimization' : 'administrative efficiency and clinical decision support'}. Our healthcare clients typically see reduced costs and improved outcomes within 4-6 months.`;
+            } else if (industry.toLowerCase().includes('retail')) {
+              recommendation = `In retail, we've helped businesses like yours leverage AI for ${painPoints.toLowerCase().includes('customer') ? 'personalized customer experiences and demand forecasting' : 'inventory optimization and pricing strategy'}. Clients typically see ROI within the first year.`;
+            } else if (industry.toLowerCase().includes('tech')) {
+              recommendation = `For technology companies, our AI solutions can ${painPoints.toLowerCase().includes('develop') ? 'accelerate product development and automate testing' : 'enhance customer support and optimize operations'}. We've helped similar companies reduce development cycles by up to 40%.`;
+            } else if (industry.toLowerCase().includes('financ')) {
+              recommendation = `In financial services, AI can provide ${painPoints.toLowerCase().includes('risk') ? 'advanced risk assessment and fraud detection' : 'customer insights and process automation'}. Our clients typically see significant compliance improvements and cost reductions.`;
+            } else {
+              recommendation = `Based on your assessment, I can see several opportunities where AI could deliver significant value for your business, particularly around ${painPoints || 'operational efficiency and data-driven decision making'}.`;
+            }
+            
+            // Add the recommendation
+            append({
+              id: nanoid(),
+              role: 'assistant',
+              content: recommendation
+            });
+            
+            // Mark assessment as complete
+            setAssessmentComplete(true);
+            setAssessmentState('completed');
+            
+            // Show consultation options after a short delay
+            setTimeout(() => {
+              setShowOptions(true);
+              
+              // Log the lead interaction when assessment is complete
+              logLeadInteraction().catch(err => 
+                console.error('Failed to log assessment completion lead:', err)
+              );
+            }, 1500);
+          }, 2500);
+        }, 1000);
       }
     }
-    
-    // Reset inactivity timer
-    lastMessageTimeRef.current = Date.now();
   };
 
   // Handle starting guided assessment
   const startAssessment = () => {
     setMode('assessment');
     setShowWelcome(false);
+    setAssessmentState('in_progress');
+    
+    // Reset assessment state
+    setCurrentStage(0);
+    setCurrentQuestion(0);
+    setAssessmentAnswers({});
+    setDetailsRequested({});
     
     // Reset messages to only show the first question
     setMessages([
       {
         id: nanoid(),
         role: 'assistant',
-        content: `What industry are you in and how many employees do you have?`
+        content: ASSESSMENT_STAGES[0].questions[0].question
       }
     ]);
   };
@@ -706,7 +813,7 @@ export default function ChatBot() {
               {/* Messages */}
               {!showWelcome && (
                 <div className="flex-1 overflow-y-auto p-4 space-y-4" id="chat-messages">
-                  {/* Context banner - show when we have gathered useful information */}
+                  {/* Context banner - show when we have gathered useful information in chat mode only */}
                   {contextMemory.length > 0 && mode === 'chat' && (
                     <div className="bg-purple-50 text-purple-800 text-xs px-3 py-2 rounded-lg mb-2">
                       <div className="flex items-center mb-1">
@@ -717,6 +824,16 @@ export default function ChatBot() {
                         {contextMemory.map((item, i) => (
                           <span key={i} className="mr-2">{item}{i < contextMemory.length - 1 ? ' • ' : ''}</span>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Assessment reviewing state indicator */}
+                  {mode === 'assessment' && assessmentState === 'reviewing' && !assessmentComplete && (
+                    <div className="bg-indigo-50 text-indigo-800 text-xs px-3 py-2 rounded-lg mb-2 animate-pulse">
+                      <div className="flex items-center">
+                        <Brain className="h-3 w-3 mr-1 animate-pulse" />
+                        <span className="font-semibold">Analyzing your assessment...</span>
                       </div>
                     </div>
                   )}
@@ -760,7 +877,7 @@ export default function ChatBot() {
                   ))}
 
                   {/* Quick replies */}
-                  {quickReplies.length > 0 && !isLoading && (
+                  {quickReplies.length > 0 && !isLoading && !showOptions && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {quickReplies.map((reply, i) => (
                         <button
