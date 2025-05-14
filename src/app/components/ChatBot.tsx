@@ -96,6 +96,7 @@ export default function ChatBot() {
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, string>>({});
   const [assessmentComplete, setAssessmentComplete] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
+  const showOptionsRef = useRef(false);
   const [minimized, setMinimized] = useState(false);
   const [typingEffect, setTypingEffect] = useState(false);
   const [typingMessage, setTypingMessage] = useState('');
@@ -137,14 +138,20 @@ export default function ChatBot() {
         messageCount: prev.messageCount + 1
       }));
       
+      // Use a ref to get the current value of showOptions to prevent loops
+      const currentShowOptions = showOptionsRef.current;
+      
       // Check if we should prompt for consultation (after 2 messages or 5 minutes)
       const shouldPromptConsultation = (
-        !showOptions && 
+        !currentShowOptions && 
         (leadInfo.messageCount >= 2) && 
         (leadInfo.lastPromptTime === null || (Date.now() - leadInfo.lastPromptTime > 5 * 60 * 1000))
       );
       
       if (shouldPromptConsultation) {
+        // Set the ref immediately to prevent multiple prompts
+        showOptionsRef.current = true;
+        
         setTimeout(() => {
           append({
             id: nanoid(),
@@ -393,6 +400,11 @@ export default function ChatBot() {
       setUnreadCount(0);
     }
   }, [isOpen]);
+
+  // Keep showOptionsRef in sync with showOptions state
+  useEffect(() => {
+    showOptionsRef.current = showOptions;
+  }, [showOptions]);
 
   return (
     <>
