@@ -410,7 +410,15 @@ export default function ChatBot() {
     const questionId = currentQuestionData.id;
     const detailsCount = detailsRequested[questionId] || 0;
     
-    if (userAnswer.length < 5 && detailsCount < 2 && !userAnswer.toLowerCase().includes('yes') && !userAnswer.toLowerCase().includes('no')) {
+    // Only ask for more details for certain question types and longer responses
+    const shouldAskForDetails = 
+      userAnswer.length < 5 && 
+      detailsCount < 1 && 
+      !['industry', 'company_size'].includes(questionId) && 
+      !userAnswer.toLowerCase().includes('yes') && 
+      !userAnswer.toLowerCase().includes('no');
+    
+    if (shouldAskForDetails) {
       // Ask for more details
       setDetailsRequested(prev => ({ ...prev, [questionId]: detailsCount + 1 }));
       
@@ -509,6 +517,7 @@ export default function ChatBot() {
           setTimeout(() => {
             // Generate personalized recommendation based on collected answers
             const industry = assessmentAnswers['industry'] || '';
+            const companySize = assessmentAnswers['company_size'] || '';
             const painPoints = assessmentAnswers['pain_points'] || '';
             
             let recommendation = '';
@@ -524,7 +533,7 @@ export default function ChatBot() {
             } else if (industry.toLowerCase().includes('financ')) {
               recommendation = `In financial services, AI can provide ${painPoints.toLowerCase().includes('risk') ? 'advanced risk assessment and fraud detection' : 'customer insights and process automation'}. Our clients typically see significant compliance improvements and cost reductions.`;
             } else {
-              recommendation = `Based on your assessment, I can see several opportunities where AI could deliver significant value for your business, particularly around ${painPoints || 'operational efficiency and data-driven decision making'}.`;
+              recommendation = `Based on your assessment, I can see several opportunities where AI could deliver significant value for your ${industry || ''} business, particularly around ${painPoints || 'operational efficiency and data-driven decision making'}.`;
             }
             
             // Add the recommendation
@@ -564,6 +573,9 @@ export default function ChatBot() {
     setCurrentQuestion(0);
     setAssessmentAnswers({});
     setDetailsRequested({});
+    setQuickReplies([]); // Reset quick replies
+    setShowOptions(false); // Reset consultation options
+    showOptionsRef.current = false; // Reset options ref
     
     // Reset messages to only show the first question
     setMessages([
@@ -653,7 +665,11 @@ export default function ChatBot() {
 
   // Apply quick reply
   const applyQuickReply = (reply: string) => {
-    handleInputChange({ target: { value: reply } } as React.ChangeEvent<HTMLInputElement>);
+    if (mode === 'assessment') {
+      setUserAnswer(reply);
+    } else {
+      handleInputChange({ target: { value: reply } } as React.ChangeEvent<HTMLInputElement>);
+    }
     setQuickReplies([]);
   };
 

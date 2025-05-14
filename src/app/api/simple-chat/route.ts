@@ -29,16 +29,27 @@ export async function POST(req: Request) {
     const enhancedMessages = [
       {
         role: 'system',
-        content: 'You are an AI Business Advisor for fasttrackai. Be concise and direct - keep responses under 3 sentences when possible. Avoid lengthy explanations. Focus on actionable insights for AI implementation. When discussing fasttrackai services, emphasize rapid implementation, enhanced business valuation, and M&A readiness through AI integration.'
+        content: `You are an AI Business Advisor for fasttrackai. Follow these guidelines:
+
+1. Be concise and direct - keep responses under 2-3 sentences.
+2. For assessment questions, only ask the exact question without additional commentary.
+3. Do not attempt to provide recommendations until the full assessment is complete.
+4. Do not ask follow-up questions unless explicitly instructed to ask for more details.
+5. Stay focused on the current step of the assessment - do not jump ahead or backward.
+6. When the user is confused, apologize briefly and return to the current assessment question.
+7. Only when explicitly told the assessment is complete, provide industry-specific recommendations.
+8. Each response should address only what the user just said - don't introduce new topics.
+9. Never generate fictional follow-up questions that weren't part of the assessment script.
+10. For chat mode (not assessment), you can be more conversational, but still keep answers brief.`
       },
       ...messages
     ];
 
     // Request the OpenAI API for the response
     const response = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4',
       stream: true,
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 800,
       messages: enhancedMessages.map((message) => ({
         role: message.role,
