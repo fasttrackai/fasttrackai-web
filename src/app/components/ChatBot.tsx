@@ -12,7 +12,7 @@ import { LeadData, AssessmentAnswer } from '@/lib/types/leads';
 const INITIAL_MESSAGE: Message = {
   id: nanoid(),
   role: 'assistant',
-  content: "👋 Hi there! I'm your AI Business Advisor. I can help evaluate your organization's AI readiness and suggest tailored solutions. Would you like to take a quick assessment or just ask me something specific?"
+  content: "Hi! I'm your AI Advisor. Need an AI readiness assessment or have a specific question?"
 };
 
 // Define assessment stages for a guided experience
@@ -149,7 +149,7 @@ export default function ChatBot() {
           append({
             id: nanoid(),
             role: 'assistant',
-            content: "I'd be happy to provide more detailed insights about how our AI solutions can help your specific situation. Would you like to schedule a free consultation with one of our AI implementation experts?"
+            content: "Want to discuss how our AI solutions can help your business? Schedule a free consultation with our experts."
           });
           
           setShowOptions(true);
@@ -272,7 +272,7 @@ export default function ChatBot() {
           append({
             id: nanoid(),
             role: 'assistant',
-            content: `Now let's discuss ${nextStage.title}. ${nextStage.questions[0].question}`
+            content: nextStage.questions[0].question
           });
         }, 500);
       } else {
@@ -284,7 +284,7 @@ export default function ChatBot() {
           append({
             id: nanoid(),
             role: 'assistant',
-            content: "Thanks for completing the assessment! Based on your responses, I'd be happy to provide you with a personalized AI implementation strategy. Would you like to schedule a consultation with our experts to discuss next steps?"
+            content: "Thanks! Would you like to schedule a consultation to discuss your personalized AI strategy?"
           });
           
           // Log the lead interaction when assessment is complete
@@ -306,7 +306,7 @@ export default function ChatBot() {
       append({
         id: nanoid(),
         role: 'assistant',
-        content: `Let's start with understanding your business. ${ASSESSMENT_STAGES[0].questions[0].question}`
+        content: `What industry are you in and how many employees do you have?`
       });
     }, 500);
   };
@@ -324,7 +324,7 @@ export default function ChatBot() {
       append({
         id: nanoid(),
         role: 'assistant',
-        content: "Great! I'm redirecting you to our consultation booking page. Looking forward to helping you implement AI solutions that drive real business value."
+        content: "Great! Redirecting you to our booking page."
       });
       
       // Redirect after a brief delay
@@ -354,7 +354,7 @@ export default function ChatBot() {
       append({
         id: nanoid(),
         role: 'assistant',
-        content: "Perfect! I'm connecting you with one of our AI experts right away for immediate assistance."
+        content: "Connecting you with an AI expert right away."
       });
       
       // Redirect after a brief delay
